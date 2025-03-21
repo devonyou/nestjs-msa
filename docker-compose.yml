@@ -1,0 +1,191 @@
+services:
+    gateway:
+        build:
+            context: .
+            dockerfile: ./apps/gateway/Dockerfile
+            target: development
+        command: npm run start:dev gateway
+        ports:
+            - '3000:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/gateway/.env
+    user:
+        build:
+            context: .
+            dockerfile: ./apps/user/Dockerfile
+            target: development
+        command: npm run start:dev user
+        depends_on:
+            mysql_user:
+                condition: service_healthy
+        # ports:
+        #     - '3001:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/user/.env
+    mysql_user:
+        image: mysql:5.7
+        platform: linux/amd64
+        ports:
+            - '6001:3306'
+        volumes:
+            # - ./mysql/conf.d:/etc/mysql/conf.d
+            - ./mysql/user/data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        environment:
+            TZ: Asia/Seoul
+            # MYSQL_USER: admin
+            MYSQL_PASSWORD: 'pass1234'
+            MYSQL_DATABASE: user
+            MYSQL_ROOT_PASSWORD: 'pass1234'
+    product:
+        build:
+            context: .
+            dockerfile: ./apps/product/Dockerfile
+            target: development
+        command: npm run start:dev product
+        depends_on:
+            mysql_product:
+                condition: service_healthy
+        # ports:
+        #     - '3002:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/product/.env
+    mysql_product:
+        image: mysql:5.7
+        platform: linux/amd64
+        ports:
+            - '6002:3306'
+        volumes:
+            # - ./mysql/conf.d:/etc/mysql/conf.d
+            - ./mysql/product/data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        environment:
+            TZ: Asia/Seoul
+            # MYSQL_USER: admin
+            MYSQL_PASSWORD: 'pass1234'
+            MYSQL_DATABASE: product
+            MYSQL_ROOT_PASSWORD: 'pass1234'
+    order:
+        build:
+            context: .
+            dockerfile: ./apps/order/Dockerfile
+            target: development
+        command: npm run start:dev order
+        depends_on:
+            mongo_order:
+                condition: service_healthy
+        # ports:
+        #     - '3003:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/order/.env
+    mongo_order:
+        image: mongo:8
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongo
+            MONGO_INITDB_ROOT_PASSWORD: pass1234
+        ports:
+            - '6003:27017'
+        volumes:
+            # - ./mongo/order:/data/lib
+            - ./mongo/order:/data/db
+        command: mongod --quiet --logpath /dev/null
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+    payment:
+        build:
+            context: .
+            dockerfile: ./apps/payment/Dockerfile
+            target: development
+        command: npm run start:dev payment
+        depends_on:
+            mysql_payment:
+                condition: service_healthy
+        # ports:
+        #     - '3004:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/payment/.env
+    mysql_payment:
+        image: mysql:5.7
+        platform: linux/amd64
+        ports:
+            - '6004:3306'
+        volumes:
+            # - ./mysql/conf.d:/etc/mysql/conf.d
+            - ./mysql/payment/data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        environment:
+            TZ: Asia/Seoul
+            # MYSQL_USER: admin
+            MYSQL_PASSWORD: 'pass1234'
+            MYSQL_DATABASE: payment
+            MYSQL_ROOT_PASSWORD: 'pass1234'
+    notification:
+        build:
+            context: .
+            dockerfile: ./apps/notification/Dockerfile
+            target: development
+        command: npm run start:dev notification
+        depends_on:
+            mongo_notification:
+                condition: service_healthy
+        # ports:
+        #     - '3005:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/notification/.env
+    mongo_notification:
+        image: mongo:8
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongo
+            MONGO_INITDB_ROOT_PASSWORD: pass1234
+        ports:
+            - '6005:27017'
+        volumes:
+            # - ./mongo/notification:/data/lib
+            - ./mongo/notification:/data/db
+        command: mongod --quiet --logpath /dev/null
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
