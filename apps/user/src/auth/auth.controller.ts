@@ -23,7 +23,7 @@ export class AuthController {
     //     return this.authService.login(token);
     // }
 
-    @MessagePattern({ cmd: 'parse-bearer-token' }, Transport.TCP)
+    @MessagePattern({ cmd: 'parse-bearer-token' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     parseBearerToken(@Payload() payload: ParseBearerTokenDto) {

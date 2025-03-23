@@ -34,10 +34,13 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: USER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.TCP,
+                        transport: Transport.RMQ,
                         options: {
-                            host: configService.get<string>('USER_HOST'),
-                            port: configService.get<number>('USER_TCP_PORT'),
+                            urls: ['amqp://rabbitmq:5672'],
+                            queue: 'user-queue',
+                            queueOptions: {
+                                durable: false,
+                            },
                         },
                     }),
                     inject: [ConfigService],
@@ -45,10 +48,13 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: PRODUCT_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.TCP,
+                        transport: Transport.RMQ,
                         options: {
-                            host: configService.get<string>('PRODUCT_HOST'),
-                            port: configService.get<number>('PRODUCT_TCP_PORT'),
+                            urls: ['amqp://rabbitmq:5672'],
+                            queue: 'product-queue',
+                            queueOptions: {
+                                durable: false,
+                            },
                         },
                     }),
                     inject: [ConfigService],
@@ -56,10 +62,13 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: PAYMENT_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.TCP,
+                        transport: Transport.RMQ,
                         options: {
-                            host: configService.get<string>('PAYMENT_HOST'),
-                            port: configService.get<number>('PAYMENT_TCP_PORT'),
+                            urls: ['amqp://rabbitmq:5672'],
+                            queue: 'payment-queue',
+                            queueOptions: {
+                                durable: false,
+                            },
                         },
                     }),
                     inject: [ConfigService],

@@ -13,7 +13,7 @@ export class ProductController {
     //     return this.productService.createSampleProduct();
     // }
 
-    @MessagePattern({ cmd: 'get-products-info' }, Transport.TCP)
+    @MessagePattern({ cmd: 'get-products-info' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     getProductsInfo(@Payload() dto: GetProductInfoDto) {
@@ -21,7 +21,7 @@ export class ProductController {
         return this.productService.getProductsInfo(productIds);
     }
 
-    @MessagePattern({ cmd: 'create-sample' }, Transport.TCP)
+    @MessagePattern({ cmd: 'create-sample' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     createSample() {

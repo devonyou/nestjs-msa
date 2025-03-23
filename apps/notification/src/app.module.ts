@@ -30,10 +30,13 @@ import { ORDER_SERVICE } from '@app/common';
                 {
                     name: ORDER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.TCP,
+                        transport: Transport.RMQ,
                         options: {
-                            host: configService.get<string>('ORDER_HOST'),
-                            port: configService.get<number>('ORDER_TCP_PORT'),
+                            urls: ['amqp://rabbitmq:5672'],
+                            queue: 'order-queue',
+                            queueOptions: {
+                                durable: false,
+                            },
                         },
                     }),
                     inject: [ConfigService],

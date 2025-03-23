@@ -8,7 +8,7 @@ import { SendPaymentNotificationDto } from './dto/send.payment.notification.dto'
 export class NotificationController {
     constructor(private readonly notificationService: NotificationService) {}
 
-    @MessagePattern({ cmd: 'send-payment-notification' }, Transport.TCP)
+    @MessagePattern({ cmd: 'send-payment-notification' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     sendPaymentNotification(@Payload() dto: SendPaymentNotificationDto) {

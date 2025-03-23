@@ -8,7 +8,7 @@ import { GetUserInfoDto } from './dto/get.user.info.dto';
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @MessagePattern({ cmd: 'get-user-info' }, Transport.TCP)
+    @MessagePattern({ cmd: 'get-user-info' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     getUserInfo(@Payload() dto: GetUserInfoDto) {

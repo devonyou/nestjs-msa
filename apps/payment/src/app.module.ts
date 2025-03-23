@@ -33,10 +33,13 @@ import { NOTIFICATION_SERVICE } from '@app/common';
                 {
                     name: NOTIFICATION_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.TCP,
+                        transport: Transport.RMQ,
                         options: {
-                            host: configService.get<string>('NOTIFICATION_HOST'),
-                            port: configService.get<number>('NOTIFICATION_TCP_PORT'),
+                            urls: ['amqp://rabbitmq:5672'],
+                            queue: 'notification-queue',
+                            queueOptions: {
+                                durable: false,
+                            },
                         },
                     }),
                     inject: [ConfigService],

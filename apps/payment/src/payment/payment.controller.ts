@@ -8,7 +8,7 @@ import { CreatePaymentDto } from './dto/create.payment.dto';
 export class PaymentController {
     constructor(private readonly paymentService: PaymentService) {}
 
-    @MessagePattern({ cmd: 'create-payment' }, Transport.TCP)
+    @MessagePattern({ cmd: 'create-payment' })
     @UsePipes(ValidationPipe)
     @UseInterceptors(RpcInterceptor)
     async createPayment(@Payload() dto: CreatePaymentDto) {

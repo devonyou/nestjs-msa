@@ -9,7 +9,7 @@ export class RpcInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
         const request = context.switchToRpc().getContext();
 
-        this.logger.verbose(`CMD: ${JSON.parse(request.args[1]).cmd}`);
+        // this.logger.verbose(`CMD: ${JSON.parse(request.args).cmd}`);
 
         return next.handle().pipe(
             map(data => {
