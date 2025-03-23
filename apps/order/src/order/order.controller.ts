@@ -5,27 +5,39 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 import { RpcInterceptor } from '@app/common/interceptor';
 import { DeliveryStartedDto } from './dto/delivery.started.dto';
 import { OrderStatus } from './entity/order.entity';
+import { OrderMicroService } from '@app/common';
+import { PaymentMethod } from './entity/payment.entity';
 
 @Controller('order')
-export class OrderController {
+@OrderMicroService.OrderServiceControllerMethods()
+export class OrderController implements OrderMicroService.OrderServiceController {
     constructor(private readonly orderService: OrderService) {}
 
-    // @Post()
-    // @UsePipes(ValidationPipe)
-    // async createOrder(@Authorization() token: string, @Body() dto: CreateOrderDto) {
-    //     return await this.orderService.createOrder(token, dto);
-    // }
-
-    @EventPattern({ cmd: 'delivery-started' })
-    @UseInterceptors(RpcInterceptor)
-    deliveryStarted(@Payload() dto: DeliveryStartedDto) {
-        const { id } = dto;
+    // @EventPattern({ cmd: 'delivery-started' })
+    // @UseInterceptors(RpcInterceptor)
+    deliveryStarted(req: OrderMicroService.DeliveryStartedRequest) {
+        const { id } = req;
         return this.orderService.changeOrderStatus(id, OrderStatus.deliveryStarted);
     }
 
-    @EventPattern({ cmd: 'create-order' })
-    @UseInterceptors(RpcInterceptor)
-    async createOrder(@Payload() payload: CreateOrderDto) {
-        return await this.orderService.createOrder(payload);
+    // @EventPattern({ cmd: 'create-order' })
+    // @UseInterceptors(RpcInterceptor)
+    // async createOrder(payload: CreateOrderDto) {
+    async createOrder(req: OrderMicroService.CreateOrderRequest) {
+        const res = (
+            await this.orderService.createOrder({
+                ...req,
+                payment: {
+                    ...req.payment,
+                    paymentMethod: req.payment.paymentMethod as PaymentMethod,
+                },
+            })
+        ).toJSON();
+
+        return {
+            ...res,
+            product: res.products,
+            status: res.status.toString(),
+        };
     }
 }

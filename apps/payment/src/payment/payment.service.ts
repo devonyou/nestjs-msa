@@ -1,18 +1,25 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create.payment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './entity/payment.entity';
-import { ClientProxy } from '@nestjs/microservices';
-import { NOTIFICATION_SERVICE } from '@app/common';
+import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { NOTIFICATION_SERVICE, NotificationMicroService } from '@app/common';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class PaymentService {
+export class PaymentService implements OnModuleInit {
+    private notificationService: NotificationMicroService.NotificationServiceClient;
+
     constructor(
         @InjectRepository(Payment) private readonly paymentRepository: Repository<Payment>,
-        @Inject(NOTIFICATION_SERVICE) private readonly notifictaionService: ClientProxy,
+        // @Inject(NOTIFICATION_SERVICE) private readonly notifictaionService: ClientProxy,
+        @Inject(NOTIFICATION_SERVICE) private readonly notificationMicroService: ClientGrpc,
     ) {}
+
+    onModuleInit() {
+        this.notificationService = this.notificationMicroService.getService('NotificationService');
+    }
 
     async createPayment(dto: CreatePaymentDto) {
         const { orderId, userEmail } = dto;
@@ -44,13 +51,10 @@ export class PaymentService {
 
     async sendNotification(orderId: string, userEmail: string) {
         const resp = await lastValueFrom(
-            this.notifictaionService.send(
-                { cmd: 'send-payment-notification' },
-                {
-                    orderId,
-                    to: userEmail,
-                },
-            ),
+            this.notificationService.sendPaymentNotification({
+                orderId,
+                to: userEmail,
+            }),
         );
         return resp;
     }

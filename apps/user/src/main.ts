@@ -1,20 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { UserMicroService } from '@app/common';
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    const configService = app.get(ConfigService);
+
     app.connectMicroservice<MicroserviceOptions>({
-        transport: Transport.RMQ,
+        transport: Transport.GRPC,
         options: {
-            urls: ['amqp://rabbitmq:5672'],
-            queue: 'user-queue',
-            queueOptions: {
-                durable: false,
-            },
+            package: UserMicroService.protobufPackage,
+            protoPath: join(process.cwd(), 'proto', 'user.proto'),
+            url: configService.get<string>('GRPC_URL'),
         },
     });
+
+    await app.init();
 
     await app.startAllMicroservices();
 

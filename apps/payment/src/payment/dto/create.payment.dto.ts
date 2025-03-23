@@ -36,4 +36,8 @@ export class CreatePaymentDto {
     @IsString()
     @IsNotEmpty()
     userEmail: string;
+
+    @IsString()
+    @IsNotEmpty()
+    passwordTwoDigits: string;
 }

@@ -4,7 +4,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { OrderModule } from './order/order.module';
-import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
+import {
+    PAYMENT_SERVICE,
+    PaymentMicroService,
+    PRODUCT_SERVICE,
+    ProductMicroService,
+    USER_SERVICE,
+    UserMicroService,
+} from '@app/common';
+import { join } from 'path';
 
 @Module({
     imports: [
@@ -34,13 +42,11 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: USER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'user-queue',
-                            queueOptions: {
-                                durable: false,
-                            },
+                            package: UserMicroService.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto', 'user.proto'),
+                            url: configService.get<string>('USER_GRPC_URL'),
                         },
                     }),
                     inject: [ConfigService],
@@ -48,13 +54,11 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: PRODUCT_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'product-queue',
-                            queueOptions: {
-                                durable: false,
-                            },
+                            package: ProductMicroService.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto', 'product.proto'),
+                            url: configService.get<string>('PRODUCT_GRPC_URL'),
                         },
                     }),
                     inject: [ConfigService],
@@ -62,13 +66,11 @@ import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
                 {
                     name: PAYMENT_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'payment-queue',
-                            queueOptions: {
-                                durable: false,
-                            },
+                            package: PaymentMicroService.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto', 'payment.proto'),
+                            url: configService.get<string>('PAYMENT_GRPC_URL'),
                         },
                     }),
                     inject: [ConfigService],

@@ -1,18 +1,14 @@
-import { Controller, Get, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { RpcInterceptor } from '@app/common/interceptor';
-import { GetUserInfoDto } from './dto/get.user.info.dto';
+import { UserMicroService } from '@app/common';
 
 @Controller('user')
-export class UserController {
+@UserMicroService.UserServiceControllerMethods()
+export class UserController implements UserMicroService.UserServiceController {
     constructor(private readonly userService: UserService) {}
 
-    @MessagePattern({ cmd: 'get-user-info' })
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(RpcInterceptor)
-    getUserInfo(@Payload() dto: GetUserInfoDto) {
-        const { userId } = dto;
+    getUserInfo(req: UserMicroService.GetUserInfoRequest): Promise<UserMicroService.GetUserInfoResponse> {
+        const { userId } = req;
         return this.userService.getUserById(userId);
     }
 }

@@ -11,6 +11,9 @@ export class DeliveryAddress {
     street: string;
 
     @Prop({ required: true })
+    city: string;
+
+    @Prop({ required: true })
     postalCode: string;
 
     @Prop({ required: true })

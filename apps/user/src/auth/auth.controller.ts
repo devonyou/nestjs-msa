@@ -5,9 +5,11 @@ import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { ParseBearerTokenDto } from './dto/parse.bearer.token.dto';
 import { RpcInterceptor } from '@app/common/interceptor';
 import { LoginDto } from './dto/login.dto';
+import { UserMicroService } from '@app/common';
 
 @Controller('auth')
-export class AuthController {
+@UserMicroService.AuthServiceControllerMethods()
+export class AuthController implements UserMicroService.AuthServiceController {
     constructor(private readonly authService: AuthService) {}
 
     // @Post('register')
@@ -23,24 +25,24 @@ export class AuthController {
     //     return this.authService.login(token);
     // }
 
-    @MessagePattern({ cmd: 'parse-bearer-token' })
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(RpcInterceptor)
-    parseBearerToken(@Payload() payload: ParseBearerTokenDto) {
-        const { token } = payload;
+    // @MessagePattern({ cmd: 'parse-bearer-token' })
+    // @UsePipes(ValidationPipe)
+    // @UseInterceptors(RpcInterceptor)
+    parseBearerToken(req: UserMicroService.ParseBearerTokenRequest) {
+        const { token } = req;
         return this.authService.parseBearerToken(token, false);
     }
 
-    @MessagePattern({ cmd: 'register' })
-    registerUser(@Payload() payload: RegisterDto) {
-        const { token } = payload;
+    // @MessagePattern({ cmd: 'register' })
+    registerUser(req: UserMicroService.RegisterUserRequest) {
+        const { token } = req;
         if (!token) throw new UnauthorizedException('token exception');
-        return this.authService.register(token, payload);
+        return this.authService.register(token, req);
     }
 
-    @MessagePattern({ cmd: 'login' })
-    loginUser(@Payload() payload: LoginDto) {
-        const { token } = payload;
+    // @MessagePattern({ cmd: 'login' })
+    loginUser(req: UserMicroService.LoginUserRequest) {
+        const { token } = req;
         if (!token) throw new UnauthorizedException('token exception');
         return this.authService.login(token);
     }

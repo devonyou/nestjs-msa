@@ -4,7 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { NotificationModule } from './notification/notification.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ORDER_SERVICE } from '@app/common';
+import { ORDER_SERVICE, OrderMicroService } from '@app/common';
+import { join } from 'path';
 
 @Module({
     imports: [
@@ -30,13 +31,11 @@ import { ORDER_SERVICE } from '@app/common';
                 {
                     name: ORDER_SERVICE,
                     useFactory: (configService: ConfigService) => ({
-                        transport: Transport.RMQ,
+                        transport: Transport.GRPC,
                         options: {
-                            urls: ['amqp://rabbitmq:5672'],
-                            queue: 'order-queue',
-                            queueOptions: {
-                                durable: false,
-                            },
+                            package: OrderMicroService.protobufPackage,
+                            protoPath: join(process.cwd(), 'proto', 'order.proto'),
+                            url: configService.get<string>('ORDER_GRPC_URL'),
                         },
                     }),
                     inject: [ConfigService],

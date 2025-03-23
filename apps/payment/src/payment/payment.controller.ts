@@ -1,17 +1,17 @@
-import { Controller, Get, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { RpcInterceptor } from '@app/common/interceptor';
-import { CreatePaymentDto } from './dto/create.payment.dto';
+import { PaymentMicroService } from '@app/common';
+import { PaymentMethod } from './entity/payment.entity';
 
 @Controller('payment')
-export class PaymentController {
+@PaymentMicroService.PaymentServiceControllerMethods()
+export class PaymentController implements PaymentMicroService.PaymentServiceController {
     constructor(private readonly paymentService: PaymentService) {}
 
-    @MessagePattern({ cmd: 'create-payment' })
-    @UsePipes(ValidationPipe)
-    @UseInterceptors(RpcInterceptor)
-    async createPayment(@Payload() dto: CreatePaymentDto) {
-        return await this.paymentService.createPayment(dto);
+    async createPayment(req: PaymentMicroService.CreatePaymentRequest) {
+        return await this.paymentService.createPayment({
+            ...req,
+            paymentMethod: req.paymentMethod as PaymentMethod,
+        });
     }
 }

@@ -1,17 +1,23 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { SendPaymentNotificationDto } from './dto/send.payment.notification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Notification, NotificationStatus } from './entity/notification.entity';
-import { ClientProxy } from '@nestjs/microservices';
-import { ORDER_SERVICE } from '@app/common';
+import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
+import { ORDER_SERVICE, OrderMicroService } from '@app/common';
 
 @Injectable()
-export class NotificationService {
+export class NotificationService implements OnModuleInit {
+    private orderService: OrderMicroService.OrderServiceClient;
+
     constructor(
         @InjectModel(Notification.name) private readonly notificationModel: Model<Notification>,
-        @Inject(ORDER_SERVICE) private readonly orderService: ClientProxy,
+        @Inject(ORDER_SERVICE) private readonly OrderMicroService: ClientGrpc,
     ) {}
+
+    onModuleInit() {
+        this.orderService = this.OrderMicroService.getService('OrderService');
+    }
 
     async sendPaymentNotification(dto: SendPaymentNotificationDto) {
         const { to, orderId } = dto;
@@ -23,7 +29,7 @@ export class NotificationService {
 
         this.sendDeliveryStartedMessage(orderId);
 
-        return this.notificationModel.findById(notification._id);
+        return await this.notificationModel.findById(notification._id);
     }
 
     async createNotification(to: string) {
@@ -44,6 +50,6 @@ export class NotificationService {
     }
 
     sendDeliveryStartedMessage(id: string) {
-        this.orderService.emit({ cmd: 'delivery-started' }, { id });
+        this.orderService.deliveryStarted({ id });
     }
 }
