@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './entity/payment.entity';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
-import { NOTIFICATION_SERVICE, NotificationMicroService } from '@app/common';
+import { constructorMetadata, NOTIFICATION_SERVICE, NotificationMicroService } from '@app/common';
 import { lastValueFrom } from 'rxjs';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class PaymentService implements OnModuleInit {
@@ -21,7 +22,7 @@ export class PaymentService implements OnModuleInit {
         this.notificationService = this.notificationMicroService.getService('NotificationService');
     }
 
-    async createPayment(dto: CreatePaymentDto) {
+    async createPayment(dto: CreatePaymentDto, metadata: Metadata) {
         const { orderId, userEmail } = dto;
         let paymentId;
         try {
@@ -31,7 +32,7 @@ export class PaymentService implements OnModuleInit {
             await this.updatePaymentStatus(paymentId, PaymentStatus.approved);
 
             // notification
-            this.sendNotification(orderId, userEmail);
+            this.sendNotification(orderId, userEmail, metadata);
 
             return this.paymentRepository.findOne({ where: { id: paymentId } });
         } catch (err) {
@@ -49,12 +50,15 @@ export class PaymentService implements OnModuleInit {
         await this.paymentRepository.update({ id }, { paymentStatus: status });
     }
 
-    async sendNotification(orderId: string, userEmail: string) {
+    async sendNotification(orderId: string, userEmail: string, metadata: Metadata) {
         const resp = await lastValueFrom(
-            this.notificationService.sendPaymentNotification({
-                orderId,
-                to: userEmail,
-            }),
+            this.notificationService.sendPaymentNotification(
+                {
+                    orderId,
+                    to: userEmail,
+                },
+                constructorMetadata(PaymentService.name, 'sendNotification', metadata),
+            ),
         );
         return resp;
     }

@@ -9,6 +9,7 @@ import {
     UserMicroService,
     ProductMicroService,
     PaymentMicroService,
+    constructorMetadata,
 } from '@app/common';
 import { PaymentCanceledException } from './exception/payment.canceled.exception';
 import { Product } from './entity/product.entity';
@@ -19,6 +20,7 @@ import { Order, OrderStatus } from './entity/order.entity';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaymentFailedException } from './exception/payment.failed.exception';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class OrderService implements OnModuleInit {
@@ -42,14 +44,14 @@ export class OrderService implements OnModuleInit {
         this.paymentService = this.paymentMicroService.getService('PaymentService');
     }
 
-    async createOrder(dto: CreateOrderDto) {
+    async createOrder(dto: CreateOrderDto, metadata: Metadata) {
         const { productIds, payment, address, meta } = dto;
 
         // 1) 사용자 정보 가져오기
-        const user = await this.getUserFromToken(meta.user.sub);
+        const user = await this.getUserFromToken(meta.user.sub, metadata);
 
         // 2) 상품 정보 가져오기
-        const products = await this.getProductsByIds(productIds);
+        const products = await this.getProductsByIds(productIds, metadata);
 
         // 3) 총 금액 계산하기
         const totalAmount = this.calculateTotalAmount(products);
@@ -62,13 +64,13 @@ export class OrderService implements OnModuleInit {
         const order = await this.createNewOrder(customer, products, address, payment);
 
         // 6) 결제 시도하기
-        const processedPayment = await this.processPayment(order._id.toString(), payment, user.email);
+        const processedPayment = await this.processPayment(order._id.toString(), payment, user.email, metadata);
 
         // 7) 결과 반환하기
         return await this.orderModel.findById(order._id);
     }
 
-    private async getUserFromToken(userId: string) {
+    private async getUserFromToken(userId: string, metadata: Metadata) {
         // 1) User MS : JWT TOKEN 검증
         // const authResp = await lastValueFrom(this.userService.send({ cmd: 'parse-bearer-token' }, { token }));
         // if (authResp.status === 'error') throw new PaymentCanceledException();
@@ -79,11 +81,16 @@ export class OrderService implements OnModuleInit {
         // if (userResp.status === 'error') throw new PaymentCanceledException();
         // return userResp.data;
 
-        const userResp = await lastValueFrom(this.userService.getUserInfo({ userId: userId }));
+        const userResp = await lastValueFrom(
+            this.userService.getUserInfo(
+                { userId: userId },
+                constructorMetadata(OrderService.name, 'getUserFormToken', metadata),
+            ),
+        );
         return userResp;
     }
 
-    private async getProductsByIds(productIds: string[]): Promise<Product[]> {
+    private async getProductsByIds(productIds: string[], metadata: Metadata): Promise<Product[]> {
         // const resp = await lastValueFrom(this.productService.send({ cmd: 'get-products-info' }, { productIds }));
         // if (resp.status === 'error') throw new PaymentCanceledException();
 
@@ -94,7 +101,12 @@ export class OrderService implements OnModuleInit {
         //     name: product.name,
         // }));
 
-        const resp = await lastValueFrom(this.productService.getProductsInfo({ productIds }));
+        const resp = await lastValueFrom(
+            this.productService.getProductsInfo(
+                { productIds },
+                constructorMetadata(OrderService.name, 'getProductsByIds', metadata),
+            ),
+        );
         return resp.products.map(p => ({
             productId: p.id,
             price: p.price,
@@ -134,14 +146,19 @@ export class OrderService implements OnModuleInit {
         });
     }
 
-    private async processPayment(orderId: string, payment: PaymentDto, userEmail: string) {
+    private async processPayment(orderId: string, payment: PaymentDto, userEmail: string, metadata: Metadata) {
         try {
             // const resp = await lastValueFrom(
             //     this.paymentService.send({ cmd: 'create-payment' }, { ...payment, userEmail, orderId }),
             // );
             // if (resp.status === 'error') throw new PaymentFailedException();
 
-            const resp = await lastValueFrom(this.paymentService.createPayment({ ...payment, userEmail, orderId }));
+            const resp = await lastValueFrom(
+                this.paymentService.createPayment(
+                    { ...payment, userEmail, orderId },
+                    constructorMetadata(OrderService.name, 'processPayment', metadata),
+                ),
+            );
 
             const isPaid = resp.paymentStatus === 'Approved';
             if (!isPaid) throw new PaymentFailedException();

@@ -8,6 +8,7 @@ import {
     OrderMicroService,
     PRODUCT_SERVICE,
     ProductMicroService,
+    traceInterceptor,
     USER_SERVICE,
     UserMicroService,
 } from '@app/common';
@@ -38,6 +39,9 @@ import { join } from 'path';
                     useFactory: (configService: ConfigService) => ({
                         transport: Transport.GRPC,
                         options: {
+                            channelOptions: {
+                                interceptors: [traceInterceptor('gateway')],
+                            },
                             package: UserMicroService.protobufPackage,
                             protoPath: join(process.cwd(), 'proto', 'user.proto'),
                             url: configService.get<string>('USER_GRPC_URL'),
@@ -50,6 +54,9 @@ import { join } from 'path';
                     useFactory: (configService: ConfigService) => ({
                         transport: Transport.GRPC,
                         options: {
+                            channelOptions: {
+                                interceptors: [traceInterceptor('gateway')],
+                            },
                             package: ProductMicroService.protobufPackage,
                             protoPath: join(process.cwd(), 'proto', 'product.proto'),
                             url: configService.get<string>('PRODUCT_GRPC_URL'),
@@ -62,6 +69,9 @@ import { join } from 'path';
                     useFactory: (configService: ConfigService) => ({
                         transport: Transport.GRPC,
                         options: {
+                            channelOptions: {
+                                interceptors: [traceInterceptor('gateway')],
+                            },
                             package: OrderMicroService.protobufPackage,
                             protoPath: join(process.cwd(), 'proto', 'order.proto'),
                             url: configService.get<string>('ORDER_GRPC_URL'),

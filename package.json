@@ -31,6 +31,7 @@
         "@nestjs/mongoose": "^11.0.2",
         "@nestjs/platform-express": "^10.0.0",
         "@nestjs/typeorm": "^11.0.0",
+        "@types/uuid": "^10.0.0",
         "amqp-connection-manager": "^4.1.14",
         "amqplib": "^0.10.5",
         "bcrypt": "^5.1.1",
@@ -43,7 +44,8 @@
         "reflect-metadata": "^0.2.0",
         "rxjs": "^7.8.1",
         "ts-proto": "^2.6.1",
-        "typeorm": "^0.3.21"
+        "typeorm": "^0.3.21",
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",

@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Notification, NotificationStatus } from './entity/notification.entity';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { ORDER_SERVICE, OrderMicroService } from '@app/common';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
@@ -19,7 +20,7 @@ export class NotificationService implements OnModuleInit {
         this.orderService = this.OrderMicroService.getService('OrderService');
     }
 
-    async sendPaymentNotification(dto: SendPaymentNotificationDto) {
+    async sendPaymentNotification(dto: SendPaymentNotificationDto, metadata: Metadata) {
         const { to, orderId } = dto;
         const notification = await this.createNotification(to);
 
@@ -27,7 +28,7 @@ export class NotificationService implements OnModuleInit {
 
         await this.updateNotificationStatus(notification._id.toString(), NotificationStatus.sent);
 
-        this.sendDeliveryStartedMessage(orderId);
+        this.sendDeliveryStartedMessage(orderId, metadata);
 
         return await this.notificationModel.findById(notification._id);
     }
@@ -49,7 +50,7 @@ export class NotificationService implements OnModuleInit {
         return this.notificationModel.findByIdAndUpdate(id, { status });
     }
 
-    sendDeliveryStartedMessage(id: string) {
-        this.orderService.deliveryStarted({ id });
+    sendDeliveryStartedMessage(id: string, metadata: Metadata) {
+        this.orderService.deliveryStarted({ id }, metadata);
     }
 }
