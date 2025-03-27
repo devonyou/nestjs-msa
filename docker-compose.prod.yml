@@ -1,0 +1,27 @@
+services:
+    gateway:
+        image: devonyou/fc-nestjs-gateway
+        ports:
+            - '3000:3000'
+        env_file:
+            - ./apps/gateway/prod.env
+    user:
+        image: devonyou/fc-nestjs-user
+        env_file:
+            - ./apps/user/prod.env
+    product:
+        image: devonyou/fc-nestjs-product
+        env_file:
+            - ./apps/product/prod.env
+    order:
+        image: devonyou/fc-nestjs-order
+        env_file:
+            - ./apps/order/prod.env
+    payment:
+        image: devonyou/fc-nestjs-payment
+        env_file:
+            - ./apps/payment/prod.env
+    notification:
+        image: devonyou/fc-nestjs-notification
+        env_file:
+            - ./apps/notification/prod.env

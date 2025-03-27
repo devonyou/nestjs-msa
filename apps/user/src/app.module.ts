@@ -26,7 +26,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
                 synchronize: true,
                 ...(configService.get('NODE_ENV') === 'production' && {
                     ssl: {
-                        rejectUnautorized: false,
+                        rejectUnauthorized: false,
                     },
                 }),
             }),

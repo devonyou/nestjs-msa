@@ -23,7 +23,7 @@ import { ProductModule } from './product/product.module';
                 synchronize: true,
                 ...(configService.get('NODE_ENV') === 'production' && {
                     ssl: {
-                        rejectUnautorized: false,
+                        rejectUnauthorized: false,
                     },
                 }),
             }),

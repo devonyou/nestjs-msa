@@ -32,7 +32,7 @@ import { join } from 'path';
                 synchronize: true,
                 ...(configService.get('NODE_ENV') === 'production' && {
                     ssl: {
-                        rejectUnautorized: false,
+                        rejectUnauthorized: false,
                     },
                 }),
             }),
