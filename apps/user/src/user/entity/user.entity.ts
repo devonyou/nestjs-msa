@@ -1,5 +1,10 @@
-import { version } from './../../../../../node_modules/@types/validator/index.d';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, VersionColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    VersionColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {

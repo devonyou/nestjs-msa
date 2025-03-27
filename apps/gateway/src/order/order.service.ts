@@ -1,4 +1,3 @@
-import { UserMeta } from './../../../../libs/common/src/dto/interface/user.meta.dto';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create.order.dto';
 import {
