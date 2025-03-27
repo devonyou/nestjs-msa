@@ -4,7 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { PaymentModule } from './payment/payment.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { NOTIFICATION_SERVICE, NotificationMicroService, traceInterceptor } from '@app/common';
+import {
+    NOTIFICATION_SERVICE,
+    NotificationMicroService,
+    traceInterceptor,
+} from '@app/common';
 import { join } from 'path';
 
 @Module({
@@ -26,6 +30,11 @@ import { join } from 'path';
                 url: configService.get<string>('DB_URL'),
                 autoLoadEntities: true,
                 synchronize: true,
+                ...(configService.get('NODE_ENV') === 'production' && {
+                    ssl: {
+                        rejectUnautorized: false,
+                    },
+                }),
             }),
         }),
         ClientsModule.registerAsync({
@@ -40,8 +49,14 @@ import { join } from 'path';
                                 interceptors: [traceInterceptor('payment')],
                             },
                             package: NotificationMicroService.protobufPackage,
-                            protoPath: join(process.cwd(), 'proto', 'notification.proto'),
-                            url: configService.get<string>('NOTIFICATION_GRPC_URL'),
+                            protoPath: join(
+                                process.cwd(),
+                                'proto',
+                                'notification.proto',
+                            ),
+                            url: configService.get<string>(
+                                'NOTIFICATION_GRPC_URL',
+                            ),
                         },
                     }),
                     inject: [ConfigService],

@@ -21,6 +21,11 @@ import { ProductModule } from './product/product.module';
                 url: configService.get<string>('DB_URL'),
                 autoLoadEntities: true,
                 synchronize: true,
+                ...(configService.get('NODE_ENV') === 'production' && {
+                    ssl: {
+                        rejectUnautorized: false,
+                    },
+                }),
             }),
         }),
         ProductModule,
