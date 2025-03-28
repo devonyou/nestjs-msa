@@ -19,7 +19,7 @@ jobs:
                   password: ${{ secrets.DOCKER_PASSWORD }}
             - name: Set Up Docker Buildx
               uses: docker/setup-buildx-action@v2
-            - name: Build Docker Image
+            - name: Build Docker Image And Push DockerHub
               run: |
                   docker buildx build --platform linux/amd64,linux/arm64 -t devonyou/fc-nestjs-gateway:latest -t devonyou/fc-nestjs-gateway:${{ github.sha }} -f ./apps/gateway/Dockerfile --target production --push .
                   docker buildx build --platform linux/amd64,linux/arm64 -t devonyou/fc-nestjs-notification:latest -t devonyou/fc-nestjs-notification:${{ github.sha }} -f ./apps/notification/Dockerfile --target production --push .

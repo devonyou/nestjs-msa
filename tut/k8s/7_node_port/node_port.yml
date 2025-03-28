@@ -8,5 +8,5 @@ spec:
     type: NodePort
     ports:
         - port: 80 # Service의 포트
-          targetPort: 80 # Container의 포트
-          nodePort: 30080 # External 포트
+          targetPort: 80 # Container의 내부 포트
+          nodePort: 30080 # External 포트 (외부접근)

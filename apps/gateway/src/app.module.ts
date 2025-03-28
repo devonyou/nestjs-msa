@@ -16,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { BearerTokenMiddleware } from './auth/middleware/bearer.token.middleware';
 import { join } from 'path';
+import { HealthModule } from './health/health.module';
 
 @Module({
     imports: [
@@ -84,6 +85,7 @@ import { join } from 'path';
         OrderModule,
         ProductModule,
         AuthModule,
+        HealthModule,
     ],
     providers: [],
 })
