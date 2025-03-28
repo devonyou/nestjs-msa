@@ -10,6 +10,7 @@ import {
     traceInterceptor,
 } from '@app/common';
 import { join } from 'path';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
     imports: [
@@ -35,6 +36,12 @@ import { join } from 'path';
                         rejectUnauthorized: false,
                     },
                 }),
+            }),
+        }),
+        MongooseModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                uri: configService.get<string>('MONGO_DB_URL'),
             }),
         }),
         ClientsModule.registerAsync({

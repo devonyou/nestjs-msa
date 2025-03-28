@@ -14,14 +14,13 @@ export const protobufPackage = "payment";
 export interface CreatePaymentRequest {
   orderId: string;
   paymentMethod: string;
-  paymentName: string;
   cardNumber: string;
   expiryYear: string;
   expiryMonth: string;
-  birthOrRegistration: string;
+  birthOfRegistration: string;
   amount: number;
   userEmail: string;
-  passwordTwoDigits: string;
+  passwordTwoDigit: string;
 }
 
 export interface CreatePaymentResponse {

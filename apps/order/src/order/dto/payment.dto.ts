@@ -24,11 +24,11 @@ export class PaymentDto {
 
     @IsString()
     @IsNotEmpty()
-    birthOrRegistration: string;
+    birthOfRegistration: string;
 
     @IsString()
     @IsNotEmpty()
-    passwordTwoDigits: string;
+    passwordTwoDigit: string;
 
     @IsNumber()
     @IsNotEmpty()

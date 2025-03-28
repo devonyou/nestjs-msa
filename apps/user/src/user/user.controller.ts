@@ -8,7 +8,9 @@ import { GrpcInterceptor, UserMicroService } from '@app/common';
 export class UserController implements UserMicroService.UserServiceController {
     constructor(private readonly userService: UserService) {}
 
-    getUserInfo(req: UserMicroService.GetUserInfoRequest): Promise<UserMicroService.GetUserInfoResponse> {
+    getUserInfo(
+        req: UserMicroService.GetUserInfoRequest,
+    ): Promise<UserMicroService.GetUserInfoResponse> {
         const { userId } = req;
         return this.userService.getUserById(userId);
     }

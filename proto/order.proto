@@ -38,8 +38,8 @@ message CreateOrderRequest {
 		string cardNumber = 3;
 		string expiryYear = 4;
 		string expiryMonth = 5;
-		string birthOrRegistration = 6;
-		string passwordTwoDigits = 7;
+		string birthOfRegistration = 6;
+		string passwordTwoDigit = 7;
 		float amount = 8;
 	}
 

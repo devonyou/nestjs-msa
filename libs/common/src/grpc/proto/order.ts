@@ -5,120 +5,121 @@
 // source: proto/order.proto
 
 /* eslint-disable */
-import { Metadata } from '@grpc/grpc-js';
-import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { Metadata } from "@grpc/grpc-js";
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
-export const protobufPackage = 'order';
+export const protobufPackage = "order";
 
 export interface DeliveryStartedRequest {
-    id: string;
+  id: string;
 }
 
-export interface DeliveryStartedResponse {}
+export interface DeliveryStartedResponse {
+}
 
 export interface CreateOrderRequest {
-    meta: CreateOrderRequest_Meta | undefined;
-    productIds: string[];
-    address: CreateOrderRequest_Address | undefined;
-    payment: CreateOrderRequest_Payment | undefined;
+  meta: CreateOrderRequest_Meta | undefined;
+  productIds: string[];
+  address: CreateOrderRequest_Address | undefined;
+  payment: CreateOrderRequest_Payment | undefined;
 }
 
 export interface CreateOrderRequest_Meta {
-    user: CreateOrderRequest_Meta_User | undefined;
+  user: CreateOrderRequest_Meta_User | undefined;
 }
 
 export interface CreateOrderRequest_Meta_User {
-    sub: string;
+  sub: string;
 }
 
 export interface CreateOrderRequest_Address {
-    name: string;
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
+  name: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
 }
 
 export interface CreateOrderRequest_Payment {
-    paymentMethod: string;
-    paymentName: string;
-    cardNumber: string;
-    expiryYear: string;
-    expiryMonth: string;
-    birthOrRegistration: string;
-    passwordTwoDigits: string;
-    amount: number;
+  paymentMethod: string;
+  paymentName: string;
+  cardNumber: string;
+  expiryYear: string;
+  expiryMonth: string;
+  birthOfRegistration: string;
+  passwordTwoDigit: string;
+  amount: number;
 }
 
 export interface CreateOrderResponse {
-    customer: CreateOrderResponse_Customer | undefined;
-    product: CreateOrderResponse_Product[];
-    deliveryAddress: CreateOrderResponse_DeliveryAddress | undefined;
-    payment: CreateOrderResponse_Payment | undefined;
-    status: string;
+  customer: CreateOrderResponse_Customer | undefined;
+  product: CreateOrderResponse_Product[];
+  deliveryAddress: CreateOrderResponse_DeliveryAddress | undefined;
+  payment: CreateOrderResponse_Payment | undefined;
+  status: string;
 }
 
 export interface CreateOrderResponse_Customer {
-    userId: string;
-    email: string;
-    name: string;
+  userId: string;
+  email: string;
+  name: string;
 }
 
 export interface CreateOrderResponse_Product {
-    productId: string;
-    name: string;
-    price: number;
+  productId: string;
+  name: string;
+  price: number;
 }
 
 export interface CreateOrderResponse_DeliveryAddress {
-    name: string;
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
+  name: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
 }
 
 export interface CreateOrderResponse_Payment {
-    paymentId: string;
-    paymentMethod: string;
-    paymentName: string;
-    amount: number;
+  paymentId: string;
+  paymentMethod: string;
+  paymentName: string;
+  amount: number;
 }
 
-export const ORDER_PACKAGE_NAME = 'order';
+export const ORDER_PACKAGE_NAME = "order";
 
 export interface OrderServiceClient {
-    deliveryStarted(request: DeliveryStartedRequest, metadata?: Metadata): Observable<DeliveryStartedResponse>;
+  deliveryStarted(request: DeliveryStartedRequest, metadata?: Metadata): Observable<DeliveryStartedResponse>;
 
-    createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<CreateOrderResponse>;
+  createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<CreateOrderResponse>;
 }
 
 export interface OrderServiceController {
-    deliveryStarted(
-        request: DeliveryStartedRequest,
-        metadata?: Metadata,
-    ): Promise<DeliveryStartedResponse> | Observable<DeliveryStartedResponse> | DeliveryStartedResponse;
+  deliveryStarted(
+    request: DeliveryStartedRequest,
+    metadata?: Metadata,
+  ): Promise<DeliveryStartedResponse> | Observable<DeliveryStartedResponse> | DeliveryStartedResponse;
 
-    createOrder(
-        request: CreateOrderRequest,
-        metadata?: Metadata,
-    ): Promise<CreateOrderResponse> | Observable<CreateOrderResponse> | CreateOrderResponse;
+  createOrder(
+    request: CreateOrderRequest,
+    metadata?: Metadata,
+  ): Promise<CreateOrderResponse> | Observable<CreateOrderResponse> | CreateOrderResponse;
 }
 
 export function OrderServiceControllerMethods() {
-    return function (constructor: Function) {
-        const grpcMethods: string[] = ['deliveryStarted', 'createOrder'];
-        for (const method of grpcMethods) {
-            const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-            GrpcMethod('OrderService', method)(constructor.prototype[method], method, descriptor);
-        }
-        const grpcStreamMethods: string[] = [];
-        for (const method of grpcStreamMethods) {
-            const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-            GrpcStreamMethod('OrderService', method)(constructor.prototype[method], method, descriptor);
-        }
-    };
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["deliveryStarted", "createOrder"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("OrderService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("OrderService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
 }
 
-export const ORDER_SERVICE_NAME = 'OrderService';
+export const ORDER_SERVICE_NAME = "OrderService";

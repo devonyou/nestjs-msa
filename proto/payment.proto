@@ -9,14 +9,13 @@ service PaymentService {
 message CreatePaymentRequest {
 	string orderId = 1;
 	string paymentMethod = 2;
-	string paymentName = 3;
-	string cardNumber = 4;
-	string expiryYear = 5;
-	string expiryMonth = 6;
-	string birthOrRegistration = 7;
-	float amount = 8;
-	string userEmail = 9;
-	string passwordTwoDigits = 10;
+	string cardNumber = 3;
+	string expiryYear = 4;
+	string expiryMonth = 5;
+	string birthOfRegistration = 6;
+	float amount = 7;
+	string userEmail = 8;
+	string passwordTwoDigit = 9;
 }
 
 message CreatePaymentResponse {
