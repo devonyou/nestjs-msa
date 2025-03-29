@@ -8,11 +8,15 @@ export enum PaymentMethod {
 @Schema({
     _id: false,
 })
-export class Payment {
+export class PaymentDocument {
     @Prop()
     paymentId: string;
 
-    @Prop({ enum: PaymentMethod, default: PaymentMethod.creditCard })
+    @Prop({
+        type: String,
+        enum: PaymentMethod,
+        default: PaymentMethod.creditCard,
+    })
     paymentMethod: PaymentMethod;
 
     @Prop({ required: true })
@@ -22,4 +26,4 @@ export class Payment {
     amount: number;
 }
 
-export const PaymentSchema = SchemaFactory.createForClass(Payment);
+export const PaymentSchema = SchemaFactory.createForClass(PaymentDocument);

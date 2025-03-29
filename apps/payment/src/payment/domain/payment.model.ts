@@ -14,18 +14,6 @@ export enum NotificationStatus {
     sent = 'sent',
 }
 
-export interface ConstPaymentModel {
-    orderId: string;
-    paymentMethod: PaymentMethod;
-    cardNumber: string;
-    expiryYear: string;
-    expiryMonth: string;
-    birthOfRegistration: string;
-    passwordTwoDigit: string;
-    amount: number;
-    userEmail: string;
-}
-
 export class PaymentModel {
     id: string;
     orderId: string;
@@ -40,7 +28,20 @@ export class PaymentModel {
     amount: number;
     userEmail: string;
 
-    constructor(params: ConstPaymentModel) {
+    constructor(
+        params: Pick<
+            PaymentModel,
+            | 'orderId'
+            | 'paymentMethod'
+            | 'cardNumber'
+            | 'expiryYear'
+            | 'expiryMonth'
+            | 'birthOfRegistration'
+            | 'passwordTwoDigit'
+            | 'amount'
+            | 'userEmail'
+        >,
+    ) {
         // this.id
         this.orderId = params.orderId;
         this.paymentStatus = PaymentStatus.pending;

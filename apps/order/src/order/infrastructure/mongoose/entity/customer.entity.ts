@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({
     _id: false,
 })
-export class Customer {
+export class CustomerDocument {
     @Prop({ required: true })
     userId: string;
 
@@ -14,4 +14,4 @@ export class Customer {
     name: string;
 }
 
-export const CustomerSchema = SchemaFactory.createForClass(Customer);
+export const CustomerSchema = SchemaFactory.createForClass(CustomerDocument);

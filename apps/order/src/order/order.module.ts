@@ -1,12 +1,32 @@
 import { Module } from '@nestjs/common';
-import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Order, OrderSchema } from './entity/order.entity';
+import { OrderController } from './infrastructure/framework/order.controller';
+import { UserGrpc } from './infrastructure/grpc/user.grpc';
+import { CreateOrderUsecase } from './usecase/create.order.usecase';
+import { StartDeliveryUsecase } from './usecase/start.delivery.usecase';
+import {
+    OrderDocument,
+    OrderSchema,
+} from './infrastructure/mongoose/entity/order.entity';
+import { OrderRepository } from './infrastructure/mongoose/repository/order.repository';
+import { PaymentGrpc } from './infrastructure/grpc/payment.grpc';
+import { ProductGrpc } from './infrastructure/grpc/product.grpc';
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }])],
+    imports: [
+        MongooseModule.forFeature([
+            { name: OrderDocument.name, schema: OrderSchema },
+        ]),
+    ],
     controllers: [OrderController],
-    providers: [OrderService],
+    providers: [
+        CreateOrderUsecase,
+        StartDeliveryUsecase,
+
+        { provide: 'UserOutputPort', useClass: UserGrpc },
+        { provide: 'PaymentOutputPort', useClass: PaymentGrpc },
+        { provide: 'ProductOutputPort', useClass: ProductGrpc },
+        { provide: 'OrderOutputPort', useClass: OrderRepository },
+    ],
 })
 export class OrderModule {}

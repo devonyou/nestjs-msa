@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConstPaymentModel, PaymentModel } from '../domain/payment.model';
 import { NetworkOutputPort } from '../port/output/network.output.port';
 import { PaymentOutputPort } from '../port/output/payment.output.port';
 import { DatabaseOutputPort } from '../port/output/database.output.port';
+import { PaymentModel } from '../domain/payment.model';
 
 @Injectable()
 export class PaymentService {
@@ -15,7 +15,7 @@ export class PaymentService {
         private readonly networkOutputPort: NetworkOutputPort,
     ) {}
 
-    async createPayment(param: ConstPaymentModel) {
+    async createPayment(param) {
         // 1. params로 PaymentModel을 생성 -> domain
         const payment = new PaymentModel(param);
 
