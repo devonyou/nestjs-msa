@@ -139,14 +139,14 @@ services:
             timeout: 5s
             retries: 10
             start_period: 5s
-    payment:
+    payment-command:
         build:
             context: .
-            dockerfile: ./apps/payment/Dockerfile
+            dockerfile: ./apps/payment-command/Dockerfile
             target: development
-        command: npm run start:dev payment
+        command: npm run start:dev payment-command
         depends_on:
-            mysql_payment:
+            mongo_payment-command:
                 condition: service_healthy
         # ports:
         #     - '3004:3000'
@@ -154,8 +154,24 @@ services:
             - .:/usr/src/app
             - /usr/src/app/node_modules
         env_file:
-            - ./apps/payment/.env
-    mysql_payment:
+            - ./apps/payment-command/.env
+    payment-query:
+        build:
+            context: .
+            dockerfile: ./apps/payment-query/Dockerfile
+            target: development
+        command: npm run start:dev payment-query
+        depends_on:
+            mongo_payment-query:
+                condition: service_healthy
+        # ports:
+        #     - '3004:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/payment-query/.env
+    mysql_payment-command:
         image: mysql:5.7
         platform: linux/amd64
         ports:
@@ -186,7 +202,7 @@ services:
             MYSQL_PASSWORD: 'pass1234'
             MYSQL_DATABASE: payment
             MYSQL_ROOT_PASSWORD: 'pass1234'
-    mongo_payment:
+    mongo_payment-command:
         image: mongo:8
         environment:
             MONGO_INITDB_ROOT_USERNAME: mongo
@@ -194,7 +210,23 @@ services:
         ports:
             - '6010:27017'
         volumes:
-            - ./mongo/payment:/data/db
+            - ./mongo/payment-command:/data/db
+        command: mongod --quiet --logpath /dev/null
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+    mongo_payment-query:
+        image: mongo:8
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongo
+            MONGO_INITDB_ROOT_PASSWORD: pass1234
+        ports:
+            - '6011:27017'
+        volumes:
+            - ./mongo/payment-query:/data/db
         command: mongod --quiet --logpath /dev/null
         healthcheck:
             test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -235,5 +267,24 @@ services:
             timeout: 5s
             retries: 10
             start_period: 5s
-    # rabbitmq:
-    #     image: rabbitmq:4-alpine
+    zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181
+            ZOOKEEPER_TICK_TIME: 2000
+        ports:
+            - 2181:2181
+    kafka:
+        image: confluentinc/cp-kafka:latest
+        depends_on:
+            - zookeeper
+        ports:
+            - 9092:9092
+            - 29092:29092
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

@@ -37,13 +37,13 @@
         "tsConfigPath": "apps/order/tsconfig.app.json"
       }
     },
-    "payment": {
+    "payment-command": {
       "type": "application",
-      "root": "apps/payment",
+      "root": "apps/payment-command",
       "entryFile": "main",
-      "sourceRoot": "apps/payment/src",
+      "sourceRoot": "apps/payment-command/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/payment/tsconfig.app.json"
+        "tsConfigPath": "apps/payment-command/tsconfig.app.json"
       }
     },
     "notification": {
@@ -71,6 +71,15 @@
       "sourceRoot": "apps/gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
+    "payment-query": {
+      "type": "application",
+      "root": "apps/payment-query",
+      "entryFile": "main",
+      "sourceRoot": "apps/payment-query/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/payment-query/tsconfig.app.json"
       }
     }
   }

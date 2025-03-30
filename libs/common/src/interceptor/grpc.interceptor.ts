@@ -1,10 +1,18 @@
 import { Metadata } from '@grpc/grpc-js';
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+    CallHandler,
+    ExecutionContext,
+    Injectable,
+    NestInterceptor,
+} from '@nestjs/common';
 import { map, Observable, tap, timestamp } from 'rxjs';
 
 @Injectable()
 export class GrpcInterceptor implements NestInterceptor {
-    intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
+    intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+    ): Observable<any> | Promise<Observable<any>> {
         const data = context.switchToRpc().getData();
         const ctx = context.switchToRpc().getContext() as Metadata;
         const meta = ctx.getMap();
@@ -31,8 +39,6 @@ export class GrpcInterceptor implements NestInterceptor {
             timestamp: requestTimestamp.toUTCString(),
         };
 
-        console.log(recievedReqeustLog);
-
         return next.handle().pipe(
             map(data => {
                 const responseTimestamp = new Date();
@@ -46,8 +52,6 @@ export class GrpcInterceptor implements NestInterceptor {
                     data,
                     timestamp: responseTime,
                 };
-
-                console.log(responseLog);
 
                 return data;
             }),

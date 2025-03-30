@@ -8,12 +8,12 @@ COPY nest-cli.json nest-cli.json
 
 RUN npm i
 
-COPY apps/payment apps/payment
+COPY apps/payment-query apps/payment-query
 COPY libs libs
 
-RUN npm run build payment
+RUN npm run build payment-query
 
-CMD [ "npm", "run", "start:dev", "payment" ]
+CMD [ "npm", "run", "start:dev", "payment-query" ]
 
 FROM node:alpine as production
 
@@ -29,4 +29,4 @@ RUN npm ci --omit=dev
 COPY --from=development /usr/src/app/dist ./dist
 COPY proto proto
 
-CMD [ "node" , "dist/apps/payment/main"]
+CMD [ "node" , "dist/apps/payment-query/main"]

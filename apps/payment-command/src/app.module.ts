@@ -68,6 +68,18 @@ import { MongooseModule } from '@nestjs/mongoose';
                     }),
                     inject: [ConfigService],
                 },
+                {
+                    name: 'KAFKA_SERVICE',
+                    useFactory: () => ({
+                        transport: Transport.KAFKA,
+                        options: {
+                            client: {
+                                clientId: 'payment-command',
+                                brokers: ['kafka:9092'],
+                            },
+                        },
+                    }),
+                },
             ],
         }),
         PaymentModule,

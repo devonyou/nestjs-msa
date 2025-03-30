@@ -11,6 +11,7 @@ import {
 } from './adapter/output/mongoose/entity/payment.document';
 import { PaymentService } from './application/payment.service';
 import { TypeormAdapter } from './adapter/output/typeorm/typeorm.adapter';
+import { MongooseAdapter } from './adapter/output/mongoose/mongoose.adapter';
 
 @Module({
     imports: [
@@ -22,8 +23,8 @@ import { TypeormAdapter } from './adapter/output/typeorm/typeorm.adapter';
     controllers: [PaymentController],
     providers: [
         PaymentService,
-        { provide: 'DatabaseOutputPort', useClass: TypeormAdapter },
-        // { provide: 'DatabaseOutputPort', useClass: MongooseAdapter },
+        // { provide: 'DatabaseOutputPort', useClass: TypeormAdapter },
+        { provide: 'DatabaseOutputPort', useClass: MongooseAdapter },
         { provide: 'NetworkOutputPort', useClass: GrpcAdapter },
         { provide: 'PaymentOutputPort', useClass: PortoneAdapter },
     ],

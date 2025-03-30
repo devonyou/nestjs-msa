@@ -1,4 +1,4 @@
-import { PaymentModel } from 'apps/payment/src/payment/domain/payment.model';
+import { PaymentModel } from 'apps/payment-command/src/payment/domain/payment.model';
 import { PaymentEntity } from '../entity/payment.entity';
 
 export class PaymentEntityMapper {
