@@ -7,4 +7,10 @@ export class PortoneAdapter implements PaymentOutputPort {
             setTimeout(() => resolve(true), 1000),
         );
     }
+
+    async cancelPayment(payment: any): Promise<boolean> {
+        return await new Promise(resolve =>
+            setTimeout(() => resolve(true), 1000),
+        );
+    }
 }

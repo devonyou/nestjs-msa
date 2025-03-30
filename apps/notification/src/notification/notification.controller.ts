@@ -5,12 +5,22 @@ import { Metadata } from '@grpc/grpc-js';
 
 @Controller('notification')
 @NotificationMicroService.NotificationServiceControllerMethods()
-@UseInterceptors(GrpcInterceptor)
-export class NotificationController implements NotificationMicroService.NotificationServiceController {
+export class NotificationController
+    implements NotificationMicroService.NotificationServiceController
+{
     constructor(private readonly notificationService: NotificationService) {}
 
-    async sendPaymentNotification(req: NotificationMicroService.SendPaymentNotificationRequest, metadata: Metadata) {
-        const response = (await this.notificationService.sendPaymentNotification(req, metadata)).toJSON();
+    @UseInterceptors(GrpcInterceptor)
+    async sendPaymentNotification(
+        req: NotificationMicroService.SendPaymentNotificationRequest,
+        metadata: Metadata,
+    ) {
+        const response = (
+            await this.notificationService.sendPaymentNotification(
+                req,
+                metadata,
+            )
+        ).toJSON();
 
         return {
             ...response,

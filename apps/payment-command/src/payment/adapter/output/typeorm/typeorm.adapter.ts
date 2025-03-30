@@ -25,4 +25,11 @@ export class TypeormAdapter implements DatabaseOutputPort {
 
         return new PaymentEntityMapper(result).toDomain();
     }
+
+    async findPaymentByOrderId(orderId: string): Promise<PaymentModel> {
+        const result = await this.paymentRepository.findOne({
+            where: { orderId: orderId },
+        });
+        return new PaymentEntityMapper(result).toDomain();
+    }
 }

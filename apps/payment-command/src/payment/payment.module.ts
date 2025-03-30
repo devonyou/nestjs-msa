@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PaymentController } from './port/input/payment.controller';
+
 import { PaymentEntity } from './adapter/output/typeorm/entity/payment.entity';
 import { GrpcAdapter } from './adapter/output/grpc/grpc.adapter';
 import { PortoneAdapter } from './adapter/output/portone/portone.adapter';
@@ -12,6 +12,7 @@ import {
 import { PaymentService } from './application/payment.service';
 import { TypeormAdapter } from './adapter/output/typeorm/typeorm.adapter';
 import { MongooseAdapter } from './adapter/output/mongoose/mongoose.adapter';
+import { PaymentController } from './adapter/input/payment.controller';
 
 @Module({
     imports: [

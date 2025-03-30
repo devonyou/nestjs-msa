@@ -4,7 +4,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { NotificationModule } from './notification/notification.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ORDER_SERVICE, OrderMicroService, traceInterceptor } from '@app/common';
+import {
+    ORDER_SERVICE,
+    OrderMicroService,
+    traceInterceptor,
+} from '@app/common';
 import { join } from 'path';
 
 @Module({
@@ -34,11 +38,33 @@ import { join } from 'path';
                         transport: Transport.GRPC,
                         options: {
                             channelOptions: {
-                                interceptors: [traceInterceptor('notification')],
+                                interceptors: [
+                                    traceInterceptor('notification'),
+                                ],
                             },
                             package: OrderMicroService.protobufPackage,
-                            protoPath: join(process.cwd(), 'proto', 'order.proto'),
+                            protoPath: join(
+                                process.cwd(),
+                                'proto',
+                                'order.proto',
+                            ),
                             url: configService.get<string>('ORDER_GRPC_URL'),
+                        },
+                    }),
+                    inject: [ConfigService],
+                },
+                {
+                    name: 'KAFKA_SERVICE',
+                    useFactory: () => ({
+                        transport: Transport.KAFKA,
+                        options: {
+                            client: {
+                                clientId: 'notification',
+                                brokers: ['kafka:9092'],
+                            },
+                            consumer: {
+                                groupId: 'notification-consumer',
+                            },
                         },
                     }),
                     inject: [ConfigService],

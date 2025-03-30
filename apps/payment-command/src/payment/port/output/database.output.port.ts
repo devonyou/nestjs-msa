@@ -4,4 +4,6 @@ export interface DatabaseOutputPort {
     savePayment(paymentModel: PaymentModel): Promise<PaymentModel>;
 
     updatePayment(paymentModel: PaymentModel): Promise<PaymentModel>;
+
+    findPaymentByOrderId(orderId: string): Promise<PaymentModel>;
 }

@@ -19,6 +19,19 @@ async function bootstrap() {
         },
     });
 
+    app.connectMicroservice<MicroserviceOptions>({
+        transport: Transport.KAFKA,
+        options: {
+            client: {
+                clientId: 'order',
+                brokers: ['kafka:9092'],
+            },
+            consumer: {
+                groupId: 'order-consumer',
+            },
+        },
+    });
+
     await app.init();
 
     await app.startAllMicroservices();
