@@ -1,13 +1,13 @@
 import { OrderMicroService } from '@app/common';
-import { CreateOrderDto } from '../../../usecase/dto/create.order.dto';
-import { PaymentMethod } from '../../../domain/payment.entity';
+import { CreateOrderDto } from '../dto/create.order.dto';
+import { PaymentMethod } from '../domain/payment.domain';
 
 export class CreateOrderRequestMapper {
     constructor(
         private readonly request: OrderMicroService.CreateOrderRequest,
     ) {}
 
-    toDomain(): CreateOrderDto {
+    toCreateOrderDto(): CreateOrderDto {
         return {
             userId: this.request.meta.user.sub,
             productIds: this.request.productIds,
@@ -21,14 +21,11 @@ export class CreateOrderRequestMapper {
         };
     }
 
-    parsePaymentMethod(paymentMethod: string): PaymentMethod {
-        switch (paymentMethod) {
-            case 'CreditCard':
-                return PaymentMethod.creditCard;
-            case 'Kakao':
-                return PaymentMethod.kakaoPay;
-            default:
-                throw new Error('알 수 없는 결제 방식입니다.');
+    private parsePaymentMethod(paymentMethod: string): PaymentMethod {
+        const paymentMethods = Object.values(PaymentMethod);
+        if (!paymentMethods.includes(paymentMethod as PaymentMethod)) {
+            throw new Error('알 수 없는 결제 방식입니다.');
         }
+        return paymentMethod as PaymentMethod;
     }
 }

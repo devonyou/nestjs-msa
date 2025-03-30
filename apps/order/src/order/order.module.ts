@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { OrderController } from './infrastructure/framework/order.controller';
-import { UserGrpc } from './infrastructure/grpc/user.grpc';
+import { OrderController } from './adapter/controller/order.controller';
 import { CreateOrderUsecase } from './usecase/create.order.usecase';
-import { StartDeliveryUsecase } from './usecase/start.delivery.usecase';
 import {
     OrderDocument,
     OrderSchema,
-} from './infrastructure/mongoose/entity/order.entity';
-import { OrderRepository } from './infrastructure/mongoose/repository/order.repository';
-import { PaymentGrpc } from './infrastructure/grpc/payment.grpc';
-import { ProductGrpc } from './infrastructure/grpc/product.grpc';
+} from './adapter/mongoose/document/order.document';
+import { CustomerGrpc } from './adapter/grpc/customer.grpc';
+import { ProductGrpc } from './adapter/grpc/product.grpc';
+import { PaymentGrpc } from './adapter/grpc/payment.grpc';
+import { OrderRepository } from './adapter/mongoose/order.repository';
+import { StartDeliveryUsecase } from './usecase/delivery.started.usecase';
 import { CancelOrderUsecase } from './usecase/cancel.order.usecase';
 
 @Module({
@@ -24,11 +24,10 @@ import { CancelOrderUsecase } from './usecase/cancel.order.usecase';
         CreateOrderUsecase,
         StartDeliveryUsecase,
         CancelOrderUsecase,
-
-        { provide: 'UserOutputPort', useClass: UserGrpc },
-        { provide: 'PaymentOutputPort', useClass: PaymentGrpc },
-        { provide: 'ProductOutputPort', useClass: ProductGrpc },
         { provide: 'OrderOutputPort', useClass: OrderRepository },
+        { provide: 'CustomerOutputPort', useClass: CustomerGrpc },
+        { provide: 'ProductOutputPort', useClass: ProductGrpc },
+        { provide: 'PaymentOutputPort', useClass: PaymentGrpc },
     ],
 })
 export class OrderModule {}

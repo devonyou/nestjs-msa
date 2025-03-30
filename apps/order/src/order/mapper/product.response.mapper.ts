@@ -1,14 +1,14 @@
 import { ProductMicroService } from '@app/common';
-import { ProductEntity } from '../../../domain/product.entity';
+import { ProductDomain } from '../domain/product.domain';
 
-export class GetProductsInfoResponseMapper {
+export class ProductResponseMapper {
     constructor(
         private readonly response: ProductMicroService.GetProductsInfoResponse,
     ) {}
 
-    toDomain(): ProductEntity[] {
+    toProductsDomain(): ProductDomain[] {
         return this.response.products.map(p => {
-            return new ProductEntity({
+            return new ProductDomain({
                 productId: p.id,
                 name: p.name,
                 price: p.price,

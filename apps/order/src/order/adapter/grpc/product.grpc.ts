@@ -1,10 +1,10 @@
 import { Inject, OnModuleInit } from '@nestjs/common';
 import { ProductOutputPort } from '../../port/output/product.output.port';
-import { ProductEntity } from '../../domain/product.entity';
-import { ClientGrpc } from '@nestjs/microservices';
 import { PRODUCT_SERVICE, ProductMicroService } from '@app/common';
+import { ClientGrpc } from '@nestjs/microservices';
+import { ProductDomain } from '../../domain/product.domain';
 import { lastValueFrom } from 'rxjs';
-import { GetProductsInfoResponseMapper } from './mapper/get.products.info.response.mapper';
+import { ProductResponseMapper } from '../../mapper/product.response.mapper';
 
 export class ProductGrpc implements ProductOutputPort, OnModuleInit {
     productService: ProductMicroService.ProductServiceClient;
@@ -21,11 +21,13 @@ export class ProductGrpc implements ProductOutputPort, OnModuleInit {
             );
     }
 
-    async getProductsByIds(productIds: string[]): Promise<ProductEntity[]> {
+    async findManyProductsByIds(
+        productIds: string[],
+    ): Promise<ProductDomain[]> {
         const resp = await lastValueFrom(
             this.productService.getProductsInfo({ productIds }),
         );
-
-        return new GetProductsInfoResponseMapper(resp).toDomain();
+        const mapper = new ProductResponseMapper(resp);
+        return mapper.toProductsDomain();
     }
 }

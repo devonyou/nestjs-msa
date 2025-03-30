@@ -1,6 +1,7 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OrderOutputPort } from '../port/output/order.output.port';
 
+@Injectable()
 export class CancelOrderUsecase {
     constructor(
         @Inject('OrderOutputPort')
@@ -8,8 +9,8 @@ export class CancelOrderUsecase {
     ) {}
 
     async execute(orderId: string) {
-        const order = await this.orderOutputPort.getOrderById(orderId);
-        order.cancelOrder();
+        const order = await this.orderOutputPort.findOrderById(orderId);
+        order.cancelPayment();
         await this.orderOutputPort.updateOrder(order);
     }
 }

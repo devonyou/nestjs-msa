@@ -1,11 +1,4 @@
-import { PaymentMethod } from '../../domain/payment.entity';
-
-export interface CreateOrderDto {
-    userId: string;
-    productIds: string[];
-    address: AddressDto;
-    payment: PaymentDto;
-}
+import { PaymentMethod } from '../domain/payment.domain';
 
 export interface AddressDto {
     name: string;
@@ -24,4 +17,11 @@ export interface PaymentDto {
     birthOfRegistration: string;
     passwordTwoDigit: string;
     amount: number;
+}
+
+export interface CreateOrderDto {
+    userId: string;
+    productIds: string[];
+    address: AddressDto;
+    payment: PaymentDto;
 }

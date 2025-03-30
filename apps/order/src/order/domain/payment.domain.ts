@@ -1,15 +1,15 @@
 export enum PaymentMethod {
     creditCard = 'CreditCard',
-    kakaoPay = 'KakaoPay',
+    kakao = 'Kakao',
 }
 
-export class PaymentEntity {
+export class PaymentDomain {
     paymentId: string;
     paymentMethod: PaymentMethod;
     paymentName: string;
     amount: number;
 
-    constructor(params: PaymentEntity) {
+    constructor(params: PaymentDomain) {
         this.paymentId = params.paymentId;
         this.paymentMethod = params.paymentMethod;
         this.paymentName = params.paymentName;

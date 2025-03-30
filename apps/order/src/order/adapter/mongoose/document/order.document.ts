@@ -1,12 +1,12 @@
+import { Document, ObjectId } from 'mongoose';
+import { CustomerDocument, CustomerSchema } from './customer.document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { PaymentDocument, PaymentSchema } from './payment.entity';
-import { CustomerDocument, CustomerSchema } from './customer.entity';
-import { ProductDocument, ProductSchema } from './product.entity';
+import { ProductDocument, ProductSchema } from './product.document';
 import {
     DeliveryAddressDocument,
     DeliveryAddressSchema,
-} from './delivery.address.entity';
-import { Document, ObjectId } from 'mongoose';
+} from './delivery.address.document';
+import { PaymentDocument, PaymentSchema } from './payment.document';
 
 export enum OrderStatus {
     pending = 'Pending',

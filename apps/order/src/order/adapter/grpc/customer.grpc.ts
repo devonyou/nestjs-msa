@@ -1,12 +1,12 @@
 import { Inject, OnModuleInit } from '@nestjs/common';
-import { UserOutputPort } from '../../port/output/user.output.port';
-import { CustomerEntity } from '../../domain/customer.entity';
+import { CustomerOutputPort } from '../../port/output/customer.output.port';
+import { CustomerDomain } from '../../domain/customer.domain';
 import { USER_SERVICE, UserMicroService } from '@app/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { GetUserInfoResponseMapper } from './mapper/get.user.info.response.mapper';
+import { CustomerResponseMapper } from '../../mapper/customer.response.mapper';
 
-export class UserGrpc implements UserOutputPort, OnModuleInit {
+export class CustomerGrpc implements CustomerOutputPort, OnModuleInit {
     userService: UserMicroService.UserServiceClient;
 
     constructor(
@@ -20,10 +20,11 @@ export class UserGrpc implements UserOutputPort, OnModuleInit {
             );
     }
 
-    async getUserById(userId: string): Promise<CustomerEntity> {
-        const res = await lastValueFrom(
+    async findCustomerById(userId: string): Promise<CustomerDomain> {
+        const resp = await lastValueFrom(
             this.userService.getUserInfo({ userId }),
         );
-        return new GetUserInfoResponseMapper(res).toDomain();
+        const mapper = new CustomerResponseMapper(resp);
+        return mapper.toCustomerDomain();
     }
 }

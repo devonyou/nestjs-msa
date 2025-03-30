@@ -19,7 +19,10 @@ export class OrderService implements OnModuleInit {
     ) {}
 
     onModuleInit() {
-        this.orderService = this.orderMicroService.getService('OrderService');
+        this.orderService =
+            this.orderMicroService.getService<OrderMicroService.OrderServiceClient>(
+                'OrderService',
+            );
     }
 
     async createOrder(
@@ -27,7 +30,7 @@ export class OrderService implements OnModuleInit {
         dto: CreateOrderDto,
         metadata: Metadata,
     ) {
-        return await lastValueFrom(
+        const resp = await lastValueFrom(
             this.orderService.createOrder(
                 {
                     meta: {
@@ -42,5 +45,6 @@ export class OrderService implements OnModuleInit {
                 ),
             ),
         );
+        return resp;
     }
 }

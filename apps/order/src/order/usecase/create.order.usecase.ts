@@ -1,65 +1,58 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { OrderEntity } from '../domain/order.entity';
-import { OrderOutputPort } from '../port/output/order.output.port';
+import { CreateOrderDto } from '../dto/create.order.dto';
 import { PaymentOutputPort } from '../port/output/payment.output.port';
 import { ProductOutputPort } from '../port/output/product.output.port';
-import { UserOutputPort } from '../port/output/user.output.port';
-import { CreateOrderDto } from './dto/create.order.dto';
+import { OrderOutputPort } from '../port/output/order.output.port';
+import { CustomerOutputPort } from '../port/output/customer.output.port';
+import { OrderDomain } from '../domain/order.domain';
 
 @Injectable()
 export class CreateOrderUsecase {
     constructor(
-        @Inject('UserOutputPort')
-        private readonly userOutputPort: UserOutputPort,
-        @Inject('ProductOutputPort')
-        private readonly productOutputPort: ProductOutputPort,
         @Inject('OrderOutputPort')
         private readonly orderOutputPort: OrderOutputPort,
+        @Inject('ProductOutputPort')
+        private readonly productOutputPort: ProductOutputPort,
+        @Inject('CustomerOutputPort')
+        private readonly customerOutputPort: CustomerOutputPort,
         @Inject('PaymentOutputPort')
         private readonly paymentOutputPort: PaymentOutputPort,
     ) {}
 
-    async execute(dto: CreateOrderDto) {
-        // 1. User 조회 > User
-        const user = await this.userOutputPort.getUserById(dto.userId);
+    async execute(dto: CreateOrderDto): Promise<OrderDomain> {
+        const customer = await this.customerOutputPort.findCustomerById(
+            dto.userId,
+        );
 
-        // 2. Products 조회 > Product
-        const products = await this.productOutputPort.getProductsByIds(
+        const products = await this.productOutputPort.findManyProductsByIds(
             dto.productIds,
         );
 
-        // 3. 주문 생성 > Order
-        const order = new OrderEntity({
-            customer: user,
-            product: products,
+        const orderDomain = new OrderDomain({
+            customer: customer,
             deliveryAddress: dto.address,
+            products: products,
         });
 
-        // 4. 총액 계산 > Order
-        order.calulateTotalAmount();
+        orderDomain.calcAmount();
 
-        // 5. 주문 DB 저장 > Order
-        const result = await this.orderOutputPort.createOrder(order);
-
-        // 6. 주문 ID 저장 > Order
-        order.setId(result.id);
+        const order = await this.orderOutputPort.createOrder(orderDomain);
+        orderDomain.setId(order.id);
 
         try {
-            // 7. 결제 진행 > Payment
-            const paymentResult = await this.paymentOutputPort.processPayment(
-                order,
+            const payment = await this.paymentOutputPort.processPayment(
+                orderDomain,
                 dto.payment,
             );
 
-            // 8. 결제 정보 Order에 저장 > Order
-            order.setPayment(paymentResult.payment);
-            await this.orderOutputPort.updateOrder(order);
+            orderDomain.setPayment(payment);
+            orderDomain.processPayment();
+            await this.orderOutputPort.updateOrder(orderDomain);
         } catch (err) {
-            // 9. 결제 실패시 프로세스 취소
-            order.cancelOrder();
-            await this.orderOutputPort.updateOrder(order);
+            orderDomain.cancelPayment();
+            await this.orderOutputPort.updateOrder(orderDomain);
         }
 
-        return order;
+        return orderDomain;
     }
 }

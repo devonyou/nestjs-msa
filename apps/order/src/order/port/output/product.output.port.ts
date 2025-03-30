@@ -1,5 +1,5 @@
-import { ProductEntity } from '../../domain/product.entity';
+import { ProductDomain } from '../../domain/product.domain';
 
 export interface ProductOutputPort {
-    getProductsByIds(productIds: string[]): Promise<ProductEntity[]>;
+    findManyProductsByIds(productIds: string[]): Promise<ProductDomain[]>;
 }

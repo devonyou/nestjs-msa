@@ -1,9 +1,9 @@
-import { OrderEntity } from '../../domain/order.entity';
+import { OrderDomain } from '../../domain/order.domain';
 
 export interface OrderOutputPort {
-    createOrder(order: OrderEntity): Promise<OrderEntity>;
+    createOrder(order: OrderDomain): Promise<OrderDomain>;
 
-    updateOrder(order: OrderEntity): Promise<OrderEntity>;
+    updateOrder(order: OrderDomain): Promise<OrderDomain>;
 
-    getOrderById(orderId: string): Promise<OrderEntity>;
+    findOrderById(orderId: string): Promise<OrderDomain>;
 }
