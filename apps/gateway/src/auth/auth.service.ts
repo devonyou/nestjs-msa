@@ -21,8 +21,8 @@ export class AuthService implements OnModuleInit {
         this.authService = this.userMicroService.getService('AuthService');
     }
 
-    register(token: string, dto: RegisterDto, metadata: Metadata) {
-        return lastValueFrom(
+    async register(token: string, dto: RegisterDto, metadata: Metadata) {
+        const resp = await lastValueFrom(
             this.authService.registerUser(
                 { ...dto, token },
                 constructorMetadata(
@@ -32,6 +32,7 @@ export class AuthService implements OnModuleInit {
                 ),
             ),
         );
+        return resp;
     }
 
     login(token: string, metadata: Metadata) {

@@ -1,14 +1,24 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserModule } from '../user/user.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../user/entity/user.entity';
+import { AuthController } from './adapter/out/controller/auth.controller';
+import { CreateUserUsecase } from './usecase/create.user.usecase';
+import { LoginUserUsecase } from './usecase/login.user.usecase';
+import { ParseTokenAdapter } from './adapter/out/jwt/parse.token.adapter';
+import { CryptoAdapter } from './adapter/out/crypto/crypto.adapter';
+import { ParseBearerTokenUsecase } from './usecase/parse.bearer.token.usecase';
 
 @Module({
-    imports: [UserModule, JwtModule, TypeOrmModule.forFeature([User])],
+    imports: [JwtModule, forwardRef(() => UserModule)],
     controllers: [AuthController],
-    providers: [AuthService, JwtService],
+    providers: [
+        JwtService,
+        CreateUserUsecase,
+        LoginUserUsecase,
+        ParseBearerTokenUsecase,
+        { provide: 'ParseTokenPort', useClass: ParseTokenAdapter },
+        { provide: 'CryptoPort', useClass: CryptoAdapter },
+    ],
+    exports: ['CryptoPort'],
 })
 export class AuthModule {}
