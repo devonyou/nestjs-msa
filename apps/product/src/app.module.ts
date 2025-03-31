@@ -11,6 +11,7 @@ import { ProductModule } from './product/product.module';
             validationSchema: Joi.object({
                 HTTP_PORT: Joi.number().required(),
                 TCP_PORT: Joi.number().required(),
+                GRPC_URL: Joi.string().required(),
                 DB_URL: Joi.string().required(),
             }),
         }),
@@ -26,6 +27,7 @@ import { ProductModule } from './product/product.module';
                         rejectUnauthorized: false,
                     },
                 }),
+                logging: true,
             }),
         }),
         ProductModule,
