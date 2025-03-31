@@ -19,7 +19,7 @@ services:
             target: development
         command: npm run start:dev user
         depends_on:
-            mysql_user:
+            mysql:
                 condition: service_healthy
         # ports:
         #     - '3001:3000'
@@ -28,37 +28,7 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/user/.env
-    mysql_user:
-        image: mysql:5.7
-        platform: linux/amd64
-        ports:
-            - '6001:3306'
-        volumes:
-            # - ./mysql/conf.d:/etc/mysql/conf.d
-            - ./mysql/user/data:/var/lib/mysql
-            - ./mysql/my.cnf:/etc/mysql/my.cnf
-        healthcheck:
-            test:
-                [
-                    'CMD',
-                    'mysqladmin',
-                    'ping',
-                    '-h',
-                    'localhost',
-                    '-u',
-                    'root',
-                    '-proot',
-                ]
-            interval: 5s
-            timeout: 5s
-            retries: 10
-            start_period: 5s
-        environment:
-            TZ: Asia/Seoul
-            # MYSQL_USER: admin
-            MYSQL_PASSWORD: 'pass1234'
-            MYSQL_DATABASE: user
-            MYSQL_ROOT_PASSWORD: 'pass1234'
+
     product:
         build:
             context: .
@@ -66,7 +36,7 @@ services:
             target: development
         command: npm run start:dev product
         depends_on:
-            mysql_product:
+            mysql:
                 condition: service_healthy
         # ports:
         #     - '3002:3000'
@@ -75,37 +45,6 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/product/.env
-    mysql_product:
-        image: mysql:5.7
-        platform: linux/amd64
-        ports:
-            - '6002:3306'
-        volumes:
-            # - ./mysql/conf.d:/etc/mysql/conf.d
-            - ./mysql/product/data:/var/lib/mysql
-            - ./mysql/my.cnf:/etc/mysql/my.cnf
-        healthcheck:
-            test:
-                [
-                    'CMD',
-                    'mysqladmin',
-                    'ping',
-                    '-h',
-                    'localhost',
-                    '-u',
-                    'root',
-                    '-proot',
-                ]
-            interval: 5s
-            timeout: 5s
-            retries: 10
-            start_period: 5s
-        environment:
-            TZ: Asia/Seoul
-            # MYSQL_USER: admin
-            MYSQL_PASSWORD: 'pass1234'
-            MYSQL_DATABASE: product
-            MYSQL_ROOT_PASSWORD: 'pass1234'
     order:
         build:
             context: .
@@ -171,37 +110,6 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/payment-query/.env
-    mysql_payment-command:
-        image: mysql:5.7
-        platform: linux/amd64
-        ports:
-            - '6004:3306'
-        volumes:
-            # - ./mysql/conf.d:/etc/mysql/conf.d
-            - ./mysql/payment/data:/var/lib/mysql
-            - ./mysql/my.cnf:/etc/mysql/my.cnf
-        healthcheck:
-            test:
-                [
-                    'CMD',
-                    'mysqladmin',
-                    'ping',
-                    '-h',
-                    'localhost',
-                    '-u',
-                    'root',
-                    '-proot',
-                ]
-            interval: 5s
-            timeout: 5s
-            retries: 10
-            start_period: 5s
-        environment:
-            TZ: Asia/Seoul
-            # MYSQL_USER: admin
-            MYSQL_PASSWORD: 'pass1234'
-            MYSQL_DATABASE: payment
-            MYSQL_ROOT_PASSWORD: 'pass1234'
     mongo_payment-command:
         image: mongo:8
         environment:
@@ -241,7 +149,7 @@ services:
             target: development
         command: npm run start:dev notification
         depends_on:
-            mongo_notification:
+            mysql:
                 condition: service_healthy
         # ports:
         #     - '3005:3000'
@@ -250,23 +158,36 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/notification/.env
-    mongo_notification:
-        image: mongo:8
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: mongo
-            MONGO_INITDB_ROOT_PASSWORD: pass1234
+    mysql:
+        image: mysql:5.7
+        platform: linux/amd64
         ports:
-            - '6005:27017'
+            - '6666:3306'
         volumes:
-            # - ./mongo/notification:/data/lib
-            - ./mongo/notification:/data/db
-        command: mongod --quiet --logpath /dev/null
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
         healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            test:
+                [
+                    'CMD',
+                    'mysqladmin',
+                    'ping',
+                    '-h',
+                    'localhost',
+                    '-u',
+                    'root',
+                    '-proot',
+                ]
             interval: 5s
             timeout: 5s
             retries: 10
             start_period: 5s
+        environment:
+            TZ: Asia/Seoul
+            # MYSQL_USER: root
+            MYSQL_PASSWORD: 'pass1234'
+            MYSQL_DATABASE: msa
+            MYSQL_ROOT_PASSWORD: 'pass1234'
     zookeeper:
         image: confluentinc/cp-zookeeper:latest
         environment:

@@ -5,7 +5,7 @@ import {
 } from '../../../../domain/payment.model';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('payment')
 export class PaymentEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;

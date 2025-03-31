@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { NotificationModule } from './notification/notification.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -10,6 +9,7 @@ import {
     traceInterceptor,
 } from '@app/common';
 import { join } from 'path';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [
@@ -18,15 +18,25 @@ import { join } from 'path';
             validationSchema: Joi.object({
                 HTTP_PORT: Joi.number().required(),
                 TCP_PORT: Joi.number().required(),
+                GRPC_URL: Joi.string().required(),
                 DB_URL: Joi.string().required(),
                 ORDER_HOST: Joi.string().required(),
                 ORDER_TCP_PORT: Joi.string().required(),
+                ORDER_GRPC_URL: Joi.string().required(),
             }),
         }),
-        MongooseModule.forRootAsync({
+        TypeOrmModule.forRootAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get<string>('DB_URL'),
+                type: 'mysql',
+                url: configService.get<string>('DB_URL'),
+                autoLoadEntities: true,
+                synchronize: true,
+                ...(configService.get('NODE_ENV') === 'production' && {
+                    ssl: {
+                        rejectUnauthorized: false,
+                    },
+                }),
             }),
         }),
         ClientsModule.registerAsync({
