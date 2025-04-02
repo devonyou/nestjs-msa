@@ -17,6 +17,7 @@ import * as Joi from 'joi';
 import { BearerTokenMiddleware } from './auth/middleware/bearer.token.middleware';
 import { join } from 'path';
 import { HealthModule } from './health/health.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
     imports: [
@@ -32,6 +33,17 @@ import { HealthModule } from './health/health.module';
                 ORDER_TCP_PORT: Joi.number().required(),
             }),
         }),
+        RedisModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                config: {
+                    host: 'redis',
+                    port: 6379,
+                    password: 'pass1234',
+                },
+            }),
+            inject: [ConfigService],
+        }),
         ClientsModule.registerAsync({
             isGlobal: true,
             clients: [
@@ -44,7 +56,11 @@ import { HealthModule } from './health/health.module';
                                 interceptors: [traceInterceptor('gateway')],
                             },
                             package: UserMicroService.protobufPackage,
-                            protoPath: join(process.cwd(), 'proto', 'user.proto'),
+                            protoPath: join(
+                                process.cwd(),
+                                'proto',
+                                'user.proto',
+                            ),
                             url: configService.get<string>('USER_GRPC_URL'),
                         },
                     }),
@@ -59,7 +75,11 @@ import { HealthModule } from './health/health.module';
                                 interceptors: [traceInterceptor('gateway')],
                             },
                             package: ProductMicroService.protobufPackage,
-                            protoPath: join(process.cwd(), 'proto', 'product.proto'),
+                            protoPath: join(
+                                process.cwd(),
+                                'proto',
+                                'product.proto',
+                            ),
                             url: configService.get<string>('PRODUCT_GRPC_URL'),
                         },
                     }),
@@ -74,7 +94,11 @@ import { HealthModule } from './health/health.module';
                                 interceptors: [traceInterceptor('gateway')],
                             },
                             package: OrderMicroService.protobufPackage,
-                            protoPath: join(process.cwd(), 'proto', 'order.proto'),
+                            protoPath: join(
+                                process.cwd(),
+                                'proto',
+                                'order.proto',
+                            ),
                             url: configService.get<string>('ORDER_GRPC_URL'),
                         },
                     }),
@@ -87,7 +111,7 @@ import { HealthModule } from './health/health.module';
         AuthModule,
         HealthModule,
     ],
-    providers: [],
+    // providers: [{ provide: APP_INTERCEPTOR, useClass: ThrottleInterceptor }],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

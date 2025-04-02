@@ -173,10 +173,10 @@ services:
                     'mysqladmin',
                     'ping',
                     '-h',
-                    'localhost',
+                    'mysql',
                     '-u',
                     'root',
-                    '-proot',
+                    '-ppass1234',
                 ]
             interval: 5s
             timeout: 5s
@@ -184,7 +184,7 @@ services:
             start_period: 5s
         environment:
             TZ: Asia/Seoul
-            # MYSQL_USER: root
+            # MYSQL_USER: admin
             MYSQL_PASSWORD: 'pass1234'
             MYSQL_DATABASE: msa
             MYSQL_ROOT_PASSWORD: 'pass1234'
@@ -209,3 +209,14 @@ services:
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
             KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    redis:
+        image: redis:7-alpine
+        ports:
+            - '6379:6379'
+        volumes:
+            - ./redis/data:/data
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        restart: always
+        command: redis-server --appendonly yes
+        environment:
+            - REDIS_PASSWORD=pass1234
