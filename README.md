@@ -1,78 +1,121 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# MSA 이커머스 시스템 PRD
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 1. 제품 개요
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### 1.1 목적
 
-## Description
+- 확장 가능하고 유연한 이커머스 플랫폼 구축
+- 마이크로서비스 아키텍처를 통한 서비스 독립성 확보
+- 높은 가용성과 안정성 제공
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 1.2 주요 기능
 
-## Installation
+#### 사용자 관리 (User Service)
 
-```bash
-$ npm install
-```
+- 회원가입/로그인
+- 프로필 관리
+- 주소 관리
+- 인증/인가
 
-## Running the app
+#### 상품 관리 (Product Service)
 
-```bash
-# development
-$ npm run start
+- 상품 CRUD
+- 카테고리 관리
+- 재고 관리
+- 상품 검색
 
-# watch mode
-$ npm run start:dev
+#### 주문 관리 (Order Service)
 
-# production mode
-$ npm run start:prod
-```
+- 장바구니
+- 주문 생성/조회/취소
+- 배송 상태 추적
 
-## Test
+#### 결제 관리 (Payment Service)
 
-```bash
-# unit tests
-$ npm run test
+- Command 서비스
+    - 결제 처리
+    - 환불 처리
+- Query 서비스
+    - 결제 내역 조회
+    - 정산 데이터 조회
 
-# e2e tests
-$ npm run test:e2e
+#### 알림 서비스 (Notification Service)
 
-# test coverage
-$ npm run test:cov
-```
+- 이메일 발송
+- SMS 발송
+- 푸시 알림
 
-## Support
+## 2. 기술 스택
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 2.1 백엔드
 
-## Stay in touch
+- Framework: NestJS
+- 통신: gRPC, REST API
+- 데이터베이스
+    - MongoDB (상품, 주문)
+    - MySQL (사용자, 결제)
+- 메시지 큐: RabbitMQ
+- 캐시: Redis
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 2.2 인프라
 
-## License
+- 컨테이너화: Docker
+- 오케스트레이션: Kubernetes/EKS
+- CI/CD: Jenkins/GitHub Actions
+- 모니터링: Prometheus/Grafana
+- 로깅: ELK Stack
 
-Nest is [MIT licensed](LICENSE).
+## 3. 아키텍처
 
-protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto \
---ts_proto_out=./libs/common/src/grpc \
---ts_proto_opt=nestJs=true,addGrpcMetadata=true \
-./proto/payment.proto
+### 3.1 설계 원칙
+
+- 헥사고날 아키텍처 적용
+- CQRS 패턴 (결제 서비스)
+- Event-Driven Architecture
+- Domain-Driven Design
+
+### 3.2 서비스 간 통신
+
+- 동기: gRPC
+- 비동기: Event Bus (RabbitMQ)
+
+## 4. 비기능적 요구사항
+
+### 4.1 가용성
+
+- 서비스 가용성: 99.9%
+- 장애 복구 시간: < 5분
+
+### 4.2 보안
+
+- JWT 기반 인증
+- SSL/TLS 적용
+- API Gateway 레벨 인증/인가
+
+### 4.3 확장성
+
+- 수평적 확장 가능한 설계
+- 서비스별 독립적 배포
+- 무중단 배포 지원
+
+## 5. 개발 및 운영
+
+### 5.1 개발 프로세스
+
+- Git Flow 기반 브랜치 전략
+- Code Review 필수
+- Unit Test 커버리지 80% 이상
+
+### 5.2 모니터링
+
+- 서비스 헬스체크
+- 성능 메트릭 수집
+- 로그 중앙화
+- 알림 설정
+
+## 6. 향후 로드맵
+
+- 검색 서비스 고도화
+- 실시간 분석 시스템 구축
+- AI 기반 추천 시스템
+- 글로벌 리전 확장
