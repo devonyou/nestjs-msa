@@ -11,3 +11,26 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/gateway/.env
+
+        depends_on:
+            - mysql
+
+    mysql:
+        image: mysql:5.7
+        platform: linux/amd64
+        ports:
+            - '3306:3306'
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'mysql', '-u', 'root', '-ppass1234']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        environment:
+            TZ: Asia/Seoul
+            MYSQL_PASSWORD: pass1234
+            MYSQL_DATABASE: note
+            MYSQL_ROOT_PASSWORD: pass1234
