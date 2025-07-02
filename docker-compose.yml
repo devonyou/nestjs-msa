@@ -1,0 +1,13 @@
+services:
+    gateway:
+        build:
+            context: .
+            dockerfile: ./apps/gateway/Dockerfile
+            target: development
+        ports:
+            - '3000:3000'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/gateway/.env
