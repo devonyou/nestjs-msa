@@ -3,11 +3,11 @@ import { format, toZonedTime } from 'date-fns-tz';
 import { Request, Response } from 'express';
 import { status } from '@grpc/grpc-js';
 
-@Catch()
+@Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
     private logger = new Logger(HttpExceptionFilter.name);
 
-    catch(exception: any, host: ArgumentsHost) {
+    catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
@@ -15,37 +15,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const { ip, method, originalUrl, httpVersion, headers } = request;
         const { 'user-agent': userAgent } = headers;
         const timestamp = format(toZonedTime(new Date(), 'Asia/Seoul'), 'yyyy-MM-dd HH:mm:ss');
-        let details: { exceptionName?: string; error?: string };
+
+        const statusCode = exception.getStatus();
+        let errorName = this.getErrorName(status.UNKNOWN);
+        let message = this.getErrorName(status.UNKNOWN);
 
         try {
-            details = JSON.parse(exception?.details);
-        } catch (error) {
-            details = {};
+            if (typeof exception.getResponse() === 'object') {
+                const match = exception.message.match(/^(\d+)\s+([A-Z_]+):\s+(.+)$/);
+                const code = parseInt(match[1], 10);
+                const details = JSON.parse(match[3]);
+                if (details?.exceptionName === 'RpcException') {
+                    errorName = this.getErrorName(code);
+                    message = details?.error;
+                }
+            }
+        } catch (e) {
+            errorName = errorName ?? this.getErrorName(status.UNKNOWN);
+            message = message ?? this.getErrorName(status.UNKNOWN);
+        } finally {
+            this.logger.error(
+                `${timestamp} - - ${ip} "${method} ${originalUrl} HTTP/${httpVersion} ${statusCode}" - ${userAgent}`,
+            );
         }
-
-        let errorName = null;
-        let message = null;
-        let statusCode = null;
-
-        if (exception instanceof HttpException) {
-            const error = exception.getResponse() as string | Error;
-            statusCode = exception.getStatus();
-            errorName = error['error'] || this.getErrorName(status.UNKNOWN);
-            message = error['message'] || this.getErrorName(status.UNKNOWN);
-        } else if (details?.exceptionName === 'RpcException') {
-            const rpcErrorCode = exception?.code;
-            errorName = this.getErrorName(rpcErrorCode);
-            statusCode = this.rpcToHttpStatus(rpcErrorCode);
-            message = details?.error;
-        } else {
-            errorName = this.getErrorName(status.UNKNOWN);
-            statusCode = this.rpcToHttpStatus(status.UNKNOWN);
-            message = errorName;
-        }
-
-        this.logger.error(
-            `${timestamp} - - ${ip} "${method} ${originalUrl} HTTP/${httpVersion} ${statusCode}" - ${userAgent}`,
-        );
 
         return response.status(statusCode).json({
             success: false,

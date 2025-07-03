@@ -118,7 +118,7 @@ export class UserService {
                 ignoreExpiration: false,
             });
         } catch (err) {
-            throw new GrpcUnauthenticatedException(err);
+            throw new GrpcUnauthenticatedException(err.message);
         }
 
         // refresh token 일 경우 토큰 검증 성공

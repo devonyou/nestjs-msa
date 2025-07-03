@@ -114,4 +114,5 @@ bootstrap()
     })
     .catch(error => {
         new Logger(process.env.NODE_ENV).error(`❌ Server error ${error}`);
+        process.exit(1);
     });
