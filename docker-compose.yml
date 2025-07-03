@@ -13,13 +13,31 @@ services:
             - ./apps/gateway/.env
 
         depends_on:
+            - user
+
+    user:
+        build:
+            context: .
+            dockerfile: ./apps/user/Dockerfile
+            target: development
+        ports:
+            - '3001:3001'
+            - '3002:3002'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/user/.env
+
+        depends_on:
             - mysql
+            - redis
 
     mysql:
         image: mysql:5.7
         platform: linux/amd64
         ports:
-            - '3306:3306'
+            - '4000:3306'
         volumes:
             - ./mysql/data:/var/lib/mysql
             - ./mysql/my.cnf:/etc/mysql/my.cnf
@@ -32,5 +50,28 @@ services:
         environment:
             TZ: Asia/Seoul
             MYSQL_PASSWORD: pass1234
-            MYSQL_DATABASE: note
             MYSQL_ROOT_PASSWORD: pass1234
+
+    redis:
+        image: redis:7-alpine
+        ports:
+            - '6379:6379'
+        volumes:
+            - ./redis/data:/data
+            # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        restart: always
+        # command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+        command: redis-server --appendonly yes --requirepass pass1234
+        healthcheck:
+            test: ['CMD', 'redis-cli', '-a', 'pass1234', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 5
+
+    redis-insight:
+        image: redis/redisinsight:latest
+        restart: always
+        ports:
+            - 5540:5540
+        volumes:
+            - ./redis-insight:/db

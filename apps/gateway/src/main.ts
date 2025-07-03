@@ -6,6 +6,8 @@ import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
 import { HttpSuccessInterceptor } from './common/http/http.success.interceptor';
 import { HttpExceptionFilter } from './common/http/http.exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { GatewayAuthService } from './modules/auth/gateway.auth.service';
+import { AuthGuard } from './modules/auth/guard/auth.guard';
 
 class Server {
     private HTTP_PORT: number;
@@ -24,6 +26,7 @@ class Server {
         this.setupGlobalInterceptor();
         this.setupGlobalFilter();
         this.setupSwagger();
+        this.setupGlobalGuard();
     }
 
     private setupCors() {
@@ -43,6 +46,13 @@ class Server {
 
     private setupGlobalFilter() {
         this.app.useGlobalFilters(new HttpExceptionFilter());
+    }
+
+    private setupGlobalGuard() {
+        this.app.useGlobalGuards(
+            new AuthGuard(this.app.get(GatewayAuthService), this.app.get(Reflector)),
+            // new RBACGuard(this.app.get(Reflector)),
+        );
     }
 
     private setupSwagger() {

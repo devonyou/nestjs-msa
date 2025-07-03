@@ -1,9 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { ConfigModule } from '@nestjs/config';
 import { envValidationSchema } from './common/config/env.validation.schema';
 import { HttpLoggerMiddleware } from './common/logger/http.logger.middleware';
+import { GatewayAuthModule } from './modules/auth/gateway.auth.module';
+import { GatewayUserModule } from './modules/user/gateway.user.module';
 
 @Module({
     imports: [
@@ -11,8 +12,11 @@ import { HttpLoggerMiddleware } from './common/logger/http.logger.middleware';
             isGlobal: true,
             validationSchema: envValidationSchema,
         }),
+
+        GatewayAuthModule,
+        GatewayUserModule,
     ],
-    controllers: [GatewayController],
+    controllers: [],
     providers: [GatewayService],
 })
 export class GatewayModule implements NestModule {

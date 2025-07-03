@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+	rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse) {}
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {}
+	rpc GetUserInfoByUserId(GetUserInfoByUserIdRequest) returns (User) {}
+    rpc UpdateUserInfo(UpdateUserInfoRequest) returns (User) {}
+}
+
+enum UserRole {
+	USER = 0;
+	ADMIN = 1;
+}
+
+message User {
+	int32 id = 1;
+    string provider = 2;
+	string providerId = 3;
+    UserRole role = 4;
+    string name = 5;
+    string email = 6;
+    string avatarUrl = 7;
+    bool emailVerified = 8;
+    int32 version = 9;
+}
+
+message VerifyTokenRequest {
+    string token = 1;
+    bool isRefresh = 2;
+}
+
+message VerifyTokenResponse {
+    bool verify = 1;
+    User user = 2;
+}
+
+message RefreshTokenRequest {
+    int32 userId = 1;
+}
+
+message RefreshTokenResponse {
+    string accessToken = 1;
+    string refreshToken = 2;
+}
+
+
+message GetUserInfoByUserIdRequest {
+    int32 id = 1;
+}
+
+message UpdateUserInfoRequest {
+    int32 id = 1;
+    optional string name = 2;
+    optional string avatarUrl = 3;
+    optional UserRole role = 4;
+}
+
+message UpdateUserInfoResponse {
+    User user = 1;
+}
