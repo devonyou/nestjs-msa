@@ -21,10 +21,10 @@ import { RedisModule } from '@app/common';
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 type: 'mysql',
-                url: configService.get('MYSQL_URL'),
+                url: configService.getOrThrow<string>('MYSQL_URL'),
                 autoLoadEntities: true,
-                synchronize: configService.get<string>('NODE_ENV') === 'development',
-                logging: configService.get<string>('NODE_ENV') === 'development',
+                synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
+                logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
             }),
         }),
 
@@ -34,7 +34,7 @@ import { RedisModule } from '@app/common';
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 config: {
-                    url: configService.get('REDIS_URL'),
+                    url: configService.getOrThrow<string>('REDIS_URL'),
                 },
             }),
         }),

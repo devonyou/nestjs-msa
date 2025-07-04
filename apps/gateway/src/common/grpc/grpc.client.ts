@@ -11,7 +11,7 @@ export const grpcClient: ClientsProviderAsyncOptions[] = [
             transport: Transport.GRPC,
             options: {
                 package: UserMicroService.protobufPackage,
-                url: `${configService.get<string>('USER_GRPC_HOST')}:${configService.get<number>('USER_GRPC_PORT')}`,
+                url: `${configService.getOrThrow<string>('USER_GRPC_HOST')}:${configService.getOrThrow<number>('USER_GRPC_PORT')}`,
                 protoPath: join(process.cwd(), 'proto', 'user.proto'),
             },
         }),

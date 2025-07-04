@@ -21,10 +21,10 @@ export class UserService {
         private readonly configService: ConfigService,
         private readonly redisService: RedisService,
     ) {
-        this.accessSecret = this.configService.get('JWT_ACCESS_SECRET_KEY');
-        this.refreshSecret = this.configService.get('JWT_REFRESH_SECRET_KEY');
-        this.accessExpireIn = this.configService.get<number>('JWT_ACCESS_EXPIRATION_TIME');
-        this.refreshExpireIn = this.configService.get<number>('JWT_REFRESH_EXPIRATION_TIME');
+        this.accessSecret = this.configService.getOrThrow<string>('JWT_ACCESS_SECRET_KEY');
+        this.refreshSecret = this.configService.getOrThrow<string>('JWT_REFRESH_SECRET_KEY');
+        this.accessExpireIn = this.configService.getOrThrow<number>('JWT_ACCESS_EXPIRATION_TIME');
+        this.refreshExpireIn = this.configService.getOrThrow<number>('JWT_REFRESH_EXPIRATION_TIME');
     }
 
     /**

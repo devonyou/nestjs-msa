@@ -37,7 +37,7 @@ services:
         image: mysql:5.7
         platform: linux/amd64
         ports:
-            - '4000:3306'
+            - '3306:3306'
         volumes:
             - ./mysql/data:/var/lib/mysql
             - ./mysql/my.cnf:/etc/mysql/my.cnf

@@ -20,7 +20,7 @@ class Server {
 
     private init() {
         this.configService = new ConfigService();
-        this.HTTP_PORT = this.configService.get('HTTP_PORT') ?? 3000;
+        this.HTTP_PORT = this.configService.getOrThrow<number>('HTTP_PORT');
 
         this.setupCors();
         this.setupGlobalInterceptor();
@@ -31,7 +31,7 @@ class Server {
 
     private setupCors() {
         this.app.enableCors({
-            origin: this.configService.get<string>('CORS_ORIGIN'),
+            origin: this.configService.getOrThrow<string>('CORS_ORIGIN'),
             methods: 'GET,POST,PATCH,PUT,DELETE,HEAD,OPTIONS',
             credentials: true,
         });
@@ -57,9 +57,9 @@ class Server {
 
     private setupSwagger() {
         const config = new DocumentBuilder()
-            .setTitle(this.configService.get<string>('SWAGGER_TITLE'))
-            .setDescription(this.configService.get<string>('SWAGGER_DESCRIPTION'))
-            .setVersion(this.configService.get<string>('SWAGGER_VERSION'))
+            .setTitle(this.configService.getOrThrow<string>('SWAGGER_TITLE'))
+            .setDescription(this.configService.getOrThrow<string>('SWAGGER_DESCRIPTION'))
+            .setVersion(this.configService.getOrThrow<string>('SWAGGER_VERSION'))
             .addBearerAuth(
                 {
                     type: 'http',
@@ -83,7 +83,7 @@ class Server {
             .build();
 
         const document = SwaggerModule.createDocument(this.app, config);
-        SwaggerModule.setup(this.configService.get<string>('SWAGGER_PATH'), this.app, document, {
+        SwaggerModule.setup(this.configService.getOrThrow<string>('SWAGGER_PATH'), this.app, document, {
             swaggerOptions: {
                 persistAuthorization: true,
                 deepScanRoutes: true,

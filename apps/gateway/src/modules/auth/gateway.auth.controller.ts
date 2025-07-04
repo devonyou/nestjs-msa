@@ -18,7 +18,7 @@ export class GatewayAuthController {
     @Get('google')
     @ApiOperation({ summary: '구글 로그인 리다이렉트' })
     signInWithGoogle(@Res() res: Response) {
-        res.redirect(`${this.configService.get('USER_HTTP_URL')}/auth/google`);
+        res.redirect(`${this.configService.getOrThrow<string>('USER_HTTP_URL')}/auth/google`);
     }
 
     @Post('refresh')
