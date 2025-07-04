@@ -4,7 +4,7 @@ import { toZonedTime, format } from 'date-fns-tz';
 
 @Injectable()
 export class HttpLoggerMiddleware implements NestMiddleware {
-    private logger = new Logger('GATEWAY');
+    private logger = new Logger(HttpLoggerMiddleware.name);
 
     use(req: Request, res: Response, next: () => void) {
         const { ip, method, originalUrl, httpVersion, headers } = req;

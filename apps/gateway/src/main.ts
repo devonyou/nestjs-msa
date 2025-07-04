@@ -8,6 +8,7 @@ import { HttpExceptionFilter } from './common/http/http.exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GatewayAuthService } from './modules/auth/gateway.auth.service';
 import { AuthGuard } from './modules/auth/guard/auth.guard';
+import { RbacGuard } from './modules/auth/guard/rbac.guard';
 
 class Server {
     private configService: ConfigService;
@@ -49,7 +50,7 @@ class Server {
     private setupGlobalGuard() {
         this.app.useGlobalGuards(
             new AuthGuard(this.app.get(GatewayAuthService), this.app.get(Reflector)),
-            // new RBACGuard(this.app.get(Reflector)),
+            new RbacGuard(this.app.get(Reflector)),
         );
     }
 
