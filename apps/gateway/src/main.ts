@@ -10,7 +10,6 @@ import { GatewayAuthService } from './modules/auth/gateway.auth.service';
 import { AuthGuard } from './modules/auth/guard/auth.guard';
 
 class Server {
-    private HTTP_PORT: number;
     private configService: ConfigService;
 
     constructor(private readonly app: NestExpressApplication) {
@@ -20,7 +19,6 @@ class Server {
 
     private init() {
         this.configService = new ConfigService();
-        this.HTTP_PORT = this.configService.getOrThrow<number>('HTTP_PORT');
 
         this.setupCors();
         this.setupGlobalInterceptor();
@@ -93,7 +91,7 @@ class Server {
 
     start() {
         this.app.set('trust proxy', true);
-        this.app.listen(this.HTTP_PORT, '0.0.0.0');
+        this.app.listen(this.configService.getOrThrow<number>('HTTP_PORT'), '0.0.0.0');
     }
 }
 
@@ -103,16 +101,7 @@ async function bootstrap(): Promise<void> {
     server.start();
 }
 
-bootstrap()
-    .then(() => {
-        if (process.env.NODE_ENV === 'production') {
-            process.send('ready');
-        }
-
-        new Logger(process.env.NODE_ENV).log(`✅ Server on http://${process.env.HTTP_HOST}:${process.env.HTTP_PORT}`);
-        new Logger(process.env.NODE_ENV).log(process.env.NODE_ENV);
-    })
-    .catch(error => {
-        new Logger(process.env.NODE_ENV).error(`❌ Server error ${error}`);
-        process.exit(1);
-    });
+bootstrap().catch(error => {
+    new Logger(process.env.NODE_ENV).error(`❌ Server error ${error}`);
+    process.exit(1);
+});

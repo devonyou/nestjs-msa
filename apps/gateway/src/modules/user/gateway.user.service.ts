@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { UserMicroService } from '@app/common';
+import { UserMicroService, createGrpcMetadata } from '@app/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { UpdateUserInfoRequestDto } from './dto/user.update.dto';
@@ -20,19 +20,23 @@ export class GatewayUserService implements OnModuleInit {
     }
 
     async getUserInfoByUserId(userId: number): Promise<UserMicroService.User> {
-        const stream = this.userService.getUserInfoByUserId({ id: userId });
+        const metadata = createGrpcMetadata(GatewayUserService.name, this.getUserInfoByUserId.name);
+
+        const stream = this.userService.getUserInfoByUserId({ id: userId }, metadata);
         const resp = await lastValueFrom(stream);
         return resp;
     }
 
     async refreshToken(userId: number) {
-        const stream = this.userService.refreshToken({ userId: userId });
+        const metadata = createGrpcMetadata(GatewayUserService.name, this.refreshToken.name);
+        const stream = this.userService.refreshToken({ userId: userId }, metadata);
         const resp = await lastValueFrom(stream);
         return resp;
     }
 
     async updateUserInfo(userId: number, dto: UpdateUserInfoRequestDto): Promise<UserMicroService.User> {
-        const stream = this.userService.updateUserInfo({ id: userId, ...dto });
+        const metadata = createGrpcMetadata(GatewayUserService.name, this.updateUserInfo.name);
+        const stream = this.userService.updateUserInfo({ id: userId, ...dto }, metadata);
         const resp = await lastValueFrom(stream);
         return resp;
     }

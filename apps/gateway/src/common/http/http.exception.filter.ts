@@ -12,6 +12,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
 
+        this.logger.log(exception);
+
         const { ip, method, originalUrl, httpVersion, headers } = request;
         const { 'user-agent': userAgent } = headers;
         const timestamp = format(toZonedTime(new Date(), 'Asia/Seoul'), 'yyyy-MM-dd HH:mm:ss');

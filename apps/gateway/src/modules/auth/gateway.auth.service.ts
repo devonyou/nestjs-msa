@@ -1,4 +1,5 @@
-import { UserMicroService } from '@app/common';
+import { createGrpcMetadata, UserMicroService } from '@app/common';
+import { Metadata } from '@grpc/grpc-js';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -18,11 +19,11 @@ export class GatewayAuthService implements OnModuleInit {
         );
     }
 
-    async verifyToken(jwtToken: any, isRefresh: boolean) {
-        const stream = this.userService.verifyToken({
-            token: jwtToken,
-            isRefresh,
-        });
+    async verifyToken(jwtToken: any, isRefresh: boolean, metadata?: Metadata) {
+        const stream = this.userService.verifyToken(
+            { token: jwtToken, isRefresh },
+            createGrpcMetadata(GatewayAuthService.name, this.verifyToken.name, metadata),
+        );
         const resp = await lastValueFrom(stream);
         return resp;
     }

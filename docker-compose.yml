@@ -14,6 +14,7 @@ services:
 
         depends_on:
             - user
+            - product
 
     user:
         build:
@@ -21,13 +22,30 @@ services:
             dockerfile: ./apps/user/Dockerfile
             target: development
         ports:
-            - '3001:3001'
-            - '3002:3002'
+            - '3001:3000'
+            - '3002:3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
         env_file:
             - ./apps/user/.env
+
+        depends_on:
+            - mysql
+            - redis
+
+    product:
+        build:
+            context: .
+            dockerfile: ./apps/product/Dockerfile
+            target: development
+        ports:
+            - '3003:3010'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/product/.env
 
         depends_on:
             - mysql
