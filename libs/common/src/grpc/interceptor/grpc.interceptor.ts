@@ -13,10 +13,12 @@ export class GrpcInterceptor implements NestInterceptor {
         const rpcContext = context.switchToRpc();
         // const data = rpcContext.getData();
         const metadata = rpcContext.getContext() as Metadata;
+        const sourceClass = metadata.get('source-class')?.[0];
+        const sourceHandler = metadata.get('source-handler')?.[0];
 
         const traceId = metadata?.get('trace-id')?.[0] ?? 'no-trace-id';
 
-        this.logger.log(`[REQ - ${traceId}] ${className}.${handler}`);
+        this.logger.log(`[REQ - ${traceId}] ${sourceClass}.${sourceHandler}`);
 
         return next.handle().pipe(
             tap(() => {
