@@ -56,7 +56,7 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # MySQL
-mysql/data
-mysql/my.cnf!
-redis
-redis-insight
+/mysql/data
+/mysql/my.cnf!
+/redis
+/redis-insight

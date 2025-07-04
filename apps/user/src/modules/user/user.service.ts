@@ -167,7 +167,7 @@ export class UserService {
             const ttl = payloadExp - now - 5 * 60;
             await this.redisService.set(`user:payload:${user.id}`, user, ttl);
         } else {
-            const ttl = await this.redisService.getClient().ttl(`user:payload:${user.id}`);
+            const ttl = await this.redisService.ttl(`user:payload:${user.id}`);
             await this.redisService.set(`user:payload:${user.id}`, user, ttl);
         }
     }
@@ -183,20 +183,17 @@ export class UserService {
 
     async getUserInfoByUserId(userId: number): Promise<UserEntity> {
         const user = await this.userRepository.findOneBy({ id: userId });
-
-        if (!user) {
-            throw new GrpcUnauthenticatedException('사용자를 찾을수 없습니다.');
-        }
-
         return user;
     }
 
     async updateUserInfo(request: UserMicroService.UpdateUserInfoRequest): Promise<UserEntity> {
-        await this.userRepository.update(request.id, {
-            ...request,
-        });
+        await this.userRepository.update(request.id, { ...request });
 
         const user = await this.getUserInfoByUserId(request.id);
+
+        if (!user) {
+            throw new GrpcUnauthenticatedException('사용자를 찾을수 없습니다.');
+        }
 
         // 캐시 사용자 버전 업데이트
         await this.setUserInfoToCache(user);
