@@ -1,7 +1,7 @@
-import { JwtPayload as JwtPayloadType } from './jwt.payload';
+import { UserPayload as UserPayloadType } from '@app/common/@types';
 
 declare global {
-    type JwtPayload = JwtPayloadType;
+    type UserPayload = UserPayloadType;
 }
 
 export {};

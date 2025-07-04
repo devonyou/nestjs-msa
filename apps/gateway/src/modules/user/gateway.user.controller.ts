@@ -15,7 +15,7 @@ export class GatewayUserController {
     @Auth(false)
     @ApiOperation({ summary: '유저 정보 조회' })
     @ApiOkResponse({ description: '유저 정보 조회 성공', type: UserDto })
-    getUserInfo(@User() user: JwtPayload): Promise<UserDto> {
+    getUserInfo(@User() user: UserPayload): Promise<UserDto> {
         return this.gatewayUserService.getUserInfoByUserId(user.sub);
     }
 
@@ -24,7 +24,7 @@ export class GatewayUserController {
     @ApiOperation({ summary: '유저 정보 수정' })
     @ApiOkResponse({ description: '유저 정보 수정 성공', type: UpdateUserInfoResponseDto })
     updateUserInfo(
-        @User() user: JwtPayload,
+        @User() user: UserPayload,
         @Body() dto: UpdateUserInfoRequestDto,
     ): Promise<UpdateUserInfoResponseDto> {
         return this.gatewayUserService.updateUserInfo(user.sub, dto);

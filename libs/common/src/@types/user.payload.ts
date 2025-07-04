@@ -1,6 +1,6 @@
-import { UserMicroService } from '@app/common';
+import { UserMicroService } from '../grpc';
 
-export interface JwtPayload {
+export interface UserPayload {
     sub: number;
     type: string;
     role: UserMicroService.UserRole;

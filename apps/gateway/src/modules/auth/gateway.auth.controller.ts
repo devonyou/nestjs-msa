@@ -25,7 +25,7 @@ export class GatewayAuthController {
     @Auth(true)
     @ApiOperation({ summary: '리프레시 토큰 발급' })
     @ApiCreatedResponse({ description: '리프레시 토큰 발급 성공', type: TokenDto })
-    refreshToken(@User() user: JwtPayload): Promise<TokenDto> {
+    refreshToken(@User() user: UserPayload): Promise<TokenDto> {
         return this.gatewayUserService.refreshToken(user.sub);
     }
 }
