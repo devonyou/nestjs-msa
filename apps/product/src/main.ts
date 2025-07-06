@@ -4,10 +4,10 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { RpcExceptionFilter } from '@app/common';
 import { Logger } from '@nestjs/common';
-import { ProductModule } from './product.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-    const app = await NestFactory.create(ProductModule);
+    const app = await NestFactory.create(AppModule);
 
     const configService = app.get(ConfigService);
     const GRPC_URL = configService.getOrThrow<string>('GRPC_URL');

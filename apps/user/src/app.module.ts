@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ProductController } from './product.controller';
-import { ProductService } from './product.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { envValidationSchema } from './common/config/env.validation.schema';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RedisModule } from '@app/common';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
     imports: [
@@ -23,8 +24,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
             }),
         }),
+
+        RedisModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                config: {
+                    url: configService.getOrThrow<string>('REDIS_URL'),
+                },
+            }),
+        }),
+
+        AuthModule,
+        UserModule,
     ],
-    controllers: [ProductController],
-    providers: [ProductService],
 })
-export class ProductModule {}
+export class AppModule {}

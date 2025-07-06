@@ -2,15 +2,293 @@ syntax = "proto3";
 
 package product;
 
+import "google/protobuf/timestamp.proto";
+
 service ProductService {
-    rpc GetProductInfoByProductId(GetProductInfoByProductIdRequest) returns (Product) {}
+    // product
+    rpc createProduct(CreateProductRequest) returns (ProductResponse);
+    rpc getProducts(GetProductsRequest) returns (ProductListResponse);
+    rpc getProductById(GetProductByIdRequest) returns (ProductResponse);
+    rpc updateProduct(UpdateProductRequest) returns (ProductResponse);
+    rpc deleteProduct(DeleteProductRequest) returns (Empty);
+    rpc searchProducts(SearchProductsRequest) returns (ProductListResponse);
+
+    // category
+    rpc createCategory(CreateCategoryRequest) returns (CategoryResponse);
+    rpc getAllCategories(Empty) returns (CategoryListResponse);
+    rpc getCategoryById(GetCategoryByIdRequest) returns (CategoryResponse);
+    rpc updateCategory(UpdateCategoryRequest) returns (CategoryResponse);
+    rpc deleteCategory(DeleteCategoryRequest) returns (Empty);
+
+    // option
+    rpc addOptionToProduct(AddOptionToProductRequest) returns (ProductOptionResponse);
+    rpc getProductOptions(GetProductOptionsRequest) returns (ProductOptionListResponse);
+    rpc updateOption(UpdateOptionRequest) returns (ProductOptionResponse);
+    rpc deleteOption(DeleteOptionRequest) returns (Empty);
+
+    // image
+    rpc addImagesToProduct(AddImagesToProductRequest) returns (ProductImageListResponse);
+    rpc getProductImages(GetProductImagesRequest) returns (ProductImageListResponse);
+    rpc deleteImage(DeleteImageRequest) returns (Empty);
+    rpc setMainImage(SetMainImageRequest) returns (ProductImageResponse);
+
+    // inventory
+    rpc getInventoryByProductId(GetInventoryByProductIdRequest) returns (InventoryResponse);
+    rpc getInventoryByOptionId(GetInventoryByOptionIdRequest) returns (InventoryResponse);
+    rpc increaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
+    rpc decreaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
+    rpc getInventoryLogs(GetInventoryLogsRequest) returns (InventoryLogListResponse);
+
+    // stock reservation
+    rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationResponse);
+    rpc releaseStockReservation(ReleaseStockReservationRequest) returns (Empty);
+    rpc confirmStockReservation(ConfirmStockReservationRequest) returns (InventoryResponse);
 }
+
+// product
 
 message Product {
     int32 id = 1;
     string name = 2;
+    string description = 3;
+    int32 price = 4;
+    repeated ProductOption options = 5;
+    repeated ProductImage images = 6;
+    Category category = 7;
+    google.protobuf.Timestamp createdAt = 8;
 }
 
-message GetProductInfoByProductIdRequest {
-    int32 productId = 1;
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    int32 price = 3;
+    string categoryId = 4;
 }
+
+message UpdateProductRequest {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 price = 4;
+    string categoryId = 5;
+}
+
+message DeleteProductRequest {
+    int32 id = 1;
+}
+
+message GetProductsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+}
+
+message GetProductByIdRequest {
+    int32 id = 1;
+}
+
+message SearchProductsRequest {
+    string keyword = 1;
+    int32 page = 2;
+    int32 limit = 3;
+}
+
+message ProductResponse {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 price = 4;
+    // repeated ProductOption options = 5;
+    // repeated ProductImage images = 6;
+    // Category category = 7;
+}
+
+message ProductListResponse {
+    repeated Product products = 1;
+    int32 total = 2;
+}
+
+// category
+
+message Category {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    optional int32 parentId = 4;
+}
+
+message CreateCategoryRequest {
+    string name = 1;
+    string description = 2;
+    optional int32 parentId = 3;
+}
+
+message UpdateCategoryRequest {
+    int32 id = 1;
+    string name = 2;
+    optional int32 parentId = 3;
+}
+
+message DeleteCategoryRequest {
+    int32 id = 1;
+}
+
+message GetCategoryByIdRequest {
+    int32 id = 1;
+}
+
+message CategoryResponse {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    optional Category parent = 4;
+    repeated Category children = 5;
+    repeated ProductResponse products = 6;
+}
+
+message CategoryListResponse {
+    repeated CategoryResponse categories = 1;
+}
+
+// option
+
+message ProductOption {
+    int32 id = 1;
+    string productId = 2;
+    string name = 3;
+    string value = 4;
+}
+
+message AddOptionToProductRequest {
+    string productId = 1;
+    string name = 2;
+    string value = 3;
+}
+
+message GetProductOptionsRequest {
+    string productId = 1;
+}
+
+message UpdateOptionRequest {
+    int32 id = 1;
+    string name = 2;
+    string value = 3;
+}
+
+message DeleteOptionRequest {
+    int32 id = 1;
+}
+
+message ProductOptionResponse {
+    ProductOption option = 1;
+}
+
+message ProductOptionListResponse {
+    repeated ProductOption options = 1;
+}
+
+// image
+
+message ProductImage {
+    int32 id = 1;
+    string productId = 2;
+    string url = 3;
+    bool isMain = 4;
+}
+
+message AddImagesToProductRequest {
+    string productId = 1;
+    repeated string imageUrls = 2;
+}
+
+message GetProductImagesRequest {
+    string productId = 1;
+}
+
+message DeleteImageRequest {
+    string imageId = 1;
+}
+
+message SetMainImageRequest {
+    string imageId = 1;
+}
+
+message ProductImageResponse {
+    ProductImage image = 1;
+}
+
+message ProductImageListResponse {
+    repeated ProductImage images = 1;
+}
+
+// inventory
+
+message Inventory {
+    int32 id = 1;
+    string productId = 2;
+    optional string optionId = 3;
+    int32 quantity = 4;
+}
+
+message InventoryResponse {
+    Inventory inventory = 1;
+}
+
+message GetInventoryByProductIdRequest {
+    string productId = 1;
+}
+
+message GetInventoryByOptionIdRequest {
+    string optionId = 1;
+}
+
+message UpdateInventoryQuantityRequest {
+    string inventoryId = 1;
+    int32 quantity = 2;
+}
+
+message InventoryLog {
+    int32 id = 1;
+    string inventoryId = 2;
+    string changeType = 3;
+    int32 quantityChanged = 4;
+    string reason = 5;
+    google.protobuf.Timestamp createdAt = 6;
+}
+
+message GetInventoryLogsRequest {
+    string inventoryId = 1;
+}
+
+message InventoryLogListResponse {
+    repeated InventoryLog logs = 1;
+}
+
+// stock reservation
+
+message StockReservation {
+    int32 id = 1;
+    string inventoryId = 2;
+    int32 reservedQty = 3;
+    google.protobuf.Timestamp expiresAt = 4;
+    optional string orderId = 5;
+}
+
+message CreateStockReservationRequest {
+    string inventoryId = 1;
+    int32 reservedQty = 2;
+    string orderId = 3;
+}
+
+message ReleaseStockReservationRequest {
+    int32 id = 1;
+}
+
+message ConfirmStockReservationRequest {
+    int32 id = 1;
+}
+
+message StockReservationResponse {
+    StockReservation reservation = 1;
+}
+
+message Empty {}

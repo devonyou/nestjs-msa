@@ -8,34 +8,490 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "product";
 
 export interface Product {
   id: number;
   name: string;
+  description: string;
+  price: number;
+  options: ProductOption[];
+  images: ProductImage[];
+  category: Category | undefined;
+  createdAt: Timestamp | undefined;
 }
 
-export interface GetProductInfoByProductIdRequest {
-  productId: number;
+export interface CreateProductRequest {
+  name: string;
+  description: string;
+  price: number;
+  categoryId: string;
+}
+
+export interface UpdateProductRequest {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: string;
+}
+
+export interface DeleteProductRequest {
+  id: number;
+}
+
+export interface GetProductsRequest {
+  page: number;
+  limit: number;
+}
+
+export interface GetProductByIdRequest {
+  id: number;
+}
+
+export interface SearchProductsRequest {
+  keyword: string;
+  page: number;
+  limit: number;
+}
+
+export interface ProductResponse {
+  id: number;
+  name: string;
+  description: string;
+  /**
+   * repeated ProductOption options = 5;
+   * repeated ProductImage images = 6;
+   * Category category = 7;
+   */
+  price: number;
+}
+
+export interface ProductListResponse {
+  products: Product[];
+  total: number;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  parentId?: number | undefined;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description: string;
+  parentId?: number | undefined;
+}
+
+export interface UpdateCategoryRequest {
+  id: number;
+  name: string;
+  parentId?: number | undefined;
+}
+
+export interface DeleteCategoryRequest {
+  id: number;
+}
+
+export interface GetCategoryByIdRequest {
+  id: number;
+}
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  description: string;
+  parent?: Category | undefined;
+  children: Category[];
+  products: ProductResponse[];
+}
+
+export interface CategoryListResponse {
+  categories: CategoryResponse[];
+}
+
+export interface ProductOption {
+  id: number;
+  productId: string;
+  name: string;
+  value: string;
+}
+
+export interface AddOptionToProductRequest {
+  productId: string;
+  name: string;
+  value: string;
+}
+
+export interface GetProductOptionsRequest {
+  productId: string;
+}
+
+export interface UpdateOptionRequest {
+  id: number;
+  name: string;
+  value: string;
+}
+
+export interface DeleteOptionRequest {
+  id: number;
+}
+
+export interface ProductOptionResponse {
+  option: ProductOption | undefined;
+}
+
+export interface ProductOptionListResponse {
+  options: ProductOption[];
+}
+
+export interface ProductImage {
+  id: number;
+  productId: string;
+  url: string;
+  isMain: boolean;
+}
+
+export interface AddImagesToProductRequest {
+  productId: string;
+  imageUrls: string[];
+}
+
+export interface GetProductImagesRequest {
+  productId: string;
+}
+
+export interface DeleteImageRequest {
+  imageId: string;
+}
+
+export interface SetMainImageRequest {
+  imageId: string;
+}
+
+export interface ProductImageResponse {
+  image: ProductImage | undefined;
+}
+
+export interface ProductImageListResponse {
+  images: ProductImage[];
+}
+
+export interface Inventory {
+  id: number;
+  productId: string;
+  optionId?: string | undefined;
+  quantity: number;
+}
+
+export interface InventoryResponse {
+  inventory: Inventory | undefined;
+}
+
+export interface GetInventoryByProductIdRequest {
+  productId: string;
+}
+
+export interface GetInventoryByOptionIdRequest {
+  optionId: string;
+}
+
+export interface UpdateInventoryQuantityRequest {
+  inventoryId: string;
+  quantity: number;
+}
+
+export interface InventoryLog {
+  id: number;
+  inventoryId: string;
+  changeType: string;
+  quantityChanged: number;
+  reason: string;
+  createdAt: Timestamp | undefined;
+}
+
+export interface GetInventoryLogsRequest {
+  inventoryId: string;
+}
+
+export interface InventoryLogListResponse {
+  logs: InventoryLog[];
+}
+
+export interface StockReservation {
+  id: number;
+  inventoryId: string;
+  reservedQty: number;
+  expiresAt: Timestamp | undefined;
+  orderId?: string | undefined;
+}
+
+export interface CreateStockReservationRequest {
+  inventoryId: string;
+  reservedQty: number;
+  orderId: string;
+}
+
+export interface ReleaseStockReservationRequest {
+  id: number;
+}
+
+export interface ConfirmStockReservationRequest {
+  id: number;
+}
+
+export interface StockReservationResponse {
+  reservation: StockReservation | undefined;
+}
+
+export interface Empty {
 }
 
 export const PRODUCT_PACKAGE_NAME = "product";
 
 export interface ProductServiceClient {
-  getProductInfoByProductId(request: GetProductInfoByProductIdRequest, metadata?: Metadata): Observable<Product>;
+  /** product */
+
+  createProduct(request: CreateProductRequest, metadata?: Metadata): Observable<ProductResponse>;
+
+  getProducts(request: GetProductsRequest, metadata?: Metadata): Observable<ProductListResponse>;
+
+  getProductById(request: GetProductByIdRequest, metadata?: Metadata): Observable<ProductResponse>;
+
+  updateProduct(request: UpdateProductRequest, metadata?: Metadata): Observable<ProductResponse>;
+
+  deleteProduct(request: DeleteProductRequest, metadata?: Metadata): Observable<Empty>;
+
+  searchProducts(request: SearchProductsRequest, metadata?: Metadata): Observable<ProductListResponse>;
+
+  /** category */
+
+  createCategory(request: CreateCategoryRequest, metadata?: Metadata): Observable<CategoryResponse>;
+
+  getAllCategories(request: Empty, metadata?: Metadata): Observable<CategoryListResponse>;
+
+  getCategoryById(request: GetCategoryByIdRequest, metadata?: Metadata): Observable<CategoryResponse>;
+
+  updateCategory(request: UpdateCategoryRequest, metadata?: Metadata): Observable<CategoryResponse>;
+
+  deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Observable<Empty>;
+
+  /** option */
+
+  addOptionToProduct(request: AddOptionToProductRequest, metadata?: Metadata): Observable<ProductOptionResponse>;
+
+  getProductOptions(request: GetProductOptionsRequest, metadata?: Metadata): Observable<ProductOptionListResponse>;
+
+  updateOption(request: UpdateOptionRequest, metadata?: Metadata): Observable<ProductOptionResponse>;
+
+  deleteOption(request: DeleteOptionRequest, metadata?: Metadata): Observable<Empty>;
+
+  /** image */
+
+  addImagesToProduct(request: AddImagesToProductRequest, metadata?: Metadata): Observable<ProductImageListResponse>;
+
+  getProductImages(request: GetProductImagesRequest, metadata?: Metadata): Observable<ProductImageListResponse>;
+
+  deleteImage(request: DeleteImageRequest, metadata?: Metadata): Observable<Empty>;
+
+  setMainImage(request: SetMainImageRequest, metadata?: Metadata): Observable<ProductImageResponse>;
+
+  /** inventory */
+
+  getInventoryByProductId(request: GetInventoryByProductIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
+
+  getInventoryByOptionId(request: GetInventoryByOptionIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
+
+  increaseInventory(request: UpdateInventoryQuantityRequest, metadata?: Metadata): Observable<InventoryResponse>;
+
+  decreaseInventory(request: UpdateInventoryQuantityRequest, metadata?: Metadata): Observable<InventoryResponse>;
+
+  getInventoryLogs(request: GetInventoryLogsRequest, metadata?: Metadata): Observable<InventoryLogListResponse>;
+
+  /** stock reservation */
+
+  createStockReservation(
+    request: CreateStockReservationRequest,
+    metadata?: Metadata,
+  ): Observable<StockReservationResponse>;
+
+  releaseStockReservation(request: ReleaseStockReservationRequest, metadata?: Metadata): Observable<Empty>;
+
+  confirmStockReservation(request: ConfirmStockReservationRequest, metadata?: Metadata): Observable<InventoryResponse>;
 }
 
 export interface ProductServiceController {
-  getProductInfoByProductId(
-    request: GetProductInfoByProductIdRequest,
+  /** product */
+
+  createProduct(
+    request: CreateProductRequest,
     metadata?: Metadata,
-  ): Promise<Product> | Observable<Product> | Product;
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  getProducts(
+    request: GetProductsRequest,
+    metadata?: Metadata,
+  ): Promise<ProductListResponse> | Observable<ProductListResponse> | ProductListResponse;
+
+  getProductById(
+    request: GetProductByIdRequest,
+    metadata?: Metadata,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  updateProduct(
+    request: UpdateProductRequest,
+    metadata?: Metadata,
+  ): Promise<ProductResponse> | Observable<ProductResponse> | ProductResponse;
+
+  deleteProduct(request: DeleteProductRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  searchProducts(
+    request: SearchProductsRequest,
+    metadata?: Metadata,
+  ): Promise<ProductListResponse> | Observable<ProductListResponse> | ProductListResponse;
+
+  /** category */
+
+  createCategory(
+    request: CreateCategoryRequest,
+    metadata?: Metadata,
+  ): Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  getAllCategories(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<CategoryListResponse> | Observable<CategoryListResponse> | CategoryListResponse;
+
+  getCategoryById(
+    request: GetCategoryByIdRequest,
+    metadata?: Metadata,
+  ): Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  updateCategory(
+    request: UpdateCategoryRequest,
+    metadata?: Metadata,
+  ): Promise<CategoryResponse> | Observable<CategoryResponse> | CategoryResponse;
+
+  deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** option */
+
+  addOptionToProduct(
+    request: AddOptionToProductRequest,
+    metadata?: Metadata,
+  ): Promise<ProductOptionResponse> | Observable<ProductOptionResponse> | ProductOptionResponse;
+
+  getProductOptions(
+    request: GetProductOptionsRequest,
+    metadata?: Metadata,
+  ): Promise<ProductOptionListResponse> | Observable<ProductOptionListResponse> | ProductOptionListResponse;
+
+  updateOption(
+    request: UpdateOptionRequest,
+    metadata?: Metadata,
+  ): Promise<ProductOptionResponse> | Observable<ProductOptionResponse> | ProductOptionResponse;
+
+  deleteOption(request: DeleteOptionRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** image */
+
+  addImagesToProduct(
+    request: AddImagesToProductRequest,
+    metadata?: Metadata,
+  ): Promise<ProductImageListResponse> | Observable<ProductImageListResponse> | ProductImageListResponse;
+
+  getProductImages(
+    request: GetProductImagesRequest,
+    metadata?: Metadata,
+  ): Promise<ProductImageListResponse> | Observable<ProductImageListResponse> | ProductImageListResponse;
+
+  deleteImage(request: DeleteImageRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  setMainImage(
+    request: SetMainImageRequest,
+    metadata?: Metadata,
+  ): Promise<ProductImageResponse> | Observable<ProductImageResponse> | ProductImageResponse;
+
+  /** inventory */
+
+  getInventoryByProductId(
+    request: GetInventoryByProductIdRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+
+  getInventoryByOptionId(
+    request: GetInventoryByOptionIdRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+
+  increaseInventory(
+    request: UpdateInventoryQuantityRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+
+  decreaseInventory(
+    request: UpdateInventoryQuantityRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+
+  getInventoryLogs(
+    request: GetInventoryLogsRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryLogListResponse> | Observable<InventoryLogListResponse> | InventoryLogListResponse;
+
+  /** stock reservation */
+
+  createStockReservation(
+    request: CreateStockReservationRequest,
+    metadata?: Metadata,
+  ): Promise<StockReservationResponse> | Observable<StockReservationResponse> | StockReservationResponse;
+
+  releaseStockReservation(
+    request: ReleaseStockReservationRequest,
+    metadata?: Metadata,
+  ): Promise<Empty> | Observable<Empty> | Empty;
+
+  confirmStockReservation(
+    request: ConfirmStockReservationRequest,
+    metadata?: Metadata,
+  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
 }
 
 export function ProductServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getProductInfoByProductId"];
+    const grpcMethods: string[] = [
+      "createProduct",
+      "getProducts",
+      "getProductById",
+      "updateProduct",
+      "deleteProduct",
+      "searchProducts",
+      "createCategory",
+      "getAllCategories",
+      "getCategoryById",
+      "updateCategory",
+      "deleteCategory",
+      "addOptionToProduct",
+      "getProductOptions",
+      "updateOption",
+      "deleteOption",
+      "addImagesToProduct",
+      "getProductImages",
+      "deleteImage",
+      "setMainImage",
+      "getInventoryByProductId",
+      "getInventoryByOptionId",
+      "increaseInventory",
+      "decreaseInventory",
+      "getInventoryLogs",
+      "createStockReservation",
+      "releaseStockReservation",
+      "confirmStockReservation",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ProductService", method)(constructor.prototype[method], method, descriptor);
