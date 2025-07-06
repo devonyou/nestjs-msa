@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { RpcExceptionFilter } from '@app/common';
+import { GrpcInterceptor, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
@@ -12,7 +12,8 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     const GRPC_URL = configService.getOrThrow<string>('GRPC_URL');
 
-    app.useGlobalFilters(new RpcExceptionFilter());
+    app.useGlobalFilters(new RpcExceptionFilter(), new QueryFailedExceptionFilter());
+    app.useGlobalInterceptors(new GrpcInterceptor());
 
     app.connectMicroservice<MicroserviceOptions>(
         {

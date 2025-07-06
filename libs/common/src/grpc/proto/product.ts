@@ -77,19 +77,20 @@ export interface ProductListResponse {
 export interface Category {
   id: number;
   name: string;
-  description: string;
+  description?: string | undefined;
   parentId?: number | undefined;
 }
 
 export interface CreateCategoryRequest {
   name: string;
-  description: string;
+  description?: string | undefined;
   parentId?: number | undefined;
 }
 
 export interface UpdateCategoryRequest {
   id: number;
-  name: string;
+  name?: string | undefined;
+  description?: string | undefined;
   parentId?: number | undefined;
 }
 

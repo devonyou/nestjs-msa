@@ -2,7 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { GatewayModule } from './gateway.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import { ClassSerializerInterceptor, Logger } from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger, ValidationPipe } from '@nestjs/common';
 import { HttpSuccessInterceptor } from './common/http/http.success.interceptor';
 import { HttpExceptionFilter } from './common/http/http.exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -22,10 +22,11 @@ class Server {
         this.configService = new ConfigService();
 
         this.setupCors();
+        this.setupSwagger();
         this.setupGlobalInterceptor();
         this.setupGlobalFilter();
-        this.setupSwagger();
         this.setupGlobalGuard();
+        this.setupGlobalPipe();
     }
 
     private setupCors() {
@@ -45,6 +46,16 @@ class Server {
 
     private setupGlobalFilter() {
         this.app.useGlobalFilters(new HttpExceptionFilter());
+    }
+
+    private setupGlobalPipe() {
+        this.app.useGlobalPipes(
+            new ValidationPipe({
+                transform: true,
+                whitelist: true,
+                forbidNonWhitelisted: false,
+            }),
+        );
     }
 
     private setupGlobalGuard() {

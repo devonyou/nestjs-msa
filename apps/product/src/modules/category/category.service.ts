@@ -20,13 +20,18 @@ export class CategoryService {
         let parentCategory: ProductCategoryEntity;
 
         if (parentId) {
-            const parentCategory = await this.categoryRepository.findOne({ where: { id: parentId } });
+            parentCategory = await this.categoryRepository.findOne({ where: { id: parentId } });
             if (!parentCategory) {
                 throw new GrpcNotFoundException('Parent category not found');
             }
         }
 
-        const category = this.categoryRepository.create({ name, description, parent: parentCategory });
+        const category = this.categoryRepository.create({
+            name,
+            description,
+            parent: parentCategory,
+        });
+
         await this.categoryRepository.save(category);
 
         const savedCategory = await this.categoryRepository.findOne({
@@ -61,7 +66,16 @@ export class CategoryService {
     async updateCategory(
         request: ProductMicroService.UpdateCategoryRequest,
     ): Promise<ProductMicroService.CategoryResponse> {
-        const { id, name, parentId } = request;
+        const { id, name, parentId, description } = request;
+
+        let parentCategory: ProductCategoryEntity;
+
+        if (parentId) {
+            parentCategory = await this.categoryRepository.findOne({ where: { id: parentId } });
+            if (!parentCategory) {
+                throw new GrpcNotFoundException('Parent category not found');
+            }
+        }
 
         const category = await this.categoryRepository.findOne({ where: { id } });
         if (!category) {
@@ -69,7 +83,8 @@ export class CategoryService {
         }
 
         category.name = name;
-        category.parent = parentId ? await this.categoryRepository.findOne({ where: { id: parentId } }) : null;
+        category.description = description;
+        category.parent = parentId && parentCategory;
 
         await this.categoryRepository.save(category);
 
@@ -83,7 +98,6 @@ export class CategoryService {
         }
 
         await this.categoryRepository.delete(id);
-
-        return { message: 'Category deleted successfully' };
+        return null;
     }
 }

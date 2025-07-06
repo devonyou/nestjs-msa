@@ -1,8 +1,13 @@
 import { ProductMicroService } from '@app/common';
 import { ProductCategoryEntity } from '../../../entities/product.category.entity';
+import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 
 export class CategoryResponseMapper {
     static toCategoryResponse(category: ProductCategoryEntity): ProductMicroService.CategoryResponse {
+        if (!category) {
+            throw new GrpcNotFoundException('Category not found');
+        }
+
         return {
             id: category.id,
             name: category.name,
