@@ -17,61 +17,62 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  options: ProductOption[];
   images: ProductImage[];
   category: Category | undefined;
-  createdAt: Timestamp | undefined;
 }
 
-export interface CreateProductRequest {
-  name: string;
-  description: string;
-  price: number;
-  categoryId: string;
-}
-
-export interface UpdateProductRequest {
+export interface ProductImage {
   id: number;
-  name: string;
-  description: string;
-  price: number;
-  categoryId: string;
-}
-
-export interface DeleteProductRequest {
-  id: number;
-}
-
-export interface GetProductsRequest {
-  page: number;
-  limit: number;
-}
-
-export interface GetProductByIdRequest {
-  id: number;
-}
-
-export interface SearchProductsRequest {
-  keyword: string;
-  page: number;
-  limit: number;
+  url: string;
+  isMain: boolean;
 }
 
 export interface ProductResponse {
   id: number;
   name: string;
   description: string;
-  /**
-   * repeated ProductOption options = 5;
-   * repeated ProductImage images = 6;
-   * Category category = 7;
-   */
   price: number;
+  images: ProductImage[];
+  category: CategoryResponse | undefined;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductListResponse {
-  products: Product[];
+  products: ProductResponse[];
   total: number;
+}
+
+export interface CreateProductRequest {
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+}
+
+export interface GetProductsRequest {
+  page: number;
+  limit: number;
+  sort: string;
+  categoryId?: number | undefined;
+  name?: string | undefined;
+}
+
+export interface GetProductByIdRequest {
+  id: number;
+}
+
+export interface UpdateProductRequest {
+  id: number;
+  name?: string | undefined;
+  description?: string | undefined;
+  price?: number | undefined;
+  categoryId?: number | undefined;
+  images: string[];
+}
+
+export interface DeleteProductRequest {
+  id: number;
 }
 
 export interface Category {
@@ -79,6 +80,19 @@ export interface Category {
   name: string;
   description?: string | undefined;
   parentId?: number | undefined;
+}
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  description: string;
+  parent?: Category | undefined;
+  children: Category[];
+  products: ProductResponse[];
+}
+
+export interface CategoryListResponse {
+  categories: CategoryResponse[];
 }
 
 export interface CreateCategoryRequest {
@@ -102,90 +116,9 @@ export interface GetCategoryByIdRequest {
   id: number;
 }
 
-export interface CategoryResponse {
-  id: number;
-  name: string;
-  description: string;
-  parent?: Category | undefined;
-  children: Category[];
-  products: ProductResponse[];
-}
-
-export interface CategoryListResponse {
-  categories: CategoryResponse[];
-}
-
-export interface ProductOption {
-  id: number;
-  productId: string;
-  name: string;
-  value: string;
-}
-
-export interface AddOptionToProductRequest {
-  productId: string;
-  name: string;
-  value: string;
-}
-
-export interface GetProductOptionsRequest {
-  productId: string;
-}
-
-export interface UpdateOptionRequest {
-  id: number;
-  name: string;
-  value: string;
-}
-
-export interface DeleteOptionRequest {
-  id: number;
-}
-
-export interface ProductOptionResponse {
-  option: ProductOption | undefined;
-}
-
-export interface ProductOptionListResponse {
-  options: ProductOption[];
-}
-
-export interface ProductImage {
-  id: number;
-  productId: string;
-  url: string;
-  isMain: boolean;
-}
-
-export interface AddImagesToProductRequest {
-  productId: string;
-  imageUrls: string[];
-}
-
-export interface GetProductImagesRequest {
-  productId: string;
-}
-
-export interface DeleteImageRequest {
-  imageId: string;
-}
-
-export interface SetMainImageRequest {
-  imageId: string;
-}
-
-export interface ProductImageResponse {
-  image: ProductImage | undefined;
-}
-
-export interface ProductImageListResponse {
-  images: ProductImage[];
-}
-
 export interface Inventory {
   id: number;
   productId: string;
-  optionId?: string | undefined;
   quantity: number;
 }
 
@@ -195,10 +128,6 @@ export interface InventoryResponse {
 
 export interface GetInventoryByProductIdRequest {
   productId: string;
-}
-
-export interface GetInventoryByOptionIdRequest {
-  optionId: string;
 }
 
 export interface UpdateInventoryQuantityRequest {
@@ -267,8 +196,6 @@ export interface ProductServiceClient {
 
   deleteProduct(request: DeleteProductRequest, metadata?: Metadata): Observable<Empty>;
 
-  searchProducts(request: SearchProductsRequest, metadata?: Metadata): Observable<ProductListResponse>;
-
   /** category */
 
   createCategory(request: CreateCategoryRequest, metadata?: Metadata): Observable<CategoryResponse>;
@@ -281,31 +208,9 @@ export interface ProductServiceClient {
 
   deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Observable<Empty>;
 
-  /** option */
-
-  addOptionToProduct(request: AddOptionToProductRequest, metadata?: Metadata): Observable<ProductOptionResponse>;
-
-  getProductOptions(request: GetProductOptionsRequest, metadata?: Metadata): Observable<ProductOptionListResponse>;
-
-  updateOption(request: UpdateOptionRequest, metadata?: Metadata): Observable<ProductOptionResponse>;
-
-  deleteOption(request: DeleteOptionRequest, metadata?: Metadata): Observable<Empty>;
-
-  /** image */
-
-  addImagesToProduct(request: AddImagesToProductRequest, metadata?: Metadata): Observable<ProductImageListResponse>;
-
-  getProductImages(request: GetProductImagesRequest, metadata?: Metadata): Observable<ProductImageListResponse>;
-
-  deleteImage(request: DeleteImageRequest, metadata?: Metadata): Observable<Empty>;
-
-  setMainImage(request: SetMainImageRequest, metadata?: Metadata): Observable<ProductImageResponse>;
-
   /** inventory */
 
   getInventoryByProductId(request: GetInventoryByProductIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
-
-  getInventoryByOptionId(request: GetInventoryByOptionIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
 
   increaseInventory(request: UpdateInventoryQuantityRequest, metadata?: Metadata): Observable<InventoryResponse>;
 
@@ -350,11 +255,6 @@ export interface ProductServiceController {
 
   deleteProduct(request: DeleteProductRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
-  searchProducts(
-    request: SearchProductsRequest,
-    metadata?: Metadata,
-  ): Promise<ProductListResponse> | Observable<ProductListResponse> | ProductListResponse;
-
   /** category */
 
   createCategory(
@@ -379,53 +279,10 @@ export interface ProductServiceController {
 
   deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
-  /** option */
-
-  addOptionToProduct(
-    request: AddOptionToProductRequest,
-    metadata?: Metadata,
-  ): Promise<ProductOptionResponse> | Observable<ProductOptionResponse> | ProductOptionResponse;
-
-  getProductOptions(
-    request: GetProductOptionsRequest,
-    metadata?: Metadata,
-  ): Promise<ProductOptionListResponse> | Observable<ProductOptionListResponse> | ProductOptionListResponse;
-
-  updateOption(
-    request: UpdateOptionRequest,
-    metadata?: Metadata,
-  ): Promise<ProductOptionResponse> | Observable<ProductOptionResponse> | ProductOptionResponse;
-
-  deleteOption(request: DeleteOptionRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
-
-  /** image */
-
-  addImagesToProduct(
-    request: AddImagesToProductRequest,
-    metadata?: Metadata,
-  ): Promise<ProductImageListResponse> | Observable<ProductImageListResponse> | ProductImageListResponse;
-
-  getProductImages(
-    request: GetProductImagesRequest,
-    metadata?: Metadata,
-  ): Promise<ProductImageListResponse> | Observable<ProductImageListResponse> | ProductImageListResponse;
-
-  deleteImage(request: DeleteImageRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
-
-  setMainImage(
-    request: SetMainImageRequest,
-    metadata?: Metadata,
-  ): Promise<ProductImageResponse> | Observable<ProductImageResponse> | ProductImageResponse;
-
   /** inventory */
 
   getInventoryByProductId(
     request: GetInventoryByProductIdRequest,
-    metadata?: Metadata,
-  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
-
-  getInventoryByOptionId(
-    request: GetInventoryByOptionIdRequest,
     metadata?: Metadata,
   ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
 
@@ -470,22 +327,12 @@ export function ProductServiceControllerMethods() {
       "getProductById",
       "updateProduct",
       "deleteProduct",
-      "searchProducts",
       "createCategory",
       "getAllCategories",
       "getCategoryById",
       "updateCategory",
       "deleteCategory",
-      "addOptionToProduct",
-      "getProductOptions",
-      "updateOption",
-      "deleteOption",
-      "addImagesToProduct",
-      "getProductImages",
-      "deleteImage",
-      "setMainImage",
       "getInventoryByProductId",
-      "getInventoryByOptionId",
       "increaseInventory",
       "decreaseInventory",
       "getInventoryLogs",

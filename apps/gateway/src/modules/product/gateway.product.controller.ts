@@ -1,4 +1,4 @@
-import { Body, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiController } from '../../common/decorator/api.controller.decorator';
 import { GatewayProductService } from './gateway.product.service';
 import {
@@ -11,10 +11,62 @@ import { Auth } from '../../common/decorator/auth.decorator';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { Rbac } from '../../common/decorator/rbac.decorator';
 import { ProductMicroService, UserMicroService } from '@app/common';
+import {
+    CreateProductRequestDto,
+    GetProductListQueryDto,
+    ProductListResponseDto,
+    ProductResponseDto,
+    UpdateProductRequestDto,
+} from './dto/product.dto';
 
 @ApiController('product')
 export class GatewayProductController {
     constructor(private readonly gatewayProductService: GatewayProductService) {}
+
+    @Post()
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '상품 생성' })
+    @ApiCreatedResponse({ description: '상품 생성 성공', type: ProductResponseDto })
+    createProduct(@Body() body: CreateProductRequestDto): Promise<ProductResponseDto> {
+        return this.gatewayProductService.createProduct(body);
+    }
+
+    @Get()
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '상품 목록 조회' })
+    @ApiOkResponse({ description: '상품 목록 조회 성공', type: [ProductResponseDto] })
+    getProducts(@Query() query: GetProductListQueryDto): Promise<ProductListResponseDto> {
+        return this.gatewayProductService.getProducts(query);
+    }
+
+    @Get(':id')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '상품 상세 조회' })
+    @ApiOkResponse({ description: '상품 상세 조회 성공', type: ProductResponseDto })
+    getProductById(@Param('id') id: number): Promise<ProductResponseDto> {
+        return this.gatewayProductService.getProductById(id);
+    }
+
+    @Patch(':id')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '상품 수정' })
+    @ApiOkResponse({ description: '상품 수정 성공', type: ProductResponseDto })
+    updateProduct(@Param('id') id: number, @Body() body: UpdateProductRequestDto): Promise<ProductResponseDto> {
+        return this.gatewayProductService.updateProduct(id, body);
+    }
+
+    @Delete(':id')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '상품 삭제' })
+    @ApiOkResponse({ description: '상품 삭제 성공', type: null })
+    deleteProduct(@Param('id') id: number): Promise<ProductMicroService.Empty> {
+        return this.gatewayProductService.deleteProduct(id);
+    }
 
     @Post('category')
     @Auth(false)

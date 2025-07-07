@@ -11,7 +11,6 @@ service ProductService {
     rpc getProductById(GetProductByIdRequest) returns (ProductResponse);
     rpc updateProduct(UpdateProductRequest) returns (ProductResponse);
     rpc deleteProduct(DeleteProductRequest) returns (Empty);
-    rpc searchProducts(SearchProductsRequest) returns (ProductListResponse);
 
     // category
     rpc createCategory(CreateCategoryRequest) returns (CategoryResponse);
@@ -20,21 +19,8 @@ service ProductService {
     rpc updateCategory(UpdateCategoryRequest) returns (CategoryResponse);
     rpc deleteCategory(DeleteCategoryRequest) returns (Empty);
 
-    // option
-    rpc addOptionToProduct(AddOptionToProductRequest) returns (ProductOptionResponse);
-    rpc getProductOptions(GetProductOptionsRequest) returns (ProductOptionListResponse);
-    rpc updateOption(UpdateOptionRequest) returns (ProductOptionResponse);
-    rpc deleteOption(DeleteOptionRequest) returns (Empty);
-
-    // image
-    rpc addImagesToProduct(AddImagesToProductRequest) returns (ProductImageListResponse);
-    rpc getProductImages(GetProductImagesRequest) returns (ProductImageListResponse);
-    rpc deleteImage(DeleteImageRequest) returns (Empty);
-    rpc setMainImage(SetMainImageRequest) returns (ProductImageResponse);
-
     // inventory
     rpc getInventoryByProductId(GetInventoryByProductIdRequest) returns (InventoryResponse);
-    rpc getInventoryByOptionId(GetInventoryByOptionIdRequest) returns (InventoryResponse);
     rpc increaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
     rpc decreaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
     rpc getInventoryLogs(GetInventoryLogsRequest) returns (InventoryLogListResponse);
@@ -52,44 +38,14 @@ message Product {
     string name = 2;
     string description = 3;
     int32 price = 4;
-    repeated ProductOption options = 5;
-    repeated ProductImage images = 6;
-    Category category = 7;
-    google.protobuf.Timestamp createdAt = 8;
+    repeated ProductImage images = 5;
+    Category category = 6;
 }
 
-message CreateProductRequest {
-    string name = 1;
-    string description = 2;
-    int32 price = 3;
-    string categoryId = 4;
-}
-
-message UpdateProductRequest {
+message ProductImage {
     int32 id = 1;
-    string name = 2;
-    string description = 3;
-    int32 price = 4;
-    string categoryId = 5;
-}
-
-message DeleteProductRequest {
-    int32 id = 1;
-}
-
-message GetProductsRequest {
-    int32 page = 1;
-    int32 limit = 2;
-}
-
-message GetProductByIdRequest {
-    int32 id = 1;
-}
-
-message SearchProductsRequest {
-    string keyword = 1;
-    int32 page = 2;
-    int32 limit = 3;
+    string url = 2;
+    bool isMain = 3;
 }
 
 message ProductResponse {
@@ -97,14 +53,47 @@ message ProductResponse {
     string name = 2;
     string description = 3;
     int32 price = 4;
-    // repeated ProductOption options = 5;
-    // repeated ProductImage images = 6;
-    // Category category = 7;
+    repeated ProductImage images = 5;
+    CategoryResponse category = 6;
+    string createdAt = 7;
+    string updatedAt = 8;
 }
 
 message ProductListResponse {
-    repeated Product products = 1;
+    repeated ProductResponse products = 1;
     int32 total = 2;
+}
+
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    int32 price = 3;
+    int32 categoryId = 4;
+}
+
+message GetProductsRequest {
+    int32 page = 1;
+    int32 limit = 2;
+    string sort = 3;
+    optional int32 categoryId = 4;
+    optional string name = 5;
+}
+
+message GetProductByIdRequest {
+    int32 id = 1;
+}
+
+message UpdateProductRequest {
+    int32 id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional int32 price = 4;
+    optional int32 categoryId = 5;
+    repeated string images = 6;
+}
+
+message DeleteProductRequest {
+    int32 id = 1;
 }
 
 // category
@@ -114,6 +103,19 @@ message Category {
     string name = 2;
     optional string description = 3;
     optional int32 parentId = 4;
+}
+
+message CategoryResponse {
+    int32 id = 1;
+    string name = 2;
+    string description = 3;
+    optional Category parent = 4;
+    repeated Category children = 5;
+    repeated ProductResponse products = 6;
+}
+
+message CategoryListResponse {
+    repeated CategoryResponse categories = 1;
 }
 
 message CreateCategoryRequest {
@@ -137,97 +139,12 @@ message GetCategoryByIdRequest {
     int32 id = 1;
 }
 
-message CategoryResponse {
-    int32 id = 1;
-    string name = 2;
-    string description = 3;
-    optional Category parent = 4;
-    repeated Category children = 5;
-    repeated ProductResponse products = 6;
-}
-
-message CategoryListResponse {
-    repeated CategoryResponse categories = 1;
-}
-
-// option
-
-message ProductOption {
-    int32 id = 1;
-    string productId = 2;
-    string name = 3;
-    string value = 4;
-}
-
-message AddOptionToProductRequest {
-    string productId = 1;
-    string name = 2;
-    string value = 3;
-}
-
-message GetProductOptionsRequest {
-    string productId = 1;
-}
-
-message UpdateOptionRequest {
-    int32 id = 1;
-    string name = 2;
-    string value = 3;
-}
-
-message DeleteOptionRequest {
-    int32 id = 1;
-}
-
-message ProductOptionResponse {
-    ProductOption option = 1;
-}
-
-message ProductOptionListResponse {
-    repeated ProductOption options = 1;
-}
-
-// image
-
-message ProductImage {
-    int32 id = 1;
-    string productId = 2;
-    string url = 3;
-    bool isMain = 4;
-}
-
-message AddImagesToProductRequest {
-    string productId = 1;
-    repeated string imageUrls = 2;
-}
-
-message GetProductImagesRequest {
-    string productId = 1;
-}
-
-message DeleteImageRequest {
-    string imageId = 1;
-}
-
-message SetMainImageRequest {
-    string imageId = 1;
-}
-
-message ProductImageResponse {
-    ProductImage image = 1;
-}
-
-message ProductImageListResponse {
-    repeated ProductImage images = 1;
-}
-
 // inventory
 
 message Inventory {
     int32 id = 1;
     string productId = 2;
-    optional string optionId = 3;
-    int32 quantity = 4;
+    int32 quantity = 3;
 }
 
 message InventoryResponse {
@@ -236,10 +153,6 @@ message InventoryResponse {
 
 message GetInventoryByProductIdRequest {
     string productId = 1;
-}
-
-message GetInventoryByOptionIdRequest {
-    string optionId = 1;
 }
 
 message UpdateInventoryQuantityRequest {

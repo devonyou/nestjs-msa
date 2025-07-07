@@ -4,7 +4,6 @@ import { ProductCategoryEntity } from '../../entities/product.category.entity';
 import { Repository } from 'typeorm';
 import { ProductMicroService } from '@app/common';
 import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
-import { CategoryResponseMapper } from './mapper/category.response.mapper';
 
 @Injectable()
 export class CategoryService {
@@ -13,16 +12,14 @@ export class CategoryService {
         private readonly categoryRepository: Repository<ProductCategoryEntity>,
     ) {}
 
-    async createCategory(
-        request: ProductMicroService.CreateCategoryRequest,
-    ): Promise<ProductMicroService.CategoryResponse> {
+    async createCategory(request: ProductMicroService.CreateCategoryRequest): Promise<ProductCategoryEntity> {
         const { name, parentId, description } = request;
         let parentCategory: ProductCategoryEntity;
 
         if (parentId) {
             parentCategory = await this.categoryRepository.findOne({ where: { id: parentId } });
             if (!parentCategory) {
-                throw new GrpcNotFoundException('Parent category not found');
+                throw new GrpcNotFoundException('상위 카테고리를 찾을 수 없습니다');
             }
         }
 
@@ -34,38 +31,29 @@ export class CategoryService {
 
         await this.categoryRepository.save(category);
 
-        const savedCategory = await this.categoryRepository.findOne({
-            where: { id: category.id },
-            relations: ['parent', 'children', 'products'],
-        });
+        const savedCategory = await this.getCategoryById(category.id);
 
-        return CategoryResponseMapper.toCategoryResponse(savedCategory);
+        return savedCategory;
     }
 
-    async getAllCategories(request: ProductMicroService.Empty): Promise<ProductMicroService.CategoryListResponse> {
-        const {} = request;
-
+    async getAllCategories(): Promise<ProductCategoryEntity[]> {
         const categories = await this.categoryRepository.find({
             relations: ['parent', 'children', 'products'],
         });
 
-        return {
-            categories: categories.map(category => CategoryResponseMapper.toCategoryResponse(category)),
-        };
+        return categories;
     }
 
-    async getCategoryById(id: number): Promise<ProductMicroService.CategoryResponse> {
+    async getCategoryById(id: number): Promise<ProductCategoryEntity> {
         const category = await this.categoryRepository.findOne({
             where: { id },
             relations: ['parent', 'children', 'products'],
         });
 
-        return CategoryResponseMapper.toCategoryResponse(category);
+        return category;
     }
 
-    async updateCategory(
-        request: ProductMicroService.UpdateCategoryRequest,
-    ): Promise<ProductMicroService.CategoryResponse> {
+    async updateCategory(request: ProductMicroService.UpdateCategoryRequest): Promise<ProductCategoryEntity> {
         const { id, name, parentId, description } = request;
 
         let parentCategory: ProductCategoryEntity;
@@ -73,13 +61,13 @@ export class CategoryService {
         if (parentId) {
             parentCategory = await this.categoryRepository.findOne({ where: { id: parentId } });
             if (!parentCategory) {
-                throw new GrpcNotFoundException('Parent category not found');
+                throw new GrpcNotFoundException('상위 카테고리를 찾을 수 없습니다');
             }
         }
 
         const category = await this.categoryRepository.findOne({ where: { id } });
         if (!category) {
-            throw new GrpcNotFoundException('Category not found');
+            throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
         }
 
         category.name = name;
@@ -88,16 +76,17 @@ export class CategoryService {
 
         await this.categoryRepository.save(category);
 
-        return this.getCategoryById(id);
+        const savedCategory = await this.getCategoryById(id);
+
+        return savedCategory;
     }
 
-    async deleteCategory(id: number): Promise<ProductMicroService.Empty> {
+    async deleteCategory(id: number) {
         const category = await this.categoryRepository.findOne({ where: { id } });
         if (!category) {
-            throw new GrpcNotFoundException('Category not found');
+            throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
         }
 
         await this.categoryRepository.delete(id);
-        return null;
     }
 }

@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductEntity } from './entities/product.entity';
 import { ProductCategoryEntity } from './entities/product.category.entity';
 import { ProductImageEntity } from './entities/product.image.entity';
-import { ProductOptionEntity } from './entities/prdouct.options.entity';
 import { InventoryEntity } from './entities/inventory.entity';
 import { InventoryLogEntity } from './entities/inventory.log.entity';
 import { StockReservationEntity } from './entities/stock.reservation.entity';
@@ -28,6 +27,7 @@ import { CategoryModule } from './modules/category/category.module';
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
+                logger: 'advanced-console',
             }),
         }),
 
@@ -35,7 +35,6 @@ import { CategoryModule } from './modules/category/category.module';
             ProductEntity,
             ProductCategoryEntity,
             ProductImageEntity,
-            ProductOptionEntity,
             InventoryEntity,
             InventoryLogEntity,
             StockReservationEntity,

@@ -9,6 +9,13 @@ import {
 } from './dto/category.dto';
 import { lastValueFrom } from 'rxjs';
 import { throwHttpExceptionFromGrpcError } from '../../common/http/http.rpc.exception';
+import {
+    CreateProductRequestDto,
+    GetProductListQueryDto,
+    ProductListResponseDto,
+    ProductResponseDto,
+    UpdateProductRequestDto,
+} from './dto/product.dto';
 
 @Injectable()
 export class GatewayProductService implements OnModuleInit {
@@ -23,6 +30,61 @@ export class GatewayProductService implements OnModuleInit {
         this.productService = this.productMicroService.getService<ProductMicroService.ProductServiceClient>(
             ProductMicroService.PRODUCT_SERVICE_NAME,
         );
+    }
+
+    async createProduct(dto: CreateProductRequestDto): Promise<ProductResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.createProduct.name);
+            const stream = this.productService.createProduct({ ...dto }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async getProducts(dto: GetProductListQueryDto): Promise<ProductListResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.getProducts.name);
+            const stream = this.productService.getProducts(dto, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async getProductById(id: number): Promise<ProductResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.getProductById.name);
+            const stream = this.productService.getProductById({ id }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async updateProduct(id: number, dto: UpdateProductRequestDto): Promise<ProductResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.updateProduct.name);
+            const stream = this.productService.updateProduct({ id, ...dto }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async deleteProduct(id: number): Promise<ProductMicroService.Empty> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.deleteProduct.name);
+            const stream = this.productService.deleteProduct({ id }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
     }
 
     async createCategory(dto: CreateCategoryRequestDto): Promise<any> {
