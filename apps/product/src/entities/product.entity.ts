@@ -4,6 +4,7 @@ import {
     Entity,
     ManyToOne,
     OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
@@ -31,7 +32,7 @@ export class ProductEntity {
     @OneToMany(() => ProductImageEntity, image => image.product)
     images: ProductImageEntity[];
 
-    @OneToMany(() => ProductStockEntity, stock => stock.product)
+    @OneToOne(() => ProductStockEntity, stock => stock.product)
     stock: ProductStockEntity;
 
     @CreateDateColumn()

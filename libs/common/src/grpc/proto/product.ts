@@ -43,6 +43,7 @@ export interface ProductResponse {
   price: number;
   images: ProductImage[];
   category: CategoryResponse | undefined;
+  stock: StockResponse | undefined;
   createdAt: string;
   updatedAt: string;
 }

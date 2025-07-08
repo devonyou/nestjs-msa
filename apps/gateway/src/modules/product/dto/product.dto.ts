@@ -4,6 +4,7 @@ import { Transform, Type } from 'class-transformer';
 import { IsArray, IsDateString, IsInt, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { CategoryDto, CategoryResponseDto } from './category.dto';
 import { CreateProductImageDto, ProductImageDto, ProductImageResponseDto } from './product.image.dto';
+import { ProductStockResponseDto } from './product.stock.dto';
 
 export class ProductDto implements ProductMicroService.Product {
     @ApiProperty({ description: '상품의 ID', example: 1, type: Number })
@@ -65,6 +66,10 @@ export class ProductResponseDto implements ProductMicroService.ProductResponse {
     @ApiProperty({ description: '상품 카테고리', type: CategoryResponseDto })
     @Type(() => CategoryResponseDto)
     category: CategoryResponseDto;
+
+    @ApiProperty({ description: '상품 재고', type: ProductStockResponseDto })
+    @Type(() => ProductStockResponseDto)
+    stock: ProductMicroService.StockResponse;
 
     @ApiProperty({ description: '상품 생성일', example: '2021-01-01T00:00:00.000Z', type: String })
     @IsDateString()

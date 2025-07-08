@@ -6,12 +6,12 @@ import { ProductResponseMapper } from '../../product/mapper/product.response.map
 export class StockResponseMapper {
     static toStockResponse(stock: ProductStockEntity): ProductMicroService.StockResponse {
         if (!stock) {
-            throw new GrpcNotFoundException('재고정보를  찾을 수 없습니다');
+            throw new GrpcNotFoundException('재고정보를 찾을 수 없습니다');
         }
 
         return {
             ...stock,
-            product: ProductResponseMapper.toProductResponse(stock.product),
+            product: stock.product && ProductResponseMapper.toProductResponse(stock.product),
         };
     }
 }

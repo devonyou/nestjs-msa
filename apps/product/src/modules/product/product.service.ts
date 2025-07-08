@@ -69,7 +69,7 @@ export class ProductService {
             order,
             skip,
             take: limit,
-            relations: ['category', 'images'],
+            relations: ['category', 'images', 'stock'],
         });
 
         return {

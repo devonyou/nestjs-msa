@@ -2,6 +2,7 @@ import { ProductMicroService } from '@app/common';
 import { ProductEntity } from '../../../entities/product.entity';
 import { CategoryResponseMapper } from '../../category/mapper/category.response.mapper';
 import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
+import { StockResponseMapper } from '../../stock/mapper/stock.response.mapper';
 
 export class ProductResponseMapper {
     static toProductResponse(product: ProductEntity): ProductMicroService.ProductResponse {
@@ -14,6 +15,7 @@ export class ProductResponseMapper {
             category: product.category && CategoryResponseMapper.toCategoryResponse(product.category),
             createdAt: product.createdAt?.toISOString(),
             updatedAt: product.updatedAt?.toISOString(),
+            stock: product.stock && StockResponseMapper.toStockResponse(product.stock),
         };
     }
 }

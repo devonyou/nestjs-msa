@@ -57,8 +57,9 @@ message ProductResponse {
     int32 price = 4;
     repeated ProductImage images = 5;
     CategoryResponse category = 6;
-    string createdAt = 7;
-    string updatedAt = 8;
+    StockResponse stock = 7;
+    string createdAt = 8;
+    string updatedAt = 9;
 }
 
 message ProductListResponse {
