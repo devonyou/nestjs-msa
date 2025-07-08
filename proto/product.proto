@@ -22,16 +22,16 @@ service ProductService {
     // presigned url
     rpc generatePresignedUrl(GeneratePresignedUrlRequest) returns (GeneratePresignedUrlResponse);
 
-    // inventory
-    rpc getInventoryByProductId(GetInventoryByProductIdRequest) returns (InventoryResponse);
-    rpc increaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
-    rpc decreaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
-    rpc getInventoryLogs(GetInventoryLogsRequest) returns (InventoryLogListResponse);
+    // stock
+    rpc getStockByProductId(GetStockByProductIdRequest) returns (StockResponse);
+    rpc increaseStock(UpdateStockQuantityRequest) returns (StockResponse);
+    rpc decreaseStock(UpdateStockQuantityRequest) returns (StockResponse);
+    rpc getStockLogs(GetStockLogsRequest) returns (StockLogListResponse);
 
     // stock reservation
     rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationResponse);
     rpc releaseStockReservation(ReleaseStockReservationRequest) returns (Empty);
-    rpc confirmStockReservation(ConfirmStockReservationRequest) returns (InventoryResponse);
+    rpc confirmStockReservation(ConfirmStockReservationRequest) returns (StockResponse);
 }
 
 // product
@@ -154,44 +154,45 @@ message GeneratePresignedUrlResponse {
     string presignedUrl = 1;
     string filename = 2;
     string fileUrl = 3;
+    string filePath = 4;
 }
 
-// inventory
+// stock
 
-message Inventory {
+message Stock {
     int32 id = 1;
     string productId = 2;
     int32 quantity = 3;
 }
 
-message InventoryResponse {
-    Inventory inventory = 1;
+message StockResponse {
+    Stock stock = 1;
 }
 
-message GetInventoryByProductIdRequest {
+message GetStockByProductIdRequest {
     string productId = 1;
 }
 
-message UpdateInventoryQuantityRequest {
-    string inventoryId = 1;
+message UpdateStockQuantityRequest {
+    string stockId = 1;
     int32 quantity = 2;
 }
 
-message InventoryLog {
+message StockLog {
     int32 id = 1;
-    string inventoryId = 2;
+    string stockId = 2;
     string changeType = 3;
     int32 quantityChanged = 4;
     string reason = 5;
     google.protobuf.Timestamp createdAt = 6;
 }
 
-message GetInventoryLogsRequest {
-    string inventoryId = 1;
+message GetStockLogsRequest {
+    string stockId = 1;
 }
 
-message InventoryLogListResponse {
-    repeated InventoryLog logs = 1;
+message StockLogListResponse {
+    repeated StockLog logs = 1;
 }
 
 // stock reservation

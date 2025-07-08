@@ -12,6 +12,6 @@ export class ProductImageEntity {
     @Column({ default: false })
     main: boolean;
 
-    @ManyToOne(() => ProductEntity, product => product.images)
+    @ManyToOne(() => ProductEntity, product => product.images, { nullable: false })
     product: ProductEntity;
 }

@@ -1,18 +1,18 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ProductEntity } from './product.entity';
-import { InventoryLogEntity } from './inventory.log.entity';
+import { StockLogEntity } from './stock.log.entity';
 
-@Entity('inventory')
-export class InventoryEntity {
+@Entity('stock')
+export class StockEntity {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column('int')
+    stock: number;
 
     @ManyToOne(() => ProductEntity, { nullable: true })
     product: ProductEntity;
 
-    @Column('int')
-    quantity: number;
-
-    @OneToMany(() => InventoryLogEntity, log => log.inventory)
-    logs: InventoryLogEntity[];
+    @OneToMany(() => StockLogEntity, log => log.stock)
+    logs: StockLogEntity[];
 }

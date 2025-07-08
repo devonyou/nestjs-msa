@@ -1,16 +1,15 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { InventoryEntity } from './inventory.entity';
+import { StockEntity } from './stock.entity';
 
-@Entity('inventory_log')
-export class InventoryLogEntity {
+type ChangeType = 'IN' | 'OUT' | 'RESERVED' | 'CANCELLED';
+
+@Entity('stock_log')
+export class StockLogEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => InventoryEntity, inventory => inventory.logs)
-    inventory: InventoryEntity;
-
     @Column()
-    changeType: 'IN' | 'OUT' | 'RESERVED' | 'CANCELLED'; // 입고, 출고 등
+    changeType: ChangeType;
 
     @Column('int')
     quantityChanged: number;
@@ -20,4 +19,7 @@ export class InventoryLogEntity {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @ManyToOne(() => StockEntity, stock => stock.logs)
+    stock: StockEntity;
 }

@@ -32,8 +32,9 @@ export class S3Service {
 
             return {
                 presignedUrl: url,
-                fileUrl: `https://${bucketName}.s3.amazonaws.com/${path}/${filename}`,
+                fileUrl: `https://${bucketName}.s3.amazonaws.com/${key}`,
                 filename: filename,
+                key: key,
             };
         } catch (err) {
             throw new Error('Failed to generate presigned url');

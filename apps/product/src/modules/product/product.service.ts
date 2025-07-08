@@ -7,6 +7,7 @@ import { CategoryService } from '../category/category.service';
 import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { ConfigService } from '@nestjs/config';
 import { ProductImageEntity } from '../../entities/product.image.entity';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ProductService {
@@ -21,6 +22,7 @@ export class ProductService {
         private readonly productImageRepository: Repository<ProductImageEntity>,
     ) {}
 
+    @Transactional()
     async createProduct(request: ProductMicroService.CreateProductRequest): Promise<ProductEntity> {
         const { images } = request;
 
@@ -38,14 +40,7 @@ export class ProductService {
 
         await this.productRepository.save(product);
 
-        if (images) {
-            await Promise.all(
-                images.map(async ({ url, main }) => {
-                    const productImage = this.productImageRepository.create({ url, main, product });
-                    await this.productImageRepository.save(productImage);
-                }),
-            );
-        }
+        await this.upsertProductImage(product.id, images);
 
         const savedProduct = await this.getProductById({ id: product.id });
 
@@ -92,6 +87,7 @@ export class ProductService {
         return product;
     }
 
+    @Transactional()
     async updateProduct(request: ProductMicroService.UpdateProductRequest): Promise<ProductEntity> {
         const { id, name, description, price, categoryId, images } = request;
 
@@ -112,16 +108,7 @@ export class ProductService {
 
         await this.productRepository.save(product);
 
-        if (images) {
-            await this.productImageRepository.delete({ product: { id } });
-
-            await Promise.all(
-                images.map(async ({ url, main }) => {
-                    const productImage = this.productImageRepository.create({ url, main, product });
-                    await this.productImageRepository.save(productImage);
-                }),
-            );
-        }
+        await this.upsertProductImage(id, images);
 
         const savedProduct = await this.getProductById({ id });
 
@@ -145,9 +132,30 @@ export class ProductService {
                 contentType,
                 'public-read',
             );
-            return result;
+            return {
+                ...result,
+                filePath: result.key,
+            };
         } catch (error) {
             throw new GrpcInternalException('Failed to generate presigned url');
         }
+    }
+
+    async upsertProductImage(
+        productId: number,
+        images: { url: string; main?: boolean }[],
+    ): Promise<ProductImageEntity[]> {
+        if (!images?.length) return [];
+
+        await this.productImageRepository.delete({ product: { id: productId } });
+
+        const savedImages = await Promise.all(
+            images.map(async ({ url, main }) => {
+                const productImage = this.productImageRepository.create({ url, main, product: { id: productId } });
+                return this.productImageRepository.save(productImage);
+            }),
+        );
+
+        return savedImages;
     }
 }

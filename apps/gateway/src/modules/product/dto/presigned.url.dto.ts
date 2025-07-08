@@ -17,4 +17,7 @@ export class GeneratePresignedUrlResponseDto implements ProductMicroService.Gene
 
     @ApiProperty({ description: 'file url' })
     fileUrl: string;
+
+    @ApiProperty({ description: 'file path' })
+    filePath: string;
 }

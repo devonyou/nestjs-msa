@@ -126,42 +126,43 @@ export interface GeneratePresignedUrlResponse {
   presignedUrl: string;
   filename: string;
   fileUrl: string;
+  filePath: string;
 }
 
-export interface Inventory {
+export interface Stock {
   id: number;
   productId: string;
   quantity: number;
 }
 
-export interface InventoryResponse {
-  inventory: Inventory | undefined;
+export interface StockResponse {
+  stock: Stock | undefined;
 }
 
-export interface GetInventoryByProductIdRequest {
+export interface GetStockByProductIdRequest {
   productId: string;
 }
 
-export interface UpdateInventoryQuantityRequest {
-  inventoryId: string;
+export interface UpdateStockQuantityRequest {
+  stockId: string;
   quantity: number;
 }
 
-export interface InventoryLog {
+export interface StockLog {
   id: number;
-  inventoryId: string;
+  stockId: string;
   changeType: string;
   quantityChanged: number;
   reason: string;
   createdAt: Timestamp | undefined;
 }
 
-export interface GetInventoryLogsRequest {
-  inventoryId: string;
+export interface GetStockLogsRequest {
+  stockId: string;
 }
 
-export interface InventoryLogListResponse {
-  logs: InventoryLog[];
+export interface StockLogListResponse {
+  logs: StockLog[];
 }
 
 export interface StockReservation {
@@ -227,15 +228,15 @@ export interface ProductServiceClient {
     metadata?: Metadata,
   ): Observable<GeneratePresignedUrlResponse>;
 
-  /** inventory */
+  /** stock */
 
-  getInventoryByProductId(request: GetInventoryByProductIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
+  getStockByProductId(request: GetStockByProductIdRequest, metadata?: Metadata): Observable<StockResponse>;
 
-  increaseInventory(request: UpdateInventoryQuantityRequest, metadata?: Metadata): Observable<InventoryResponse>;
+  increaseStock(request: UpdateStockQuantityRequest, metadata?: Metadata): Observable<StockResponse>;
 
-  decreaseInventory(request: UpdateInventoryQuantityRequest, metadata?: Metadata): Observable<InventoryResponse>;
+  decreaseStock(request: UpdateStockQuantityRequest, metadata?: Metadata): Observable<StockResponse>;
 
-  getInventoryLogs(request: GetInventoryLogsRequest, metadata?: Metadata): Observable<InventoryLogListResponse>;
+  getStockLogs(request: GetStockLogsRequest, metadata?: Metadata): Observable<StockLogListResponse>;
 
   /** stock reservation */
 
@@ -246,7 +247,7 @@ export interface ProductServiceClient {
 
   releaseStockReservation(request: ReleaseStockReservationRequest, metadata?: Metadata): Observable<Empty>;
 
-  confirmStockReservation(request: ConfirmStockReservationRequest, metadata?: Metadata): Observable<InventoryResponse>;
+  confirmStockReservation(request: ConfirmStockReservationRequest, metadata?: Metadata): Observable<StockResponse>;
 }
 
 export interface ProductServiceController {
@@ -305,27 +306,27 @@ export interface ProductServiceController {
     metadata?: Metadata,
   ): Promise<GeneratePresignedUrlResponse> | Observable<GeneratePresignedUrlResponse> | GeneratePresignedUrlResponse;
 
-  /** inventory */
+  /** stock */
 
-  getInventoryByProductId(
-    request: GetInventoryByProductIdRequest,
+  getStockByProductId(
+    request: GetStockByProductIdRequest,
     metadata?: Metadata,
-  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
 
-  increaseInventory(
-    request: UpdateInventoryQuantityRequest,
+  increaseStock(
+    request: UpdateStockQuantityRequest,
     metadata?: Metadata,
-  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
 
-  decreaseInventory(
-    request: UpdateInventoryQuantityRequest,
+  decreaseStock(
+    request: UpdateStockQuantityRequest,
     metadata?: Metadata,
-  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
 
-  getInventoryLogs(
-    request: GetInventoryLogsRequest,
+  getStockLogs(
+    request: GetStockLogsRequest,
     metadata?: Metadata,
-  ): Promise<InventoryLogListResponse> | Observable<InventoryLogListResponse> | InventoryLogListResponse;
+  ): Promise<StockLogListResponse> | Observable<StockLogListResponse> | StockLogListResponse;
 
   /** stock reservation */
 
@@ -342,7 +343,7 @@ export interface ProductServiceController {
   confirmStockReservation(
     request: ConfirmStockReservationRequest,
     metadata?: Metadata,
-  ): Promise<InventoryResponse> | Observable<InventoryResponse> | InventoryResponse;
+  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
 }
 
 export function ProductServiceControllerMethods() {
@@ -359,10 +360,10 @@ export function ProductServiceControllerMethods() {
       "updateCategory",
       "deleteCategory",
       "generatePresignedUrl",
-      "getInventoryByProductId",
-      "increaseInventory",
-      "decreaseInventory",
-      "getInventoryLogs",
+      "getStockByProductId",
+      "increaseStock",
+      "decreaseStock",
+      "getStockLogs",
       "createStockReservation",
       "releaseStockReservation",
       "confirmStockReservation",

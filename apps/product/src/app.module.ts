@@ -5,12 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductEntity } from './entities/product.entity';
 import { ProductCategoryEntity } from './entities/product.category.entity';
 import { ProductImageEntity } from './entities/product.image.entity';
-import { InventoryEntity } from './entities/inventory.entity';
-import { InventoryLogEntity } from './entities/inventory.log.entity';
+import { StockEntity } from './entities/stock.entity';
+import { StockLogEntity } from './entities/stock.log.entity';
 import { StockReservationEntity } from './entities/stock.reservation.entity';
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { S3Module } from '@app/common';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
     imports: [
@@ -30,14 +32,21 @@ import { S3Module } from '@app/common';
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logger: 'advanced-console',
             }),
+            async dataSourceFactory(options) {
+                if (!options) {
+                    throw new Error('Invalid options passed');
+                }
+
+                return addTransactionalDataSource(new DataSource(options));
+            },
         }),
 
         TypeOrmModule.forFeature([
             ProductEntity,
             ProductCategoryEntity,
             ProductImageEntity,
-            InventoryEntity,
-            InventoryLogEntity,
+            StockEntity,
+            StockLogEntity,
             StockReservationEntity,
         ]),
 
