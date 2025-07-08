@@ -22,9 +22,10 @@ export interface Product {
 }
 
 export interface ProductImage {
-  id: number;
+  id?: number | undefined;
   url: string;
-  isMain: boolean;
+  main?: boolean | undefined;
+  productId?: number | undefined;
 }
 
 export interface ProductResponse {
@@ -48,6 +49,7 @@ export interface CreateProductRequest {
   description: string;
   price: number;
   categoryId: number;
+  images: ProductImage[];
 }
 
 export interface GetProductsRequest {
@@ -68,7 +70,7 @@ export interface UpdateProductRequest {
   description?: string | undefined;
   price?: number | undefined;
   categoryId?: number | undefined;
-  images: string[];
+  images: ProductImage[];
 }
 
 export interface DeleteProductRequest {
@@ -114,6 +116,16 @@ export interface DeleteCategoryRequest {
 
 export interface GetCategoryByIdRequest {
   id: number;
+}
+
+export interface GeneratePresignedUrlRequest {
+  contentType: string;
+}
+
+export interface GeneratePresignedUrlResponse {
+  presignedUrl: string;
+  filename: string;
+  fileUrl: string;
 }
 
 export interface Inventory {
@@ -208,6 +220,13 @@ export interface ProductServiceClient {
 
   deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Observable<Empty>;
 
+  /** presigned url */
+
+  generatePresignedUrl(
+    request: GeneratePresignedUrlRequest,
+    metadata?: Metadata,
+  ): Observable<GeneratePresignedUrlResponse>;
+
   /** inventory */
 
   getInventoryByProductId(request: GetInventoryByProductIdRequest, metadata?: Metadata): Observable<InventoryResponse>;
@@ -279,6 +298,13 @@ export interface ProductServiceController {
 
   deleteCategory(request: DeleteCategoryRequest, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
+  /** presigned url */
+
+  generatePresignedUrl(
+    request: GeneratePresignedUrlRequest,
+    metadata?: Metadata,
+  ): Promise<GeneratePresignedUrlResponse> | Observable<GeneratePresignedUrlResponse> | GeneratePresignedUrlResponse;
+
   /** inventory */
 
   getInventoryByProductId(
@@ -332,6 +358,7 @@ export function ProductServiceControllerMethods() {
       "getCategoryById",
       "updateCategory",
       "deleteCategory",
+      "generatePresignedUrl",
       "getInventoryByProductId",
       "increaseInventory",
       "decreaseInventory",

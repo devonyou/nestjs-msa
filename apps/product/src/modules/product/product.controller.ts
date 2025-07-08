@@ -9,7 +9,12 @@ export class ProductController
     implements
         Pick<
             ProductMicroService.ProductServiceController,
-            'createProduct' | 'getProducts' | 'getProductById' | 'updateProduct' | 'deleteProduct'
+            | 'createProduct'
+            | 'getProducts'
+            | 'getProductById'
+            | 'updateProduct'
+            | 'deleteProduct'
+            | 'generatePresignedUrl'
         >
 {
     constructor(private readonly productService: ProductService) {}
@@ -53,5 +58,12 @@ export class ProductController
     deleteProduct(request: ProductMicroService.DeleteProductRequest): Promise<ProductMicroService.Empty> {
         this.productService.deleteProduct(request.id);
         return null;
+    }
+
+    @GrpcMethod(ProductMicroService.PRODUCT_SERVICE_NAME, 'generatePresignedUrl')
+    async generatePresignedUrl(
+        request: ProductMicroService.GeneratePresignedUrlRequest,
+    ): Promise<ProductMicroService.GeneratePresignedUrlResponse> {
+        return await this.productService.generatePresignedUrl(request.contentType);
     }
 }

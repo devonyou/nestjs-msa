@@ -10,6 +10,7 @@ import { InventoryLogEntity } from './entities/inventory.log.entity';
 import { StockReservationEntity } from './entities/stock.reservation.entity';
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
+import { S3Module } from '@app/common';
 
 @Module({
     imports: [
@@ -39,6 +40,16 @@ import { CategoryModule } from './modules/category/category.module';
             InventoryLogEntity,
             StockReservationEntity,
         ]),
+
+        S3Module.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                accessKeyId: configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
+                secretAccessKey: configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
+                region: configService.getOrThrow<string>('AWS_REGION'),
+                bucketName: configService.getOrThrow<string>('AWS_S3_BUCKET_NAME'),
+            }),
+        }),
 
         ProductModule,
         CategoryModule,

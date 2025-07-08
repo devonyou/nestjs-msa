@@ -18,6 +18,7 @@ import {
     ProductResponseDto,
     UpdateProductRequestDto,
 } from './dto/product.dto';
+import { GeneratePresignedUrlRequestDto, GeneratePresignedUrlResponseDto } from './dto/presigned.url.dto';
 
 @ApiController('product')
 export class GatewayProductController {
@@ -77,7 +78,7 @@ export class GatewayProductController {
         return this.gatewayProductService.createCategory(body);
     }
 
-    @Get('categories')
+    @Get('category')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '카테고리 목록 조회' })
@@ -111,5 +112,14 @@ export class GatewayProductController {
     @ApiOkResponse({ description: '카테고리 삭제 성공', type: null })
     deleteCategory(@Param('id') id: number): Promise<ProductMicroService.Empty> {
         return this.gatewayProductService.deleteCategory(id);
+    }
+
+    @Post('presigned-url')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: 'presigned url 생성' })
+    @ApiCreatedResponse({ description: 'presigned url 생성 성공', type: GeneratePresignedUrlResponseDto })
+    generatePresignedUrl(@Body() body: GeneratePresignedUrlRequestDto): Promise<GeneratePresignedUrlResponseDto> {
+        return this.gatewayProductService.generatePresignedUrl(body);
     }
 }

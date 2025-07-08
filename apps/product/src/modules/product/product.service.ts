@@ -2,9 +2,11 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
 import { ILike, Repository } from 'typeorm';
-import { ProductMicroService } from '@app/common';
+import { ProductMicroService, S3Service } from '@app/common';
 import { CategoryService } from '../category/category.service';
-import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
+import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
+import { ConfigService } from '@nestjs/config';
+import { ProductImageEntity } from '../../entities/product.image.entity';
 
 @Injectable()
 export class ProductService {
@@ -13,9 +15,15 @@ export class ProductService {
         private readonly productRepository: Repository<ProductEntity>,
         @Inject(forwardRef(() => CategoryService))
         private readonly categoryService: CategoryService,
+        private readonly s3Service: S3Service,
+        private readonly configService: ConfigService,
+        @InjectRepository(ProductImageEntity)
+        private readonly productImageRepository: Repository<ProductImageEntity>,
     ) {}
 
     async createProduct(request: ProductMicroService.CreateProductRequest): Promise<ProductEntity> {
+        const { images } = request;
+
         const category = await this.categoryService.getCategoryById(request.categoryId);
         if (!category) {
             throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
@@ -29,6 +37,15 @@ export class ProductService {
         });
 
         await this.productRepository.save(product);
+
+        if (images) {
+            await Promise.all(
+                images.map(async ({ url, main }) => {
+                    const productImage = this.productImageRepository.create({ url, main, product });
+                    await this.productImageRepository.save(productImage);
+                }),
+            );
+        }
 
         const savedProduct = await this.getProductById({ id: product.id });
 
@@ -57,7 +74,7 @@ export class ProductService {
             order,
             skip,
             take: limit,
-            relations: ['category'],
+            relations: ['category', 'images'],
         });
 
         return {
@@ -69,14 +86,14 @@ export class ProductService {
     async getProductById(request: ProductMicroService.GetProductByIdRequest): Promise<ProductEntity> {
         const product = await this.productRepository.findOne({
             where: { id: request.id },
-            relations: ['category', 'category.parent'],
+            relations: ['category', 'category.parent', 'images'],
         });
 
         return product;
     }
 
     async updateProduct(request: ProductMicroService.UpdateProductRequest): Promise<ProductEntity> {
-        const { id, name, description, price, categoryId } = request;
+        const { id, name, description, price, categoryId, images } = request;
 
         const product = await this.productRepository.findOne({ where: { id } });
 
@@ -95,6 +112,17 @@ export class ProductService {
 
         await this.productRepository.save(product);
 
+        if (images) {
+            await this.productImageRepository.delete({ product: { id } });
+
+            await Promise.all(
+                images.map(async ({ url, main }) => {
+                    const productImage = this.productImageRepository.create({ url, main, product });
+                    await this.productImageRepository.save(productImage);
+                }),
+            );
+        }
+
         const savedProduct = await this.getProductById({ id });
 
         return savedProduct;
@@ -102,5 +130,24 @@ export class ProductService {
 
     deleteProduct(id: number) {
         this.productRepository.delete(id);
+    }
+
+    async generatePresignedUrl(contentType: string): Promise<ProductMicroService.GeneratePresignedUrlResponse> {
+        try {
+            const bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
+            const path = `temp/product`;
+            const expiresIn = 300;
+
+            const result = await this.s3Service.generatePresignedUrl(
+                bucketName,
+                path,
+                expiresIn,
+                contentType,
+                'public-read',
+            );
+            return result;
+        } catch (error) {
+            throw new GrpcInternalException('Failed to generate presigned url');
+        }
     }
 }

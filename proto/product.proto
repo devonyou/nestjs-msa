@@ -19,6 +19,9 @@ service ProductService {
     rpc updateCategory(UpdateCategoryRequest) returns (CategoryResponse);
     rpc deleteCategory(DeleteCategoryRequest) returns (Empty);
 
+    // presigned url
+    rpc generatePresignedUrl(GeneratePresignedUrlRequest) returns (GeneratePresignedUrlResponse);
+
     // inventory
     rpc getInventoryByProductId(GetInventoryByProductIdRequest) returns (InventoryResponse);
     rpc increaseInventory(UpdateInventoryQuantityRequest) returns (InventoryResponse);
@@ -43,9 +46,10 @@ message Product {
 }
 
 message ProductImage {
-    int32 id = 1;
+    optional int32 id = 1;
     string url = 2;
-    bool isMain = 3;
+    optional bool main = 3;
+    optional int32 productId = 4;
 }
 
 message ProductResponse {
@@ -69,6 +73,7 @@ message CreateProductRequest {
     string description = 2;
     int32 price = 3;
     int32 categoryId = 4;
+    repeated ProductImage images = 5;
 }
 
 message GetProductsRequest {
@@ -89,7 +94,7 @@ message UpdateProductRequest {
     optional string description = 3;
     optional int32 price = 4;
     optional int32 categoryId = 5;
-    repeated string images = 6;
+    repeated ProductImage images = 6;
 }
 
 message DeleteProductRequest {
@@ -137,6 +142,18 @@ message DeleteCategoryRequest {
 
 message GetCategoryByIdRequest {
     int32 id = 1;
+}
+
+// presigned url
+
+message GeneratePresignedUrlRequest {
+    string contentType = 1;
+}
+
+message GeneratePresignedUrlResponse {
+    string presignedUrl = 1;
+    string filename = 2;
+    string fileUrl = 3;
 }
 
 // inventory
