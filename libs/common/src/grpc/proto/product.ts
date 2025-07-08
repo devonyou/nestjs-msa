@@ -12,6 +12,14 @@ import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "product";
 
+export enum ChangeType {
+  IN = 0,
+  OUT = 1,
+  RESERVED = 2,
+  CANCELLED = 3,
+  UNRECOGNIZED = -1,
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -131,38 +139,23 @@ export interface GeneratePresignedUrlResponse {
 
 export interface Stock {
   id: number;
-  productId: string;
   quantity: number;
+  product: Product | undefined;
 }
 
 export interface StockResponse {
-  stock: Stock | undefined;
+  id: number;
+  quantity: number;
+  product: ProductResponse | undefined;
 }
 
 export interface GetStockByProductIdRequest {
-  productId: string;
+  productId: number;
 }
 
-export interface UpdateStockQuantityRequest {
-  stockId: string;
+export interface UpsertStockQuantityRequest {
+  productId: number;
   quantity: number;
-}
-
-export interface StockLog {
-  id: number;
-  stockId: string;
-  changeType: string;
-  quantityChanged: number;
-  reason: string;
-  createdAt: Timestamp | undefined;
-}
-
-export interface GetStockLogsRequest {
-  stockId: string;
-}
-
-export interface StockLogListResponse {
-  logs: StockLog[];
 }
 
 export interface StockReservation {
@@ -232,11 +225,7 @@ export interface ProductServiceClient {
 
   getStockByProductId(request: GetStockByProductIdRequest, metadata?: Metadata): Observable<StockResponse>;
 
-  increaseStock(request: UpdateStockQuantityRequest, metadata?: Metadata): Observable<StockResponse>;
-
-  decreaseStock(request: UpdateStockQuantityRequest, metadata?: Metadata): Observable<StockResponse>;
-
-  getStockLogs(request: GetStockLogsRequest, metadata?: Metadata): Observable<StockLogListResponse>;
+  upsertStock(request: UpsertStockQuantityRequest, metadata?: Metadata): Observable<StockResponse>;
 
   /** stock reservation */
 
@@ -313,20 +302,10 @@ export interface ProductServiceController {
     metadata?: Metadata,
   ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
 
-  increaseStock(
-    request: UpdateStockQuantityRequest,
+  upsertStock(
+    request: UpsertStockQuantityRequest,
     metadata?: Metadata,
   ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
-
-  decreaseStock(
-    request: UpdateStockQuantityRequest,
-    metadata?: Metadata,
-  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
-
-  getStockLogs(
-    request: GetStockLogsRequest,
-    metadata?: Metadata,
-  ): Promise<StockLogListResponse> | Observable<StockLogListResponse> | StockLogListResponse;
 
   /** stock reservation */
 
@@ -361,9 +340,7 @@ export function ProductServiceControllerMethods() {
       "deleteCategory",
       "generatePresignedUrl",
       "getStockByProductId",
-      "increaseStock",
-      "decreaseStock",
-      "getStockLogs",
+      "upsertStock",
       "createStockReservation",
       "releaseStockReservation",
       "confirmStockReservation",

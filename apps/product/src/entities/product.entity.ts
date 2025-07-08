@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ProductCategoryEntity } from './product.category.entity';
 import { ProductImageEntity } from './product.image.entity';
+import { ProductStockEntity } from './product.stock.entity';
 
 @Entity('product')
 export class ProductEntity {
@@ -29,6 +30,9 @@ export class ProductEntity {
 
     @OneToMany(() => ProductImageEntity, image => image.product)
     images: ProductImageEntity[];
+
+    @OneToMany(() => ProductStockEntity, stock => stock.product)
+    stock: ProductStockEntity;
 
     @CreateDateColumn()
     createdAt: Date;

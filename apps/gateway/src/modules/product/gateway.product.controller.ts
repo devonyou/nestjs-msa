@@ -19,6 +19,7 @@ import {
     UpdateProductRequestDto,
 } from './dto/product.dto';
 import { GeneratePresignedUrlRequestDto, GeneratePresignedUrlResponseDto } from './dto/presigned.url.dto';
+import { ProductStockResponseDto, UpsertStockRequestDto } from './dto/product.stock.dto';
 
 @ApiController('product')
 export class GatewayProductController {
@@ -121,5 +122,26 @@ export class GatewayProductController {
     @ApiCreatedResponse({ description: 'presigned url 생성 성공', type: GeneratePresignedUrlResponseDto })
     generatePresignedUrl(@Body() body: GeneratePresignedUrlRequestDto): Promise<GeneratePresignedUrlResponseDto> {
         return this.gatewayProductService.generatePresignedUrl(body);
+    }
+
+    @Get('stock/:productId')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '재고 조회' })
+    @ApiOkResponse({ description: '재고 조회 성공', type: ProductStockResponseDto })
+    getStockByProductId(@Param('productId') productId: number): Promise<ProductStockResponseDto> {
+        return this.gatewayProductService.getStockByProductId(productId);
+    }
+
+    @Patch('stock/:productId')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.ADMIN])
+    @ApiOperation({ summary: '재고 수정' })
+    @ApiOkResponse({ description: '재고 수정 성공', type: ProductStockResponseDto })
+    upsertStock(
+        @Param('productId') productId: number,
+        @Body() body: UpsertStockRequestDto,
+    ): Promise<ProductStockResponseDto> {
+        return this.gatewayProductService.upsertStock(productId, body);
     }
 }

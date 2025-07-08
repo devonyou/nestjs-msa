@@ -17,6 +17,7 @@ import {
     UpdateProductRequestDto,
 } from './dto/product.dto';
 import { GeneratePresignedUrlRequestDto, GeneratePresignedUrlResponseDto } from './dto/presigned.url.dto';
+import { ProductStockResponseDto, UpsertStockRequestDto } from './dto/product.stock.dto';
 
 @Injectable()
 export class GatewayProductService implements OnModuleInit {
@@ -148,6 +149,28 @@ export class GatewayProductService implements OnModuleInit {
         try {
             const metadata = createGrpcMetadata(GatewayProductService.name, this.generatePresignedUrl.name);
             const stream = this.productService.generatePresignedUrl({ contentType: dto.contentType }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async getStockByProductId(productId: number): Promise<ProductStockResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.getStockByProductId.name);
+            const stream = this.productService.getStockByProductId({ productId }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async upsertStock(productId: number, body: UpsertStockRequestDto): Promise<ProductStockResponseDto> {
+        try {
+            const metadata = createGrpcMetadata(GatewayProductService.name, this.upsertStock.name);
+            const stream = this.productService.upsertStock({ productId, ...body }, metadata);
             const resp = await lastValueFrom(stream);
             return resp;
         } catch (error) {

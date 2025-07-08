@@ -1,13 +1,13 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { StockEntity } from './stock.entity';
+import { ProductStockEntity } from './product.stock.entity';
 
-@Entity('stock_reservation')
-export class StockReservationEntity {
+@Entity('product_stock_reservation')
+export class ProductStockReservationEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => StockEntity)
-    stock: StockEntity;
+    @ManyToOne(() => ProductStockEntity)
+    stock: ProductStockEntity;
 
     @Column('int')
     reservedQty: number;

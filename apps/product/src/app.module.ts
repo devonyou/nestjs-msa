@@ -5,14 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductEntity } from './entities/product.entity';
 import { ProductCategoryEntity } from './entities/product.category.entity';
 import { ProductImageEntity } from './entities/product.image.entity';
-import { StockEntity } from './entities/stock.entity';
-import { StockLogEntity } from './entities/stock.log.entity';
-import { StockReservationEntity } from './entities/stock.reservation.entity';
+import { ProductStockEntity } from './entities/product.stock.entity';
+import { ProductStockReservationEntity } from './entities/product.stock.reservation.entity';
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { S3Module } from '@app/common';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { StockModule } from './modules/stock/stock.module';
 
 @Module({
     imports: [
@@ -45,9 +45,8 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
             ProductEntity,
             ProductCategoryEntity,
             ProductImageEntity,
-            StockEntity,
-            StockLogEntity,
-            StockReservationEntity,
+            ProductStockEntity,
+            ProductStockReservationEntity,
         ]),
 
         S3Module.forRootAsync({
@@ -62,6 +61,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 
         ProductModule,
         CategoryModule,
+        StockModule,
     ],
     controllers: [],
     providers: [],

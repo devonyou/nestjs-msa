@@ -24,9 +24,7 @@ service ProductService {
 
     // stock
     rpc getStockByProductId(GetStockByProductIdRequest) returns (StockResponse);
-    rpc increaseStock(UpdateStockQuantityRequest) returns (StockResponse);
-    rpc decreaseStock(UpdateStockQuantityRequest) returns (StockResponse);
-    rpc getStockLogs(GetStockLogsRequest) returns (StockLogListResponse);
+    rpc upsertStock(UpsertStockQuantityRequest) returns (StockResponse);
 
     // stock reservation
     rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationResponse);
@@ -161,38 +159,30 @@ message GeneratePresignedUrlResponse {
 
 message Stock {
     int32 id = 1;
-    string productId = 2;
-    int32 quantity = 3;
+    int32 quantity = 2;
+    Product product = 3;
 }
 
 message StockResponse {
-    Stock stock = 1;
+    int32 id = 1;
+    int32 quantity = 2;
+    ProductResponse product = 3;
+}
+
+enum ChangeType {
+    IN = 0;
+    OUT = 1;
+    RESERVED = 2;
+    CANCELLED = 3;
 }
 
 message GetStockByProductIdRequest {
-    string productId = 1;
+    int32 productId = 1;
 }
 
-message UpdateStockQuantityRequest {
-    string stockId = 1;
+message UpsertStockQuantityRequest {
+    int32 productId = 1;
     int32 quantity = 2;
-}
-
-message StockLog {
-    int32 id = 1;
-    string stockId = 2;
-    string changeType = 3;
-    int32 quantityChanged = 4;
-    string reason = 5;
-    google.protobuf.Timestamp createdAt = 6;
-}
-
-message GetStockLogsRequest {
-    string stockId = 1;
-}
-
-message StockLogListResponse {
-    repeated StockLog logs = 1;
 }
 
 // stock reservation
