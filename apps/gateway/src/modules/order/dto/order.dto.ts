@@ -96,6 +96,14 @@ export class OrderResponseDto implements OrderMicroService.OrderResponse {
     updatedAt: string;
 }
 
+export class OrderListResponseDto implements OrderMicroService.OrderListResponse {
+    @ApiProperty({ description: '주문 목록', example: [{ id: '1', userId: 1, amount: 10000 }] })
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => OrderResponseDto)
+    orders: OrderResponseDto[];
+}
+
 export class CreateOrderRequestDto {
     @ApiProperty({ description: '주문 상품 목록', example: [{ productId: 1, quantity: 1 }] })
     @IsArray()

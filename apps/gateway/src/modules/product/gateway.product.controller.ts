@@ -43,31 +43,34 @@ export class GatewayProductController {
         return this.gatewayProductService.getProducts(query);
     }
 
-    @Get(':id')
+    @Get(':productId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '상품 상세 조회' })
     @ApiOkResponse({ description: '상품 상세 조회 성공', type: ProductResponseDto })
-    getProductById(@Param('id') id: number): Promise<ProductResponseDto> {
-        return this.gatewayProductService.getProductById(id);
+    getProductById(@Param('productId') productId: number): Promise<ProductResponseDto> {
+        return this.gatewayProductService.getProductById(productId);
     }
 
-    @Patch(':id')
+    @Patch(':productId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '상품 수정' })
     @ApiOkResponse({ description: '상품 수정 성공', type: ProductResponseDto })
-    updateProduct(@Param('id') id: number, @Body() body: UpdateProductRequestDto): Promise<ProductResponseDto> {
-        return this.gatewayProductService.updateProduct(id, body);
+    updateProduct(
+        @Param('productId') productId: number,
+        @Body() body: UpdateProductRequestDto,
+    ): Promise<ProductResponseDto> {
+        return this.gatewayProductService.updateProduct(productId, body);
     }
 
-    @Delete(':id')
+    @Delete(':productId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '상품 삭제' })
     @ApiOkResponse({ description: '상품 삭제 성공', type: null })
-    deleteProduct(@Param('id') id: number): Promise<ProductMicroService.Empty> {
-        return this.gatewayProductService.deleteProduct(id);
+    deleteProduct(@Param('productId') productId: number): Promise<ProductMicroService.Empty> {
+        return this.gatewayProductService.deleteProduct(productId);
     }
 
     @Post('category')
@@ -88,31 +91,34 @@ export class GatewayProductController {
         return this.gatewayProductService.getCategories();
     }
 
-    @Get('category/:id')
+    @Get('category/:categoryId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '카테고리 상세 조회' })
     @ApiOkResponse({ description: '카테고리 상세 조회 성공', type: CategoryResponseDto })
-    getCategoryById(@Param('id') id: number): Promise<CategoryResponseDto> {
-        return this.gatewayProductService.getCategoryById(id);
+    getCategoryById(@Param('categoryId') categoryId: number): Promise<CategoryResponseDto> {
+        return this.gatewayProductService.getCategoryById(categoryId);
     }
 
-    @Patch('category/:id')
+    @Patch('category/:categoryId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '카테고리 수정' })
     @ApiOkResponse({ description: '카테고리 수정 성공', type: CategoryResponseDto })
-    updateCategory(@Param('id') id: number, @Body() body: UpdateCategoryRequestDto): Promise<CategoryResponseDto> {
-        return this.gatewayProductService.updateCategory(id, body);
+    updateCategory(
+        @Param('categoryId') categoryId: number,
+        @Body() body: UpdateCategoryRequestDto,
+    ): Promise<CategoryResponseDto> {
+        return this.gatewayProductService.updateCategory(categoryId, body);
     }
 
-    @Delete('category/:id')
+    @Delete('category/:categoryId')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.ADMIN])
     @ApiOperation({ summary: '카테고리 삭제' })
     @ApiOkResponse({ description: '카테고리 삭제 성공', type: null })
-    deleteCategory(@Param('id') id: number): Promise<ProductMicroService.Empty> {
-        return this.gatewayProductService.deleteCategory(id);
+    deleteCategory(@Param('categoryId') categoryId: number): Promise<ProductMicroService.Empty> {
+        return this.gatewayProductService.deleteCategory(categoryId);
     }
 
     @Post('presigned-url')
