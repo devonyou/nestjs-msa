@@ -3,18 +3,21 @@ import { OrderEntity } from './order.entity';
 
 @Entity('order_item')
 export class OrderItemEntity {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @ManyToOne(() => OrderEntity, order => order.items)
     order: OrderEntity;
 
     @Column()
-    productId: string;
+    productId: number;
+
+    @Column()
+    productName: string;
 
     @Column()
     quantity: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'int' })
     price: number;
 }

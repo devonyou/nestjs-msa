@@ -1,23 +1,35 @@
 import { OrderMicroService } from '@app/common';
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { OrderItemEntity } from './order.item.entity';
+import { OrderDeliveryEntity } from './order.delivery.entity';
 
 @Entity('order')
 export class OrderEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
-    userId: string;
+    @Column({ type: 'int' })
+    userId: number;
 
-    @OneToMany(() => OrderItemEntity, item => item.order, { cascade: true })
-    items: OrderItemEntity[];
+    @Column({ type: 'int' })
+    amount: number;
 
     @Column({ type: 'enum', enum: OrderMicroService.OrderStatus, default: OrderMicroService.OrderStatus.CREATED })
     status: OrderMicroService.OrderStatus;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
-    totalAmount: number;
+    @OneToMany(() => OrderItemEntity, item => item.order, { cascade: true })
+    items: OrderItemEntity[];
+
+    @OneToOne(() => OrderDeliveryEntity, delivery => delivery.order, { cascade: true })
+    delivery: OrderDeliveryEntity;
 
     @Column({ nullable: true })
     paymentId?: string;

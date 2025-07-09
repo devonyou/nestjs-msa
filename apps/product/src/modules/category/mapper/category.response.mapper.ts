@@ -1,6 +1,6 @@
 import { ProductMicroService } from '@app/common';
 import { ProductCategoryEntity } from '../../../entities/product.category.entity';
-import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
+import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { ProductResponseMapper } from '../../product/mapper/product.response.mapper';
 
 export class CategoryResponseMapper {
@@ -9,10 +9,14 @@ export class CategoryResponseMapper {
             throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
         }
 
-        return {
-            ...category,
-            parent: category.parent && CategoryResponseMapper.toCategoryResponse(category?.parent),
-            products: category.products?.map(product => ProductResponseMapper.toProductResponse(product)),
-        };
+        try {
+            return {
+                ...category,
+                parent: category.parent && CategoryResponseMapper.toCategoryResponse(category?.parent),
+                products: category.products?.map(product => ProductResponseMapper.toProductResponse(product)),
+            };
+        } catch (error) {
+            throw new GrpcInternalException('');
+        }
     }
 }

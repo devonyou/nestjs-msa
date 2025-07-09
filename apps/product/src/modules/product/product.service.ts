@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { ProductMicroService, S3Service } from '@app/common';
 import { CategoryService } from '../category/category.service';
 import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
@@ -85,6 +85,18 @@ export class ProductService {
         });
 
         return product;
+    }
+
+    async getProductsByIds(
+        request: ProductMicroService.GetProductsByIdsRequest,
+    ): Promise<{ products: ProductEntity[]; total: number }> {
+        const { ids } = request;
+        const [products, total] = await this.productRepository.findAndCount({ where: { id: In(ids) } });
+
+        return {
+            products,
+            total,
+        };
     }
 
     @Transactional()

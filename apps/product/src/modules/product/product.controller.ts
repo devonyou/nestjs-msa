@@ -46,6 +46,18 @@ export class ProductController
         return ProductResponseMapper.toProductResponse(response);
     }
 
+    @GrpcMethod(ProductMicroService.PRODUCT_SERVICE_NAME, 'getProductsByIds')
+    async getProductsByIds(
+        request: ProductMicroService.GetProductsByIdsRequest,
+    ): Promise<ProductMicroService.ProductListResponse> {
+        const { products, total } = await this.productService.getProductsByIds(request);
+
+        return {
+            products: products.map(product => ProductResponseMapper.toProductResponse(product)),
+            total,
+        };
+    }
+
     @GrpcMethod(ProductMicroService.PRODUCT_SERVICE_NAME, 'updateProduct')
     async updateProduct(
         request: ProductMicroService.UpdateProductRequest,

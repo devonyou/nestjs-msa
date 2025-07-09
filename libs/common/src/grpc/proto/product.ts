@@ -69,6 +69,10 @@ export interface GetProductsRequest {
   name?: string | undefined;
 }
 
+export interface GetProductsByIdsRequest {
+  ids: number[];
+}
+
 export interface GetProductByIdRequest {
   id: number;
 }
@@ -197,6 +201,8 @@ export interface ProductServiceClient {
 
   getProducts(request: GetProductsRequest, metadata?: Metadata): Observable<ProductListResponse>;
 
+  getProductsByIds(request: GetProductsByIdsRequest, metadata?: Metadata): Observable<ProductListResponse>;
+
   getProductById(request: GetProductByIdRequest, metadata?: Metadata): Observable<ProductResponse>;
 
   updateProduct(request: UpdateProductRequest, metadata?: Metadata): Observable<ProductResponse>;
@@ -250,6 +256,11 @@ export interface ProductServiceController {
 
   getProducts(
     request: GetProductsRequest,
+    metadata?: Metadata,
+  ): Promise<ProductListResponse> | Observable<ProductListResponse> | ProductListResponse;
+
+  getProductsByIds(
+    request: GetProductsByIdsRequest,
     metadata?: Metadata,
   ): Promise<ProductListResponse> | Observable<ProductListResponse> | ProductListResponse;
 
@@ -331,6 +342,7 @@ export function ProductServiceControllerMethods() {
     const grpcMethods: string[] = [
       "createProduct",
       "getProducts",
+      "getProductsByIds",
       "getProductById",
       "updateProduct",
       "deleteProduct",

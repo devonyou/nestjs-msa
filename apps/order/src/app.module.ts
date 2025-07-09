@@ -4,12 +4,20 @@ import { envValidationSchema } from './common/config/env.validation.schema';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { OrderModule } from './modules/order/order.module';
+import { ClientsModule } from '@nestjs/microservices';
+import { grpcClient } from './common/grpc/grpc.client';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
             validationSchema: envValidationSchema,
+        }),
+
+        ClientsModule.registerAsync({
+            isGlobal: true,
+            clients: grpcClient,
         }),
 
         TypeOrmModule.forRootAsync({
@@ -31,6 +39,8 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
                 return addTransactionalDataSource(new DataSource(options));
             },
         }),
+
+        OrderModule,
     ],
     controllers: [],
     providers: [],

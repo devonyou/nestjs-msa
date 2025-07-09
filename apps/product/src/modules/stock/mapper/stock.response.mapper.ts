@@ -1,6 +1,6 @@
 import { ProductMicroService } from '@app/common';
 import { ProductStockEntity } from 'apps/product/src/entities/product.stock.entity';
-import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
+import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { ProductResponseMapper } from '../../product/mapper/product.response.mapper';
 
 export class StockResponseMapper {
@@ -9,9 +9,13 @@ export class StockResponseMapper {
             throw new GrpcNotFoundException('재고정보를 찾을 수 없습니다');
         }
 
-        return {
-            ...stock,
-            product: stock.product && ProductResponseMapper.toProductResponse(stock.product),
-        };
+        try {
+            return {
+                ...stock,
+                product: stock.product && ProductResponseMapper.toProductResponse(stock.product),
+            };
+        } catch (error) {
+            throw new GrpcInternalException('');
+        }
     }
 }

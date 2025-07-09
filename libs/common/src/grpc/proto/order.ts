@@ -8,7 +8,6 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "order";
 
@@ -24,49 +23,92 @@ export enum OrderStatus {
   UNRECOGNIZED = -1,
 }
 
+export interface Order {
+  id: string;
+  userId: number;
+  amount: number;
+  status: OrderStatus;
+  orderItems: OrderItem[];
+  delivery: DeliveryResponse | undefined;
+  paymentId: string;
+}
+
+export interface OrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Delivery {
+  id: number;
+  orderId: string;
+  postCode: string;
+  street: string;
+}
+
+/** response */
 export interface OrderResponse {
   id: string;
-  userId: string;
-  orderItems: OrderItem[];
+  userId: number;
+  amount: number;
   status: OrderStatus;
-  totalAmount: number;
+  orderItems: OrderItemResponse[];
+  delivery: DeliveryResponse | undefined;
   paymentId: string;
-  createdAt: Timestamp | undefined;
-  updatedAt: Timestamp | undefined;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderListResponse {
   orders: OrderResponse[];
 }
 
-export interface OrderItem {
-  id: string;
-  productId: string;
+export interface OrderItemResponse {
+  id: number;
+  productId: number;
+  productName: string;
   quantity: number;
   price: number;
 }
 
-export interface CreateOrderRequest {
-  userId: string;
-  items: OrderItemInput[];
-}
-
-export interface OrderItemInput {
-  productId: string;
-  quantity: number;
-  price: number;
-}
-
-export interface GetOrderByIdRequest {
+export interface DeliveryResponse {
+  id: number;
   orderId: string;
+  postCode: string;
+  street: string;
+}
+
+/** create order */
+export interface CreateOrderRequest {
+  userId: number;
+  items: OrderItemRequest[];
+  delivery: DeliveryRequest | undefined;
+}
+
+export interface OrderItemRequest {
+  productId: number;
+  quantity: number;
+}
+
+export interface DeliveryRequest {
+  postCode: string;
+  street: string;
+}
+
+export interface GetOrderByIdAndUserRequest {
+  orderId: string;
+  userId: number;
 }
 
 export interface GetOrdersByUserIdRequest {
-  userId: string;
+  userId: number;
 }
 
 export interface UpdateOrderStatusRequest {
   orderId: string;
+  userId: number;
   status: OrderStatus;
 }
 
@@ -75,7 +117,7 @@ export const ORDER_PACKAGE_NAME = "order";
 export interface OrderServiceClient {
   createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
 
-  getOrderById(request: GetOrderByIdRequest, metadata?: Metadata): Observable<OrderResponse>;
+  getOrderByIdAndUser(request: GetOrderByIdAndUserRequest, metadata?: Metadata): Observable<OrderResponse>;
 
   getOrdersByUserId(request: GetOrdersByUserIdRequest, metadata?: Metadata): Observable<OrderListResponse>;
 
@@ -88,8 +130,8 @@ export interface OrderServiceController {
     metadata?: Metadata,
   ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
-  getOrderById(
-    request: GetOrderByIdRequest,
+  getOrderByIdAndUser(
+    request: GetOrderByIdAndUserRequest,
     metadata?: Metadata,
   ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
@@ -106,7 +148,7 @@ export interface OrderServiceController {
 
 export function OrderServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createOrder", "getOrderById", "getOrdersByUserId", "updateOrderStatus"];
+    const grpcMethods: string[] = ["createOrder", "getOrderByIdAndUser", "getOrdersByUserId", "updateOrderStatus"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("OrderService", method)(constructor.prototype[method], method, descriptor);

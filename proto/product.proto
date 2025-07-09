@@ -8,9 +8,11 @@ service ProductService {
     // product
     rpc createProduct(CreateProductRequest) returns (ProductResponse);
     rpc getProducts(GetProductsRequest) returns (ProductListResponse);
+    rpc getProductsByIds(GetProductsByIdsRequest) returns (ProductListResponse);
     rpc getProductById(GetProductByIdRequest) returns (ProductResponse);
     rpc updateProduct(UpdateProductRequest) returns (ProductResponse);
     rpc deleteProduct(DeleteProductRequest) returns (Empty);
+    
 
     // category
     rpc createCategory(CreateCategoryRequest) returns (CategoryResponse);
@@ -81,6 +83,10 @@ message GetProductsRequest {
     string sort = 3;
     optional int32 categoryId = 4;
     optional string name = 5;
+}
+
+message GetProductsByIdsRequest {
+    repeated int32 ids = 1;
 }
 
 message GetProductByIdRequest {
