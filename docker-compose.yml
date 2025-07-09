@@ -15,6 +15,7 @@ services:
         depends_on:
             - user
             - product
+            - order
 
     user:
         build:
@@ -46,6 +47,23 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/product/.env
+
+        depends_on:
+            - mysql
+            - redis
+
+    order:
+        build:
+            context: .
+            dockerfile: ./apps/order/Dockerfile
+            target: development
+        ports:
+            - '3004:3010'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/order/.env
 
         depends_on:
             - mysql

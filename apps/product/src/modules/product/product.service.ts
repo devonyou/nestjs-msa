@@ -81,7 +81,7 @@ export class ProductService {
     async getProductById(request: ProductMicroService.GetProductByIdRequest): Promise<ProductEntity> {
         const product = await this.productRepository.findOne({
             where: { id: request.id },
-            relations: ['category', 'category.parent', 'images'],
+            relations: ['category', 'images', 'stock'],
         });
 
         return product;

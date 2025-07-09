@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package order;
+
+import "google/protobuf/timestamp.proto";
+
+service OrderService {
+	rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+	rpc GetOrderById(GetOrderByIdRequest) returns (OrderResponse);
+	rpc GetOrdersByUserId(GetOrdersByUserIdRequest) returns (OrderListResponse);
+	rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
+}
+
+message OrderResponse {
+	string id = 1;
+	string user_id = 2;
+	repeated OrderItem order_items = 3;
+	OrderStatus status = 4;
+	double total_amount = 5;
+	string payment_id = 6;
+	google.protobuf.Timestamp created_at = 7;
+	google.protobuf.Timestamp updated_at = 8;
+}
+
+message OrderListResponse {
+	repeated OrderResponse orders = 1;
+}
+
+message OrderItem {
+	string id = 1;
+	string product_id = 2;
+	int32 quantity = 3;
+	double price = 4;
+}
+
+message CreateOrderRequest {
+	string user_id = 1;
+	repeated OrderItemInput items = 2;
+}
+
+message OrderItemInput {
+	string product_id = 1;
+	int32 quantity = 2;
+	double price = 3;
+}
+
+message GetOrderByIdRequest {
+	string order_id = 1;
+}
+
+message GetOrdersByUserIdRequest {
+	string user_id = 1;
+}
+
+message UpdateOrderStatusRequest {
+	string order_id = 1;
+	OrderStatus status = 2;
+}
+
+enum OrderStatus {
+	CREATED = 0;
+	STOCK_RESERVED = 1;
+	PAYMENT_PENDING = 2;
+	PAYMENT_SUCCESS = 3;
+	PAYMENT_FAILED = 4;
+	CANCELED = 5;
+	SHIPPED = 6;
+	COMPLETED = 7;
+}

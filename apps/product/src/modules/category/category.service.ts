@@ -45,10 +45,13 @@ export class CategoryService {
     }
 
     async getCategoryById(id: number): Promise<ProductCategoryEntity> {
-        const category = await this.categoryRepository.findOne({
-            where: { id },
-            relations: ['parent', 'children', 'products'],
-        });
+        const category = await this.categoryRepository
+            .createQueryBuilder('category')
+            .leftJoinAndSelect('category.children', 'child')
+            .leftJoinAndSelect('child.children', 'grandchild')
+            .leftJoinAndSelect('category.products', 'product')
+            .where('category.id = :id', { id })
+            .getOne();
 
         return category;
     }

@@ -11,6 +11,7 @@ export class CategoryResponseMapper {
 
         return {
             ...category,
+            parent: category.parent && CategoryResponseMapper.toCategoryResponse(category?.parent),
             products: category.products?.map(product => ProductResponseMapper.toProductResponse(product)),
         };
     }
