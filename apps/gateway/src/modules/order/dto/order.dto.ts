@@ -118,4 +118,18 @@ export class CreateOrderRequestDto {
     delivery: CreateOrderDeliveryDto;
 }
 
+export class InitiateOrderRequestDto {
+    @ApiProperty({ description: '주문 상품 목록', example: [{ productId: 1, quantity: 1 }] })
+    @IsArray()
+    @ArrayNotEmpty({ message: '주문 상품이 없습니다' })
+    @ValidateNested({ each: true })
+    @Type(() => CreateOrderItemDto)
+    items: CreateOrderItemDto[];
+
+    @ApiProperty({ description: '배송 정보', example: { postCode: '12345', street: '123 Main St' } })
+    @ValidateNested()
+    @Type(() => CreateOrderDeliveryDto)
+    delivery: CreateOrderDeliveryDto;
+}
+
 export class UpdateOrderStatusDto extends PickType(OrderDto, ['status'] as const) {}

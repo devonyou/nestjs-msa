@@ -14,6 +14,7 @@ async function bootstrap() {
 
     const configService = app.get(ConfigService);
     const GRPC_URL = configService.getOrThrow<string>('GRPC_URL');
+    const RABBITMQ_URL = configService.getOrThrow<string>('RABBITMQ_URL');
 
     app.useGlobalFilters(new RpcExceptionFilter(), new QueryFailedExceptionFilter());
     app.useGlobalInterceptors(new GrpcInterceptor());
@@ -29,6 +30,19 @@ async function bootstrap() {
         },
         { inheritAppConfig: true },
     );
+
+    app.connectMicroservice<MicroserviceOptions>({
+        transport: Transport.RMQ,
+        options: {
+            urls: [RABBITMQ_URL],
+            queue: 'order-queue',
+            queueOptions: {
+                durable: true,
+            },
+            prefetchCount: 1,
+            noAck: false,
+        },
+    });
 
     await app.init();
     await app.startAllMicroservices();

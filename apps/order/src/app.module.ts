@@ -7,6 +7,8 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 import { OrderModule } from './modules/order/order.module';
 import { ClientsModule } from '@nestjs/microservices';
 import { grpcClient } from './common/grpc/grpc.client';
+import { rmqClient } from './common/rmq/queue.client';
+import { RedisModule } from '@app/common';
 
 @Module({
     imports: [
@@ -17,7 +19,7 @@ import { grpcClient } from './common/grpc/grpc.client';
 
         ClientsModule.registerAsync({
             isGlobal: true,
-            clients: grpcClient,
+            clients: [...grpcClient, ...rmqClient],
         }),
 
         TypeOrmModule.forRootAsync({
@@ -38,6 +40,15 @@ import { grpcClient } from './common/grpc/grpc.client';
 
                 return addTransactionalDataSource(new DataSource(options));
             },
+        }),
+
+        RedisModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                config: {
+                    url: configService.getOrThrow<string>('REDIS_URL'),
+                },
+            }),
         }),
 
         OrderModule,

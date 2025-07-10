@@ -9,13 +9,14 @@ export class ProductResponseMapper {
         if (!product) {
             throw new GrpcNotFoundException('상품을 찾을 수 없습니다');
         }
+
         try {
             return {
                 ...product,
                 category: product.category && CategoryResponseMapper.toCategoryResponse(product.category),
-                createdAt: product.createdAt?.toISOString(),
-                updatedAt: product.updatedAt?.toISOString(),
                 stock: product.stock && StockResponseMapper.toStockResponse(product.stock),
+                createdAt: product.createdAt && new Date(product.createdAt).toISOString(),
+                updatedAt: product.updatedAt && new Date(product.updatedAt).toISOString(),
             };
         } catch (error) {
             throw new GrpcInternalException('');

@@ -32,8 +32,10 @@ services:
             - ./apps/user/.env
 
         depends_on:
-            - mysql
-            - redis
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
 
     product:
         build:
@@ -49,8 +51,10 @@ services:
             - ./apps/product/.env
 
         depends_on:
-            - mysql
-            - redis
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
 
     order:
         build:
@@ -66,8 +70,12 @@ services:
             - ./apps/order/.env
 
         depends_on:
-            - mysql
-            - redis
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
 
     mysql:
         image: mysql:5.7
@@ -94,9 +102,7 @@ services:
             - '6379:6379'
         volumes:
             - ./redis/data:/data
-            # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
         restart: always
-        # command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
         command: redis-server --appendonly yes --requirepass pass1234
         healthcheck:
             test: ['CMD', 'redis-cli', '-a', 'pass1234', 'ping']
@@ -111,3 +117,20 @@ services:
             - 5540:5540
         volumes:
             - ./redis-insight:/db
+
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            - RABBITMQ_DEFAULT_USER=admin
+            - RABBITMQ_DEFAULT_PASS=pass1234
+        volumes:
+            - ./rabbitmq/data:/var/lib/rabbitmq
+        healthcheck:
+            test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
+            interval: 5s
+            timeout: 3s
+            retries: 5
+        restart: unless-stopped

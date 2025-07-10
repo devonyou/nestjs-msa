@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package product;
 
-import "google/protobuf/timestamp.proto";
+// import "google/protobuf/timestamp.proto";
 
 service ProductService {
     // product
@@ -29,7 +29,7 @@ service ProductService {
     rpc upsertStock(UpsertStockQuantityRequest) returns (StockResponse);
 
     // stock reservation
-    rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationResponse);
+    rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationListResponse);
     rpc releaseStockReservation(ReleaseStockReservationRequest) returns (Empty);
     rpc confirmStockReservation(ConfirmStockReservationRequest) returns (StockResponse);
 }
@@ -196,16 +196,34 @@ message UpsertStockQuantityRequest {
 
 message StockReservation {
     int32 id = 1;
-    string inventoryId = 2;
+    int32 productId = 2;
     int32 reservedQty = 3;
-    google.protobuf.Timestamp expiresAt = 4;
-    optional string orderId = 5;
+    string expiresAt = 4;
+    string orderId = 5;
+    StockReservationStatus status = 6;
+}
+
+message StockReservationResponse {
+    int32 id = 1;
+    int32 productId = 2;
+    int32 reservedQty = 3;
+    string expiresAt = 4;
+    string orderId = 5;
+    StockReservationStatus status = 6;
+}
+
+message StockReservationListResponse {
+    repeated StockReservationResponse reservations = 1;
+}
+
+message CreateStockReservation {
+    int32 productId = 1;
+    int32 reservedQty = 2;
 }
 
 message CreateStockReservationRequest {
-    string inventoryId = 1;
-    int32 reservedQty = 2;
-    string orderId = 3;
+    repeated CreateStockReservation reservations = 1;
+    string orderId = 2;
 }
 
 message ReleaseStockReservationRequest {
@@ -216,8 +234,11 @@ message ConfirmStockReservationRequest {
     int32 id = 1;
 }
 
-message StockReservationResponse {
-    StockReservation reservation = 1;
-}
-
 message Empty {}
+
+enum StockReservationStatus {
+    PENDING = 0;
+    CONFIRMED = 1;
+    RELEASED = 2;
+    EXPIRED = 3;
+}

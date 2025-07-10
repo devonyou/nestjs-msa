@@ -80,8 +80,8 @@ export interface DeliveryResponse {
   street: string;
 }
 
-/** create order */
-export interface CreateOrderRequest {
+/** initiate order */
+export interface InitiateOrderRequest {
   userId: number;
   items: OrderItemRequest[];
   delivery: DeliveryRequest | undefined;
@@ -115,7 +115,7 @@ export interface UpdateOrderStatusRequest {
 export const ORDER_PACKAGE_NAME = "order";
 
 export interface OrderServiceClient {
-  createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
+  initiateOrder(request: InitiateOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
 
   getOrderByIdAndUser(request: GetOrderByIdAndUserRequest, metadata?: Metadata): Observable<OrderResponse>;
 
@@ -125,8 +125,8 @@ export interface OrderServiceClient {
 }
 
 export interface OrderServiceController {
-  createOrder(
-    request: CreateOrderRequest,
+  initiateOrder(
+    request: InitiateOrderRequest,
     metadata?: Metadata,
   ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
@@ -148,7 +148,7 @@ export interface OrderServiceController {
 
 export function OrderServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createOrder", "getOrderByIdAndUser", "getOrdersByUserId", "updateOrderStatus"];
+    const grpcMethods: string[] = ["initiateOrder", "getOrderByIdAndUser", "getOrdersByUserId", "updateOrderStatus"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("OrderService", method)(constructor.prototype[method], method, descriptor);

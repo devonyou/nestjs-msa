@@ -5,7 +5,7 @@ package order;
 // import "google/protobuf/timestamp.proto";
 
 service OrderService {
-	rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+	rpc InitiateOrder(InitiateOrderRequest) returns (OrderResponse);
 	rpc GetOrderByIdAndUser(GetOrderByIdAndUserRequest) returns (OrderResponse);
 	rpc GetOrdersByUserId(GetOrdersByUserIdRequest) returns (OrderListResponse);
 	rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
@@ -68,12 +68,13 @@ message DeliveryResponse {
 	string street = 4;
 }
 
-// create order
-message CreateOrderRequest {
+
+// initiate order
+message InitiateOrderRequest {
 	int32 userId = 1;
 	repeated OrderItemRequest items = 2;
 	DeliveryRequest delivery = 3;
-}
+}	
 
 message OrderItemRequest {
 	int32 productId = 1;

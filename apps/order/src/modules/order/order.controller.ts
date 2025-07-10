@@ -2,14 +2,15 @@ import { Controller } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderMicroService } from '@app/common';
 import { OrderResponseMapper } from './mapper/order.response.mapper';
+import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 
 @Controller()
 @OrderMicroService.OrderServiceControllerMethods()
 export class OrderController implements OrderMicroService.OrderServiceController {
     constructor(private readonly orderService: OrderService) {}
 
-    async createOrder(request: OrderMicroService.CreateOrderRequest): Promise<OrderMicroService.OrderResponse> {
-        const result = await this.orderService.createOrder(request);
+    async initiateOrder(request: OrderMicroService.InitiateOrderRequest): Promise<OrderMicroService.OrderResponse> {
+        const result = await this.orderService.initiateOrder(request);
         return OrderResponseMapper.toOrderResponse(result);
     }
 
@@ -34,5 +35,10 @@ export class OrderController implements OrderMicroService.OrderServiceController
     ): Promise<OrderMicroService.OrderResponse> {
         const result = await this.orderService.updateOrderStatus(request);
         return OrderResponseMapper.toOrderResponse(result);
+    }
+
+    @MessagePattern('order.initiate')
+    async processInitiateOrder(@Payload() request: OrderMicroService.InitiateOrderRequest, @Ctx() context: RmqContext) {
+        return await this.orderService.processInitiateOrder(request, context);
     }
 }

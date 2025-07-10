@@ -13,15 +13,15 @@ export class OrderResponseMapper {
         try {
             return {
                 ...order,
-                id: order.id.toString(),
+                id: order.id,
                 orderItems: order.items?.map(item => this.toOrderItemResponse(item)),
                 delivery: order.delivery && this.toDeliveryResponse(order.delivery),
                 paymentId: order.paymentId,
-                createdAt: order.createdAt.toISOString(),
-                updatedAt: order.updatedAt.toISOString(),
+                createdAt: order.createdAt && new Date(order.createdAt).toISOString(),
+                updatedAt: order.updatedAt && new Date(order.updatedAt).toISOString(),
             };
         } catch (error) {
-            throw new GrpcInternalException('');
+            throw new GrpcInternalException(error.message);
         }
     }
 
@@ -31,7 +31,7 @@ export class OrderResponseMapper {
                 ...item,
             };
         } catch (error) {
-            throw new GrpcInternalException('');
+            throw new GrpcInternalException(error.message);
         }
     }
 
@@ -42,7 +42,7 @@ export class OrderResponseMapper {
                 orderId: delivery.order?.id.toString(),
             };
         } catch (error) {
-            throw new GrpcInternalException('');
+            throw new GrpcInternalException(error.message);
         }
     }
 

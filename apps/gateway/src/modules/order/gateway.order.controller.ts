@@ -6,19 +6,25 @@ import { Auth } from '../../common/decorator/auth.decorator';
 import { Rbac } from '../../common/decorator/rbac.decorator';
 import { UserMicroService } from '@app/common';
 import { User } from '../../common/decorator/user.decorator';
-import { CreateOrderRequestDto, OrderListResponseDto, OrderResponseDto, UpdateOrderStatusDto } from './dto/order.dto';
+import {
+    CreateOrderRequestDto,
+    InitiateOrderRequestDto,
+    OrderListResponseDto,
+    OrderResponseDto,
+    UpdateOrderStatusDto,
+} from './dto/order.dto';
 
 @ApiController('order')
 export class GatewayOrderController {
     constructor(private readonly orderService: GatewayOrderService) {}
 
-    @Post()
+    @Post('initiate')
     @Auth(false)
     @Rbac([UserMicroService.UserRole.USER])
-    @ApiOperation({ summary: '주문 생성' })
+    @ApiOperation({ summary: '주문 초기화' })
     @ApiCreatedResponse({ type: CreateOrderRequestDto })
-    async createOrder(@User() user: UserPayload, @Body() createOrderRequestDto: CreateOrderRequestDto) {
-        return this.orderService.createOrder(user.sub, createOrderRequestDto);
+    async initiateOrder(@User() user: UserPayload, @Body() initiateOrderRequestDto: InitiateOrderRequestDto) {
+        return this.orderService.initiateOrder(user.sub, initiateOrderRequestDto);
     }
 
     @Get('user')

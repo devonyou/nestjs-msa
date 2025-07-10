@@ -8,7 +8,6 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Timestamp } from "../google/protobuf/timestamp";
 
 export const protobufPackage = "product";
 
@@ -17,6 +16,14 @@ export enum ChangeType {
   OUT = 1,
   RESERVED = 2,
   CANCELLED = 3,
+  UNRECOGNIZED = -1,
+}
+
+export enum StockReservationStatus {
+  PENDING = 0,
+  CONFIRMED = 1,
+  RELEASED = 2,
+  EXPIRED = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -165,15 +172,33 @@ export interface UpsertStockQuantityRequest {
 
 export interface StockReservation {
   id: number;
-  inventoryId: string;
+  productId: number;
   reservedQty: number;
-  expiresAt: Timestamp | undefined;
-  orderId?: string | undefined;
+  expiresAt: string;
+  orderId: string;
+  status: StockReservationStatus;
+}
+
+export interface StockReservationResponse {
+  id: number;
+  productId: number;
+  reservedQty: number;
+  expiresAt: string;
+  orderId: string;
+  status: StockReservationStatus;
+}
+
+export interface StockReservationListResponse {
+  reservations: StockReservationResponse[];
+}
+
+export interface CreateStockReservation {
+  productId: number;
+  reservedQty: number;
 }
 
 export interface CreateStockReservationRequest {
-  inventoryId: string;
-  reservedQty: number;
+  reservations: CreateStockReservation[];
   orderId: string;
 }
 
@@ -183,10 +208,6 @@ export interface ReleaseStockReservationRequest {
 
 export interface ConfirmStockReservationRequest {
   id: number;
-}
-
-export interface StockReservationResponse {
-  reservation: StockReservation | undefined;
 }
 
 export interface Empty {
@@ -239,7 +260,7 @@ export interface ProductServiceClient {
   createStockReservation(
     request: CreateStockReservationRequest,
     metadata?: Metadata,
-  ): Observable<StockReservationResponse>;
+  ): Observable<StockReservationListResponse>;
 
   releaseStockReservation(request: ReleaseStockReservationRequest, metadata?: Metadata): Observable<Empty>;
 
@@ -324,7 +345,7 @@ export interface ProductServiceController {
   createStockReservation(
     request: CreateStockReservationRequest,
     metadata?: Metadata,
-  ): Promise<StockReservationResponse> | Observable<StockReservationResponse> | StockReservationResponse;
+  ): Promise<StockReservationListResponse> | Observable<StockReservationListResponse> | StockReservationListResponse;
 
   releaseStockReservation(
     request: ReleaseStockReservationRequest,
