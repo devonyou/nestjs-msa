@@ -12,14 +12,11 @@ import { Observable } from "rxjs";
 export const protobufPackage = "order";
 
 export enum OrderStatus {
-  CREATED = 0,
-  STOCK_RESERVED = 1,
-  PAYMENT_PENDING = 2,
-  PAYMENT_SUCCESS = 3,
-  PAYMENT_FAILED = 4,
-  CANCELED = 5,
-  SHIPPED = 6,
-  COMPLETED = 7,
+  PAYMENT_PENDING = 0,
+  PAYMENT_SUCCESS = 1,
+  PAYMENT_FAILED = 2,
+  PAYMENT_CANCELED = 3,
+  SHIPPED = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -97,6 +94,17 @@ export interface DeliveryRequest {
   street: string;
 }
 
+/** complete order */
+export interface CompleteOrderRequest {
+  userId: number;
+  orderId: string;
+  paymentId: string;
+}
+
+export interface CancelOrderRequest {
+  orderId: string;
+}
+
 export interface GetOrderByIdAndUserRequest {
   orderId: string;
   userId: number;
@@ -106,27 +114,33 @@ export interface GetOrdersByUserIdRequest {
   userId: number;
 }
 
-export interface UpdateOrderStatusRequest {
-  orderId: string;
-  userId: number;
-  status: OrderStatus;
-}
-
 export const ORDER_PACKAGE_NAME = "order";
 
 export interface OrderServiceClient {
   initiateOrder(request: InitiateOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
 
+  completeOrder(request: CompleteOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
+
+  cancelOrder(request: CancelOrderRequest, metadata?: Metadata): Observable<OrderResponse>;
+
   getOrderByIdAndUser(request: GetOrderByIdAndUserRequest, metadata?: Metadata): Observable<OrderResponse>;
 
   getOrdersByUserId(request: GetOrdersByUserIdRequest, metadata?: Metadata): Observable<OrderListResponse>;
-
-  updateOrderStatus(request: UpdateOrderStatusRequest, metadata?: Metadata): Observable<OrderResponse>;
 }
 
 export interface OrderServiceController {
   initiateOrder(
     request: InitiateOrderRequest,
+    metadata?: Metadata,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
+
+  completeOrder(
+    request: CompleteOrderRequest,
+    metadata?: Metadata,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
+
+  cancelOrder(
+    request: CancelOrderRequest,
     metadata?: Metadata,
   ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
@@ -139,16 +153,17 @@ export interface OrderServiceController {
     request: GetOrdersByUserIdRequest,
     metadata?: Metadata,
   ): Promise<OrderListResponse> | Observable<OrderListResponse> | OrderListResponse;
-
-  updateOrderStatus(
-    request: UpdateOrderStatusRequest,
-    metadata?: Metadata,
-  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 }
 
 export function OrderServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["initiateOrder", "getOrderByIdAndUser", "getOrdersByUserId", "updateOrderStatus"];
+    const grpcMethods: string[] = [
+      "initiateOrder",
+      "completeOrder",
+      "cancelOrder",
+      "getOrderByIdAndUser",
+      "getOrdersByUserId",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("OrderService", method)(constructor.prototype[method], method, descriptor);

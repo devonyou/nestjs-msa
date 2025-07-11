@@ -5,11 +5,8 @@ import { join } from 'path';
 import { GrpcInterceptor, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional';
 
 async function bootstrap() {
-    initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
-
     const app = await NestFactory.create(AppModule);
 
     const configService = app.get(ConfigService);

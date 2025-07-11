@@ -5,8 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from '@app/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { addTransactionalDataSource } from 'typeorm-transactional';
-import { DataSource } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
 
 @Module({
     imports: [
@@ -24,14 +23,8 @@ import { DataSource } from 'typeorm';
                 autoLoadEntities: true,
                 synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
+                entities: [UserEntity],
             }),
-            async dataSourceFactory(options) {
-                if (!options) {
-                    throw new Error('Invalid options passed');
-                }
-
-                return addTransactionalDataSource(new DataSource(options));
-            },
         }),
 
         RedisModule.forRootAsync({

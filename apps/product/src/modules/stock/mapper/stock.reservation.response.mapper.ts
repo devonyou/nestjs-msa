@@ -7,7 +7,7 @@ export class StockReservationResponseMapper {
     ): ProductMicroService.StockReservationResponse {
         return {
             ...reservation,
-            productId: reservation.product.id,
+            productId: reservation.product?.id,
             orderId: reservation.orderId,
             expiresAt: reservation.expiresAt && new Date(reservation.expiresAt).toISOString(),
         };

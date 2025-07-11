@@ -10,7 +10,11 @@ export class StockController
     implements
         Pick<
             ProductMicroService.ProductServiceController,
-            'getStockByProductId' | 'upsertStock' | 'createStockReservation'
+            | 'getStockByProductId'
+            | 'upsertStock'
+            | 'createStockReservation'
+            | 'confirmStockReservation'
+            | 'restoreStockReservation'
         >
 {
     constructor(private readonly stockService: StockService) {}
@@ -39,6 +43,30 @@ export class StockController
 
         return {
             reservations: reservation.map(reservation =>
+                StockReservationResponseMapper.toStockReservationResponse(reservation),
+            ),
+        };
+    }
+
+    @GrpcMethod(ProductMicroService.PRODUCT_SERVICE_NAME, 'confirmStockReservation')
+    async confirmStockReservation(
+        request: ProductMicroService.ConfirmStockReservationRequest,
+    ): Promise<ProductMicroService.StockReservationListResponse> {
+        const reservations = await this.stockService.confirmStockReservation(request);
+        return {
+            reservations: reservations.map(reservation =>
+                StockReservationResponseMapper.toStockReservationResponse(reservation),
+            ),
+        };
+    }
+
+    @GrpcMethod(ProductMicroService.PRODUCT_SERVICE_NAME, 'restoreStockReservation')
+    async restoreStockReservation(
+        request: ProductMicroService.RestoreStockReservationRequest,
+    ): Promise<ProductMicroService.StockReservationListResponse> {
+        const reservations = await this.stockService.restoreStockReservation(request);
+        return {
+            reservations: reservations.map(reservation =>
                 StockReservationResponseMapper.toStockReservationResponse(reservation),
             ),
         };

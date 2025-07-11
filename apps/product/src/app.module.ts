@@ -10,8 +10,6 @@ import { ProductStockReservationEntity } from './entities/product.stock.reservat
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { S3Module } from '@app/common';
-import { DataSource } from 'typeorm';
-import { addTransactionalDataSource } from 'typeorm-transactional';
 import { StockModule } from './modules/stock/stock.module';
 
 @Module({
@@ -31,23 +29,15 @@ import { StockModule } from './modules/stock/stock.module';
                 synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logger: 'advanced-console',
+                entities: [
+                    ProductEntity,
+                    ProductCategoryEntity,
+                    ProductImageEntity,
+                    ProductStockEntity,
+                    ProductStockReservationEntity,
+                ],
             }),
-            async dataSourceFactory(options) {
-                if (!options) {
-                    throw new Error('Invalid options passed');
-                }
-
-                return addTransactionalDataSource(new DataSource(options));
-            },
         }),
-
-        TypeOrmModule.forFeature([
-            ProductEntity,
-            ProductCategoryEntity,
-            ProductImageEntity,
-            ProductStockEntity,
-            ProductStockReservationEntity,
-        ]),
 
         S3Module.forRootAsync({
             inject: [ConfigService],

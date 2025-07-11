@@ -14,6 +14,15 @@ export class OrderController implements OrderMicroService.OrderServiceController
         return OrderResponseMapper.toOrderResponse(result);
     }
 
+    async completeOrder(request: OrderMicroService.CompleteOrderRequest): Promise<OrderMicroService.OrderResponse> {
+        const result = await this.orderService.completeOrder(request);
+        return OrderResponseMapper.toOrderResponse(result);
+    }
+
+    async cancelOrder(request: OrderMicroService.CancelOrderRequest): Promise<OrderMicroService.OrderResponse> {
+        throw new Error('Method not implemented.');
+    }
+
     async getOrderByIdAndUser(
         request: OrderMicroService.GetOrderByIdAndUserRequest,
     ): Promise<OrderMicroService.OrderResponse> {
@@ -28,13 +37,6 @@ export class OrderController implements OrderMicroService.OrderServiceController
         return {
             orders: result.map(order => OrderResponseMapper.toOrderResponse(order)),
         };
-    }
-
-    async updateOrderStatus(
-        request: OrderMicroService.UpdateOrderStatusRequest,
-    ): Promise<OrderMicroService.OrderResponse> {
-        const result = await this.orderService.updateOrderStatus(request);
-        return OrderResponseMapper.toOrderResponse(result);
     }
 
     @MessagePattern('order.initiate')

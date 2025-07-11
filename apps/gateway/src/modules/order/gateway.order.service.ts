@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { createGrpcMetadata, OrderMicroService } from '@app/common';
-import { InitiateOrderRequestDto, UpdateOrderStatusDto } from './dto/order.dto';
+import { CompleteOrderRequestDto, InitiateOrderRequestDto } from './dto/order.dto';
 import { lastValueFrom } from 'rxjs';
 import { throwHttpExceptionFromGrpcError } from '../../common/http/http.rpc.exception';
 
@@ -20,10 +20,21 @@ export class GatewayOrderService {
         );
     }
 
-    async initiateOrder(sub: number, initiateOrderRequestDto: InitiateOrderRequestDto) {
+    async initiateOrder(userId: number, dto: InitiateOrderRequestDto) {
         try {
             const metadata = createGrpcMetadata(GatewayOrderService.name, this.initiateOrder.name);
-            const stream = this.orderService.initiateOrder({ ...initiateOrderRequestDto, userId: sub }, metadata);
+            const stream = this.orderService.initiateOrder({ ...dto, userId: userId }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async completeOrder(userId: number, dto: CompleteOrderRequestDto) {
+        try {
+            const metadata = createGrpcMetadata(GatewayOrderService.name, this.completeOrder.name);
+            const stream = this.orderService.completeOrder({ ...dto, userId }, metadata);
             const resp = await lastValueFrom(stream);
             return resp;
         } catch (error) {
@@ -46,20 +57,6 @@ export class GatewayOrderService {
         try {
             const metadata = createGrpcMetadata(GatewayOrderService.name, this.getOrdersByUserId.name);
             const stream = this.orderService.getOrdersByUserId({ userId: userId }, metadata);
-            const resp = await lastValueFrom(stream);
-            return resp;
-        } catch (error) {
-            throwHttpExceptionFromGrpcError(error);
-        }
-    }
-
-    async updateOrderStatus(userId: number, orderId: string, updateOrderStatusDto: UpdateOrderStatusDto) {
-        try {
-            const metadata = createGrpcMetadata(GatewayOrderService.name, this.updateOrderStatus.name);
-            const stream = this.orderService.updateOrderStatus(
-                { orderId, userId, status: updateOrderStatusDto.status },
-                metadata,
-            );
             const resp = await lastValueFrom(stream);
             return resp;
         } catch (error) {

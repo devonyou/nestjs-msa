@@ -1,5 +1,5 @@
 import { OrderMicroService } from '@app/common';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
     ArrayNotEmpty,
     IsArray,
@@ -132,4 +132,12 @@ export class InitiateOrderRequestDto {
     delivery: CreateOrderDeliveryDto;
 }
 
-export class UpdateOrderStatusDto extends PickType(OrderDto, ['status'] as const) {}
+export class CompleteOrderRequestDto {
+    @ApiProperty({ description: '주문 ID', example: '1' })
+    @IsString()
+    orderId: string;
+
+    @ApiProperty({ description: '결제 ID', example: '1' })
+    @IsString()
+    paymentId: string;
+}

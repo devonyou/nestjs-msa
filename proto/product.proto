@@ -30,8 +30,8 @@ service ProductService {
 
     // stock reservation
     rpc createStockReservation(CreateStockReservationRequest) returns (StockReservationListResponse);
-    rpc releaseStockReservation(ReleaseStockReservationRequest) returns (Empty);
-    rpc confirmStockReservation(ConfirmStockReservationRequest) returns (StockResponse);
+    rpc confirmStockReservation(ConfirmStockReservationRequest) returns (StockReservationListResponse);
+    rpc restoreStockReservation(RestoreStockReservationRequest) returns (StockReservationListResponse);
 }
 
 // product
@@ -226,12 +226,12 @@ message CreateStockReservationRequest {
     string orderId = 2;
 }
 
-message ReleaseStockReservationRequest {
-    int32 id = 1;
+message ConfirmStockReservationRequest {
+    string orderId = 1;
 }
 
-message ConfirmStockReservationRequest {
-    int32 id = 1;
+message RestoreStockReservationRequest {
+    string orderId = 1;
 }
 
 message Empty {}

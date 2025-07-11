@@ -1,17 +1,17 @@
 import { GatewayOrderService } from './gateway.order.service';
 import { ApiController } from '../../common/decorator/api.controller.decorator';
-import { Body, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Get, Param, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { Auth } from '../../common/decorator/auth.decorator';
 import { Rbac } from '../../common/decorator/rbac.decorator';
 import { UserMicroService } from '@app/common';
 import { User } from '../../common/decorator/user.decorator';
 import {
+    CompleteOrderRequestDto,
     CreateOrderRequestDto,
     InitiateOrderRequestDto,
     OrderListResponseDto,
     OrderResponseDto,
-    UpdateOrderStatusDto,
 } from './dto/order.dto';
 
 @ApiController('order')
@@ -25,6 +25,15 @@ export class GatewayOrderController {
     @ApiCreatedResponse({ type: CreateOrderRequestDto })
     async initiateOrder(@User() user: UserPayload, @Body() initiateOrderRequestDto: InitiateOrderRequestDto) {
         return this.orderService.initiateOrder(user.sub, initiateOrderRequestDto);
+    }
+
+    @Post('complete')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.USER])
+    @ApiOperation({ summary: '주문 완료' })
+    @ApiCreatedResponse({ type: CreateOrderRequestDto })
+    async completeOrder(@User() user: UserPayload, @Body() completeOrderRequestDto: CompleteOrderRequestDto) {
+        return this.orderService.completeOrder(user.sub, completeOrderRequestDto);
     }
 
     @Get('user')
@@ -43,18 +52,5 @@ export class GatewayOrderController {
     @ApiOkResponse({ type: OrderResponseDto })
     async getOrderByIdAndUser(@User() user: UserPayload, @Param('orderId') orderId: string) {
         return this.orderService.getOrderByIdAndUser(user.sub, orderId);
-    }
-
-    @Patch(':orderId')
-    @Auth(false)
-    @Rbac([UserMicroService.UserRole.USER])
-    @ApiOperation({ summary: '주문 상태 업데이트' })
-    @ApiOkResponse({ type: OrderResponseDto })
-    async updateOrderStatus(
-        @User() user: UserPayload,
-        @Param('orderId') orderId: string,
-        @Body() updateOrderStatusDto: UpdateOrderStatusDto,
-    ) {
-        return this.orderService.updateOrderStatus(user.sub, orderId, updateOrderStatusDto);
     }
 }

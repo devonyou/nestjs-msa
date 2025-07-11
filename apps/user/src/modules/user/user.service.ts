@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleProfileDto } from './dto/google.profile.dto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { UserEntity } from '../../entities/user.entity';
 import { GrpcUnauthenticatedException } from 'nestjs-grpc-exceptions';
 import { JwtService } from '@nestjs/jwt';
@@ -16,7 +16,8 @@ export class UserService {
     private refreshExpireIn: number;
 
     constructor(
-        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+        @InjectDataSource() private readonly datasource: DataSource,
+
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly redisService: RedisService,
@@ -33,7 +34,7 @@ export class UserService {
      * @returns 사용자 엔티티
      */
     async findOrCreateUserByGoogle(userInfo: GoogleProfileDto): Promise<UserEntity> {
-        const user = await this.userRepository.findOne({
+        const user = await this.datasource.getRepository(UserEntity).findOne({
             where: {
                 provider: userInfo.provider,
                 providerId: userInfo.providerId,
@@ -41,11 +42,11 @@ export class UserService {
         });
 
         if (!user) {
-            const newUser = this.userRepository.create({
+            const newUser = this.datasource.getRepository(UserEntity).create({
                 ...userInfo,
                 role: UserMicroService.UserRole.USER,
             });
-            return this.userRepository.save(newUser);
+            return this.datasource.getRepository(UserEntity).save(newUser);
         }
 
         return user;
@@ -69,7 +70,7 @@ export class UserService {
         accessToken: string;
         refreshToken: string;
     }> {
-        const user = await this.userRepository.findOne({
+        const user = await this.datasource.getRepository(UserEntity).findOne({
             where: { id: userId },
         });
 
@@ -138,7 +139,7 @@ export class UserService {
         // 캐시된 사용자 정보가 없을 경우 DB 사용자 정보 조회
         if (!cachedUser) {
             try {
-                const user = await this.userRepository.findOne({
+                const user = await this.datasource.getRepository(UserEntity).findOne({
                     where: { id: payload.sub },
                 });
 
@@ -182,12 +183,12 @@ export class UserService {
     }
 
     async getUserInfoByUserId(userId: number): Promise<UserEntity> {
-        const user = await this.userRepository.findOneBy({ id: userId });
+        const user = await this.datasource.getRepository(UserEntity).findOneBy({ id: userId });
         return user;
     }
 
     async updateUserInfo(request: UserMicroService.UpdateUserInfoRequest): Promise<UserEntity> {
-        await this.userRepository.update(request.id, { ...request });
+        await this.datasource.getRepository(UserEntity).update(request.id, { ...request });
 
         const user = await this.getUserInfoByUserId(request.id);
 

@@ -202,12 +202,12 @@ export interface CreateStockReservationRequest {
   orderId: string;
 }
 
-export interface ReleaseStockReservationRequest {
-  id: number;
+export interface ConfirmStockReservationRequest {
+  orderId: string;
 }
 
-export interface ConfirmStockReservationRequest {
-  id: number;
+export interface RestoreStockReservationRequest {
+  orderId: string;
 }
 
 export interface Empty {
@@ -262,9 +262,15 @@ export interface ProductServiceClient {
     metadata?: Metadata,
   ): Observable<StockReservationListResponse>;
 
-  releaseStockReservation(request: ReleaseStockReservationRequest, metadata?: Metadata): Observable<Empty>;
+  confirmStockReservation(
+    request: ConfirmStockReservationRequest,
+    metadata?: Metadata,
+  ): Observable<StockReservationListResponse>;
 
-  confirmStockReservation(request: ConfirmStockReservationRequest, metadata?: Metadata): Observable<StockResponse>;
+  restoreStockReservation(
+    request: RestoreStockReservationRequest,
+    metadata?: Metadata,
+  ): Observable<StockReservationListResponse>;
 }
 
 export interface ProductServiceController {
@@ -347,15 +353,15 @@ export interface ProductServiceController {
     metadata?: Metadata,
   ): Promise<StockReservationListResponse> | Observable<StockReservationListResponse> | StockReservationListResponse;
 
-  releaseStockReservation(
-    request: ReleaseStockReservationRequest,
-    metadata?: Metadata,
-  ): Promise<Empty> | Observable<Empty> | Empty;
-
   confirmStockReservation(
     request: ConfirmStockReservationRequest,
     metadata?: Metadata,
-  ): Promise<StockResponse> | Observable<StockResponse> | StockResponse;
+  ): Promise<StockReservationListResponse> | Observable<StockReservationListResponse> | StockReservationListResponse;
+
+  restoreStockReservation(
+    request: RestoreStockReservationRequest,
+    metadata?: Metadata,
+  ): Promise<StockReservationListResponse> | Observable<StockReservationListResponse> | StockReservationListResponse;
 }
 
 export function ProductServiceControllerMethods() {
@@ -376,8 +382,8 @@ export function ProductServiceControllerMethods() {
       "getStockByProductId",
       "upsertStock",
       "createStockReservation",
-      "releaseStockReservation",
       "confirmStockReservation",
+      "restoreStockReservation",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

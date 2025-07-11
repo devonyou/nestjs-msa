@@ -6,9 +6,10 @@ package order;
 
 service OrderService {
 	rpc InitiateOrder(InitiateOrderRequest) returns (OrderResponse);
+	rpc CompleteOrder(CompleteOrderRequest) returns (OrderResponse);
+	rpc CancelOrder(CancelOrderRequest) returns (OrderResponse);
 	rpc GetOrderByIdAndUser(GetOrderByIdAndUserRequest) returns (OrderResponse);
 	rpc GetOrdersByUserId(GetOrdersByUserIdRequest) returns (OrderListResponse);
-	rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
 }
 
 message Order {
@@ -86,6 +87,19 @@ message DeliveryRequest {
 	string street = 2;
 }
 
+// complete order
+message CompleteOrderRequest {
+	int32 userId = 1;
+	string orderId = 2;
+	string paymentId = 3;
+}
+
+// cancel order
+
+message CancelOrderRequest {
+	string orderId = 1;
+}
+
 message GetOrderByIdAndUserRequest {
 	string orderId = 1;
 	int32 userId = 2;
@@ -95,21 +109,12 @@ message GetOrdersByUserIdRequest {
 	int32 userId = 1;
 }
 
-message UpdateOrderStatusRequest {
-	string orderId = 1;
-	int32 userId = 2;
-	OrderStatus status = 3;
-}
-
 enum OrderStatus {
-	CREATED = 0;
-	STOCK_RESERVED = 1;
-	PAYMENT_PENDING = 2;
-	PAYMENT_SUCCESS = 3;
-	PAYMENT_FAILED = 4;
-	CANCELED = 5;
-	SHIPPED = 6;
-	COMPLETED = 7;
+	PAYMENT_PENDING = 0;
+	PAYMENT_SUCCESS = 1;
+	PAYMENT_FAILED = 2;
+	PAYMENT_CANCELED = 3;
+	SHIPPED = 4;
 }
 
 // enum DeliveryStatus {

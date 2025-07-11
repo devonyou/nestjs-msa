@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { envValidationSchema } from './common/config/env.validation.schema';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { addTransactionalDataSource } from 'typeorm-transactional';
 import { OrderModule } from './modules/order/order.module';
 import { ClientsModule } from '@nestjs/microservices';
 import { grpcClient } from './common/grpc/grpc.client';
 import { rmqClient } from './common/rmq/queue.client';
 import { RedisModule } from '@app/common';
+import { OrderDeliveryEntity } from './entitites/order.delivery.entity';
+import { OrderEntity } from './entitites/order.entity';
+import { OrderItemEntity } from './entitites/order.item.entity';
 
 @Module({
     imports: [
@@ -32,14 +33,8 @@ import { RedisModule } from '@app/common';
                 synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logger: 'advanced-console',
+                entities: [OrderEntity, OrderItemEntity, OrderDeliveryEntity],
             }),
-            async dataSourceFactory(options) {
-                if (!options) {
-                    throw new Error('Invalid options passed');
-                }
-
-                return addTransactionalDataSource(new DataSource(options));
-            },
         }),
 
         RedisModule.forRootAsync({

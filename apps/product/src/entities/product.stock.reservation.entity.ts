@@ -17,8 +17,8 @@ export class ProductStockReservationEntity {
     @Column()
     expiresAt: Date;
 
-    @Column({ nullable: true })
-    orderId?: string;
+    @Column()
+    orderId: string;
 
     @Column({
         type: 'int',

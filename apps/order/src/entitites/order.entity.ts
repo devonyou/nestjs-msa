@@ -22,7 +22,10 @@ export class OrderEntity {
     @Column({ type: 'int' })
     amount: number;
 
-    @Column({ type: 'enum', enum: OrderMicroService.OrderStatus, default: OrderMicroService.OrderStatus.CREATED })
+    @Column({
+        type: 'int',
+        default: OrderMicroService.OrderStatus.PAYMENT_PENDING,
+    })
     status: OrderMicroService.OrderStatus;
 
     @OneToMany(() => OrderItemEntity, item => item.order, { cascade: true })

@@ -1,50 +1,68 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { ProductEntity } from '../../entities/product.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { DataSource, ILike, In, QueryRunner } from 'typeorm';
 import { ProductMicroService, S3Service } from '@app/common';
 import { CategoryService } from '../category/category.service';
 import { GrpcInternalException, GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { ConfigService } from '@nestjs/config';
 import { ProductImageEntity } from '../../entities/product.image.entity';
-import { Transactional } from 'typeorm-transactional';
+import { ProductCategoryEntity } from '../../entities/product.category.entity';
 
 @Injectable()
 export class ProductService {
     constructor(
-        @InjectRepository(ProductEntity)
-        private readonly productRepository: Repository<ProductEntity>,
+        @InjectDataSource() private readonly datasource: DataSource,
+
         @Inject(forwardRef(() => CategoryService))
         private readonly categoryService: CategoryService,
         private readonly s3Service: S3Service,
         private readonly configService: ConfigService,
-        @InjectRepository(ProductImageEntity)
-        private readonly productImageRepository: Repository<ProductImageEntity>,
     ) {}
 
-    @Transactional()
     async createProduct(request: ProductMicroService.CreateProductRequest): Promise<ProductEntity> {
         const { images } = request;
 
-        const category = await this.categoryService.getCategoryById(request.categoryId);
-        if (!category) {
-            throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
+        // qr
+        const qr = this.datasource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
+
+        try {
+            const category = await qr.manager.getRepository(ProductCategoryEntity).findOne({
+                where: { id: request.categoryId },
+            });
+
+            if (!category) {
+                throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
+            }
+
+            const product = await qr.manager.getRepository(ProductEntity).create({
+                name: request.name,
+                description: request.description,
+                price: request.price,
+                category: { id: category.id },
+            });
+
+            await qr.manager.getRepository(ProductEntity).save(product);
+
+            await this.upsertProductImage(qr, product.id, images);
+
+            const savedProduct = await qr.manager.getRepository(ProductEntity).findOne({
+                where: { id: product.id },
+                relations: ['category', 'images', 'stock'],
+            });
+
+            await qr.commitTransaction();
+
+            return savedProduct;
+        } catch (error) {
+            await qr.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await qr.release();
         }
-
-        const product = this.productRepository.create({
-            name: request.name,
-            description: request.description,
-            price: request.price,
-            category: { id: category.id },
-        });
-
-        await this.productRepository.save(product);
-
-        await this.upsertProductImage(product.id, images);
-
-        const savedProduct = await this.getProductById({ id: product.id });
-
-        return savedProduct;
     }
 
     async getProducts(request: ProductMicroService.GetProductsRequest): Promise<{
@@ -64,7 +82,7 @@ export class ProductService {
         if (categoryId) where.category = { id: categoryId };
         if (name) where.name = ILike(`%${name}%`);
 
-        const [products, total] = await this.productRepository.findAndCount({
+        const [products, total] = await this.datasource.getRepository(ProductEntity).findAndCount({
             where,
             order,
             skip,
@@ -79,7 +97,7 @@ export class ProductService {
     }
 
     async getProductById(request: ProductMicroService.GetProductByIdRequest): Promise<ProductEntity> {
-        const product = await this.productRepository.findOne({
+        const product = await this.datasource.getRepository(ProductEntity).findOne({
             where: { id: request.id },
             relations: ['category', 'images', 'stock'],
         });
@@ -91,7 +109,9 @@ export class ProductService {
         request: ProductMicroService.GetProductsByIdsRequest,
     ): Promise<{ products: ProductEntity[]; total: number }> {
         const { ids } = request;
-        const [products, total] = await this.productRepository.findAndCount({ where: { id: In(ids) } });
+        const [products, total] = await this.datasource
+            .getRepository(ProductEntity)
+            .findAndCount({ where: { id: In(ids) } });
 
         return {
             products,
@@ -99,36 +119,53 @@ export class ProductService {
         };
     }
 
-    @Transactional()
     async updateProduct(request: ProductMicroService.UpdateProductRequest): Promise<ProductEntity> {
         const { id, name, description, price, categoryId, images } = request;
 
-        const product = await this.productRepository.findOne({ where: { id } });
+        // qr
+        const qr = this.datasource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
 
-        if (!product) {
-            throw new GrpcNotFoundException('상품을 찾을 수 없습니다');
+        try {
+            const product = await qr.manager.getRepository(ProductEntity).findOne({ where: { id } });
+
+            if (!product) {
+                throw new GrpcNotFoundException('상품을 찾을 수 없습니다');
+            }
+
+            if (name) product.name = name;
+            if (description) product.description = description;
+            if (price) product.price = price;
+            if (categoryId) {
+                const category = await this.categoryService.getCategoryById(categoryId);
+                if (!category) throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
+                product.category = category;
+            }
+
+            await qr.manager.getRepository(ProductEntity).save(product);
+
+            await this.upsertProductImage(qr, id, images);
+
+            const savedProduct = await qr.manager.getRepository(ProductEntity).findOne({
+                where: { id },
+                relations: ['category', 'images', 'stock'],
+            });
+
+            await qr.commitTransaction();
+
+            return savedProduct;
+        } catch (error) {
+            await qr.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await qr.release();
         }
-
-        if (name) product.name = name;
-        if (description) product.description = description;
-        if (price) product.price = price;
-        if (categoryId) {
-            const category = await this.categoryService.getCategoryById(categoryId);
-            if (!category) throw new GrpcNotFoundException('카테고리를 찾을 수 없습니다');
-            product.category = category;
-        }
-
-        await this.productRepository.save(product);
-
-        await this.upsertProductImage(id, images);
-
-        const savedProduct = await this.getProductById({ id });
-
-        return savedProduct;
     }
 
     deleteProduct(id: number) {
-        this.productRepository.delete(id);
+        this.datasource.getRepository(ProductEntity).delete(id);
     }
 
     async generatePresignedUrl(contentType: string): Promise<ProductMicroService.GeneratePresignedUrlResponse> {
@@ -154,17 +191,22 @@ export class ProductService {
     }
 
     async upsertProductImage(
+        qr: QueryRunner,
         productId: number,
         images: { url: string; main?: boolean }[],
     ): Promise<ProductImageEntity[]> {
         if (!images?.length) return [];
 
-        await this.productImageRepository.delete({ product: { id: productId } });
+        await qr.manager.getRepository(ProductImageEntity).delete({ product: { id: productId } });
 
         const savedImages = await Promise.all(
             images.map(async ({ url, main }) => {
-                const productImage = this.productImageRepository.create({ url, main, product: { id: productId } });
-                return this.productImageRepository.save(productImage);
+                const productImage = qr.manager.getRepository(ProductImageEntity).create({
+                    url,
+                    main,
+                    product: { id: productId },
+                });
+                return qr.manager.getRepository(ProductImageEntity).save(productImage);
             }),
         );
 

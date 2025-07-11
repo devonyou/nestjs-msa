@@ -48,22 +48,16 @@ export class OrderResponseMapper {
 
     static toStatusResponse(status: OrderMicroService.OrderStatus): OrderMicroService.OrderStatus {
         switch (status) {
-            case OrderMicroService.OrderStatus.CREATED:
-                return OrderMicroService.OrderStatus.CREATED;
-            case OrderMicroService.OrderStatus.STOCK_RESERVED:
-                return OrderMicroService.OrderStatus.STOCK_RESERVED;
             case OrderMicroService.OrderStatus.PAYMENT_PENDING:
                 return OrderMicroService.OrderStatus.PAYMENT_PENDING;
             case OrderMicroService.OrderStatus.PAYMENT_SUCCESS:
                 return OrderMicroService.OrderStatus.PAYMENT_SUCCESS;
             case OrderMicroService.OrderStatus.PAYMENT_FAILED:
                 return OrderMicroService.OrderStatus.PAYMENT_FAILED;
-            case OrderMicroService.OrderStatus.CANCELED:
-                return OrderMicroService.OrderStatus.CANCELED;
+            case OrderMicroService.OrderStatus.PAYMENT_CANCELED:
+                return OrderMicroService.OrderStatus.PAYMENT_CANCELED;
             case OrderMicroService.OrderStatus.SHIPPED:
                 return OrderMicroService.OrderStatus.SHIPPED;
-            case OrderMicroService.OrderStatus.COMPLETED:
-                return OrderMicroService.OrderStatus.COMPLETED;
             case OrderMicroService.OrderStatus.UNRECOGNIZED:
                 return OrderMicroService.OrderStatus.UNRECOGNIZED;
             default:
