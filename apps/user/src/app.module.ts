@@ -24,6 +24,7 @@ import { UserEntity } from './entities/user.entity';
                 synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 entities: [UserEntity],
+                timezone: 'Z',
             }),
         }),
 

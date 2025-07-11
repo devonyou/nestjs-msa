@@ -36,6 +36,7 @@ import { StockModule } from './modules/stock/stock.module';
                     ProductStockEntity,
                     ProductStockReservationEntity,
                 ],
+                timezone: 'Z',
             }),
         }),
 

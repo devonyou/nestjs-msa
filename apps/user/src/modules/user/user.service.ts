@@ -52,6 +52,11 @@ export class UserService {
         return user;
     }
 
+    /**
+     * 구글 로그인
+     * @param user UserEntity
+     * @returns { accessToken: string; refreshToken: string }
+     */
     async signInWithGoogle(user: UserEntity): Promise<{ accessToken: string; refreshToken: string }> {
         try {
             return await this.issueTokenByUserId(user.id);
@@ -110,6 +115,12 @@ export class UserService {
         });
     }
 
+    /**
+     * 토큰 검증
+     * @param rawToken string
+     * @param isRefresh boolean
+     * @returns { verify: boolean; user: UserEntity }
+     */
     async verifyToken(rawToken: string, isRefresh: boolean): Promise<{ verify: boolean; user: UserEntity }> {
         let payload;
 
@@ -162,6 +173,11 @@ export class UserService {
         }
     }
 
+    /**
+     * 사용자 정보를 캐시에 저장
+     * @param user UserEntity
+     * @param payloadExp number
+     */
     async setUserInfoToCache(user: UserEntity, payloadExp?: number): Promise<void> {
         if (payloadExp) {
             const now = Math.floor(Date.now() / 1000);
@@ -173,20 +189,39 @@ export class UserService {
         }
     }
 
+    /**
+     * 캐시에서 사용자 정보를 조회
+     * @param userId number
+     * @returns UserEntity | null
+     */
     async getUserInfoFromCache(userId: number): Promise<UserEntity | null> {
         const cachedUser = await this.redisService.get(`user:payload:${userId}`);
         return cachedUser;
     }
 
+    /**
+     * 캐시에서 사용자 정보를 삭제
+     * @param userId number
+     */
     async deleteUserInfoFromCache(userId: number): Promise<void> {
         await this.redisService.del(`user:payload:${userId}`);
     }
 
+    /**
+     * 사용자 정보를 조회
+     * @param userId number
+     * @returns UserEntity
+     */
     async getUserInfoByUserId(userId: number): Promise<UserEntity> {
         const user = await this.datasource.getRepository(UserEntity).findOneBy({ id: userId });
         return user;
     }
 
+    /**
+     * 사용자 정보를 업데이트
+     * @param request UserMicroService.UpdateUserInfoRequest
+     * @returns UserEntity
+     */
     async updateUserInfo(request: UserMicroService.UpdateUserInfoRequest): Promise<UserEntity> {
         await this.datasource.getRepository(UserEntity).update(request.id, { ...request });
 

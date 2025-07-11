@@ -20,6 +20,11 @@ export class ProductService {
         private readonly configService: ConfigService,
     ) {}
 
+    /**
+     * 상품 생성
+     * @param request ProductMicroService.CreateProductRequest
+     * @returns ProductEntity
+     */
     async createProduct(request: ProductMicroService.CreateProductRequest): Promise<ProductEntity> {
         const { images } = request;
 
@@ -65,6 +70,11 @@ export class ProductService {
         }
     }
 
+    /**
+     * 상품 목록 조회
+     * @param request ProductMicroService.GetProductsRequest
+     * @returns { products: ProductEntity[]; total: number }
+     */
     async getProducts(request: ProductMicroService.GetProductsRequest): Promise<{
         products: ProductEntity[];
         total: number;
@@ -96,6 +106,11 @@ export class ProductService {
         };
     }
 
+    /**
+     * 상품 상세 조회
+     * @param request ProductMicroService.GetProductByIdRequest
+     * @returns ProductEntity
+     */
     async getProductById(request: ProductMicroService.GetProductByIdRequest): Promise<ProductEntity> {
         const product = await this.datasource.getRepository(ProductEntity).findOne({
             where: { id: request.id },
@@ -105,6 +120,11 @@ export class ProductService {
         return product;
     }
 
+    /**
+     * 상품 목록 조회
+     * @param request ProductMicroService.GetProductsByIdsRequest
+     * @returns { products: ProductEntity[]; total: number }
+     */
     async getProductsByIds(
         request: ProductMicroService.GetProductsByIdsRequest,
     ): Promise<{ products: ProductEntity[]; total: number }> {
@@ -119,6 +139,11 @@ export class ProductService {
         };
     }
 
+    /**
+     * 상품 수정
+     * @param request ProductMicroService.UpdateProductRequest
+     * @returns ProductEntity
+     */
     async updateProduct(request: ProductMicroService.UpdateProductRequest): Promise<ProductEntity> {
         const { id, name, description, price, categoryId, images } = request;
 
@@ -164,10 +189,19 @@ export class ProductService {
         }
     }
 
+    /**
+     * 상품 삭제
+     * @param id number
+     */
     deleteProduct(id: number) {
         this.datasource.getRepository(ProductEntity).delete(id);
     }
 
+    /**
+     * 프리사인드 url 생성
+     * @param contentType string
+     * @returns ProductMicroService.GeneratePresignedUrlResponse
+     */
     async generatePresignedUrl(contentType: string): Promise<ProductMicroService.GeneratePresignedUrlResponse> {
         try {
             const bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
@@ -190,6 +224,13 @@ export class ProductService {
         }
     }
 
+    /**
+     * 상품 이미지 저장
+     * @param qr QueryRunner
+     * @param productId number
+     * @param images { url: string; main?: boolean }[]
+     * @returns ProductImageEntity[]
+     */
     async upsertProductImage(
         qr: QueryRunner,
         productId: number,

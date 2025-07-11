@@ -34,6 +34,7 @@ import { OrderItemEntity } from './entitites/order.item.entity';
                 logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
                 logger: 'advanced-console',
                 entities: [OrderEntity, OrderItemEntity, OrderDeliveryEntity],
+                timezone: 'Z',
             }),
         }),
 

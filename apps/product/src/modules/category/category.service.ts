@@ -9,6 +9,11 @@ import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 export class CategoryService {
     constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
+    /**
+     * 카테고리 생성
+     * @param request ProductMicroService.CreateCategoryRequest
+     * @returns ProductCategoryEntity
+     */
     async createCategory(request: ProductMicroService.CreateCategoryRequest): Promise<ProductCategoryEntity> {
         const { name, parentId, description } = request;
         let parentCategory: ProductCategoryEntity;
@@ -35,6 +40,10 @@ export class CategoryService {
         return savedCategory;
     }
 
+    /**
+     * 모든 카테고리 조회
+     * @returns ProductCategoryEntity[]
+     */
     async getAllCategories(): Promise<ProductCategoryEntity[]> {
         const categories = await this.datasource.getRepository(ProductCategoryEntity).find({
             relations: ['parent', 'children', 'products'],
@@ -43,6 +52,11 @@ export class CategoryService {
         return categories;
     }
 
+    /**
+     * 카테고리 상세 조회
+     * @param id number
+     * @returns ProductCategoryEntity
+     */
     async getCategoryById(id: number): Promise<ProductCategoryEntity> {
         const category = await this.datasource
             .getRepository(ProductCategoryEntity)
@@ -56,6 +70,11 @@ export class CategoryService {
         return category;
     }
 
+    /**
+     * 카테고리 수정
+     * @param request ProductMicroService.UpdateCategoryRequest
+     * @returns ProductCategoryEntity
+     */
     async updateCategory(request: ProductMicroService.UpdateCategoryRequest): Promise<ProductCategoryEntity> {
         const { id, name, parentId, description } = request;
 
@@ -86,6 +105,10 @@ export class CategoryService {
         return savedCategory;
     }
 
+    /**
+     * 카테고리 삭제
+     * @param id number
+     */
     async deleteCategory(id: number) {
         const category = await this.datasource.getRepository(ProductCategoryEntity).findOne({ where: { id } });
         if (!category) {

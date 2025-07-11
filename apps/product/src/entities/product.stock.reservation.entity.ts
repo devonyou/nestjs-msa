@@ -14,7 +14,7 @@ export class ProductStockReservationEntity {
     @Column('int')
     reservedQty: number;
 
-    @Column()
+    @Column({ type: 'timestamp' })
     expiresAt: Date;
 
     @Column()
