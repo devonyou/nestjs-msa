@@ -34,8 +34,8 @@ export class OrderEntity {
     @OneToOne(() => OrderDeliveryEntity, delivery => delivery.order, { cascade: true })
     delivery: OrderDeliveryEntity;
 
-    @Column({ nullable: true })
-    paymentId?: string;
+    @Column({ type: 'int', nullable: true })
+    paymentId?: number;
 
     @CreateDateColumn()
     createdAt: Date;

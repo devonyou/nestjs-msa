@@ -7,6 +7,7 @@ import { ClientProxy, RmqContext, RpcException } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { OrderProductService } from './order.product.service';
+import { OrderPaymentService } from './order.payment.service';
 
 @Injectable()
 export class OrderService implements OnModuleInit {
@@ -15,7 +16,9 @@ export class OrderService implements OnModuleInit {
 
         @Inject('ORDER_RMQ') private readonly orderRmqClient: ClientProxy,
         private readonly redisService: RedisService,
+
         private readonly orderProductService: OrderProductService,
+        private readonly orderPaymentService: OrderPaymentService,
     ) {}
 
     onModuleInit() {
@@ -87,7 +90,6 @@ export class OrderService implements OnModuleInit {
             return null;
         }
 
-        // qr
         const qr = this.datasource.createQueryRunner();
         await qr.connect();
         await qr.startTransaction();
@@ -137,6 +139,19 @@ export class OrderService implements OnModuleInit {
                 orderId: savedOrder.id,
             });
 
+            // 결제 생성
+            const payment = await this.orderPaymentService.createPayment({
+                userId,
+                orderId: savedOrder.id,
+                amount: savedOrder.amount,
+                provider: 'toss',
+            });
+
+            // 주문 업데이트(결제 아이디)
+            await qr.manager.getRepository(OrderEntity).update(savedOrder.id, {
+                paymentId: payment.id,
+            });
+
             await qr.commitTransaction();
 
             return savedOrder;
@@ -162,7 +177,8 @@ export class OrderService implements OnModuleInit {
      * @returns OrderEntity
      */
     async completeOrder(request: OrderMicroService.CompleteOrderRequest): Promise<OrderEntity> {
-        const { userId, orderId, paymentId } = request;
+        const { userId, orderId, providerPaymentId } = request;
+        let paymentId: number;
 
         // qr
         const qr = this.datasource.createQueryRunner();
@@ -177,14 +193,14 @@ export class OrderService implements OnModuleInit {
                     status: OrderMicroService.OrderStatus.PAYMENT_PENDING,
                 },
             });
+
             if (!order) {
                 throw new GrpcNotFoundException('주문을 찾을 수 없습니다');
             }
 
-            // 주문 업데이트(성공, 결제 아이디)
+            // 주문 상태 업데이트(성공)
             await qr.manager.getRepository(OrderEntity).update(order.id, {
                 status: OrderMicroService.OrderStatus.PAYMENT_SUCCESS,
-                paymentId,
             });
 
             // 재고 차감
@@ -193,6 +209,19 @@ export class OrderService implements OnModuleInit {
             const updatedOrder = await qr.manager.getRepository(OrderEntity).findOne({
                 where: { id: orderId, userId },
             });
+
+            // 결제 상태 업데이트(성공)
+            await this.orderPaymentService
+                .confirmPayment({
+                    paymentId: order.paymentId,
+                    providerPaymentId: providerPaymentId,
+                })
+                .then(res => {
+                    paymentId = res.id;
+                    return res;
+                });
+
+            throw new Error('test');
 
             await qr.commitTransaction();
 
@@ -209,12 +238,18 @@ export class OrderService implements OnModuleInit {
                 },
                 {
                     status: OrderMicroService.OrderStatus.PAYMENT_FAILED,
-                    paymentId,
                 },
             );
 
             // 재고 예약 복구
             await this.orderProductService.restoreStockReservation({ orderId: orderId });
+
+            // 결제 상태 업데이트 (취소)
+            if (paymentId) {
+                await this.orderPaymentService.cancelPayment({
+                    paymentId: paymentId,
+                });
+            }
 
             if (error instanceof RpcException) {
                 const message = JSON.parse(error.message)?.error;

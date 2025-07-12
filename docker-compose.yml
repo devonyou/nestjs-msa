@@ -16,6 +16,8 @@ services:
             - user
             - product
             - order
+            - payment
+            - notification
 
     user:
         build:
@@ -75,6 +77,38 @@ services:
             redis:
                 condition: service_healthy
             rabbitmq:
+                condition: service_healthy
+    payment:
+        build:
+            context: .
+            dockerfile: ./apps/payment/Dockerfile
+            target: development
+        ports:
+            - '3005:3010'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/payment/.env
+
+        depends_on:
+            mysql:
+                condition: service_healthy
+    notification:
+        build:
+            context: .
+            dockerfile: ./apps/notification/Dockerfile
+            target: development
+        ports:
+            - '3006:3010'
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        env_file:
+            - ./apps/notification/.env
+
+        depends_on:
+            mysql:
                 condition: service_healthy
 
     mysql:

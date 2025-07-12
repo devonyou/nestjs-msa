@@ -14,9 +14,9 @@ export class OrderResponseMapper {
             return {
                 ...order,
                 id: order.id,
+                paymentId: order.paymentId,
                 orderItems: order.items?.map(item => this.toOrderItemResponse(item)),
                 delivery: order.delivery && this.toDeliveryResponse(order.delivery),
-                paymentId: order.paymentId,
                 createdAt: order.createdAt && new Date(order.createdAt).toISOString(),
                 updatedAt: order.updatedAt && new Date(order.updatedAt).toISOString(),
             };

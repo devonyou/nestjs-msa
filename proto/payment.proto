@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package payment;
+
+service PaymentService {
+	rpc CreatePayment (CreatePaymentRequest) returns (PaymentResponse);
+	rpc ConfirmPayment (ConfirmPaymentRequest) returns (PaymentResponse);
+	rpc CancelPayment (CancelPaymentRequest) returns (PaymentResponse);
+	rpc FailPayment (FailPaymentRequest) returns (PaymentResponse);
+}
+
+enum PaymentStatus {
+	PENDING = 0;
+	SUCCESS = 1;
+	FAILED = 2;
+	CANCELED = 3;
+}
+
+message Payment {
+	int32 id = 1;
+	string orderId = 2;
+	int32 userId = 3;
+	int32 amount = 4;
+	PaymentStatus status = 5;
+	string provider = 6;
+	string providerPaymentId = 7;
+	string createdAt = 8;
+	string updatedAt = 9;
+}
+
+message PaymentResponse {
+	int32 id = 1;
+	string orderId = 2;
+	int32 userId = 3;
+	int32 amount = 4;
+	PaymentStatus status = 5;
+	string provider = 6;
+	string providerPaymentId = 7;
+	string createdAt = 8;
+	string updatedAt = 9;
+}
+
+message CreatePaymentRequest {
+	string orderId = 1;
+	int32 userId = 2;
+	int32 amount = 3;
+	string provider = 4;
+}
+
+message ConfirmPaymentRequest {
+	int32 paymentId = 1;
+	string providerPaymentId = 2;
+}
+
+message CancelPaymentRequest {
+	int32 paymentId = 1;
+}
+
+message FailPaymentRequest {	
+	int32 paymentId = 1;
+}
+
+message Empty {}
+

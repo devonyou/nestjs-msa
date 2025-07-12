@@ -51,8 +51,8 @@ export class OrderDto implements OrderMicroService.Order {
     orderItems: OrderItemDto[];
 
     @ApiProperty({ description: '결제 ID', example: '1' })
-    @IsString()
-    paymentId: string;
+    @IsNumber()
+    paymentId: number;
 }
 
 export class OrderResponseDto implements OrderMicroService.OrderResponse {
@@ -84,8 +84,8 @@ export class OrderResponseDto implements OrderMicroService.OrderResponse {
     orderItems: OrderItemResponseDto[];
 
     @ApiProperty({ description: '결제 ID', example: '1' })
-    @IsString()
-    paymentId: string;
+    @IsNumber()
+    paymentId: number;
 
     @ApiProperty({ description: '주문 생성일', example: '2021-01-01T00:00:00.000Z' })
     @IsDateString()
@@ -137,7 +137,7 @@ export class CompleteOrderRequestDto {
     @IsString()
     orderId: string;
 
-    @ApiProperty({ description: '결제 ID', example: '1' })
+    @ApiProperty({ description: '결제 공급자 ID', example: '1' })
     @IsString()
-    paymentId: string;
+    providerPaymentId: string;
 }

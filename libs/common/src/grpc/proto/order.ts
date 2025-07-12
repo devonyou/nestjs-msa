@@ -27,7 +27,7 @@ export interface Order {
   status: OrderStatus;
   orderItems: OrderItem[];
   delivery: DeliveryResponse | undefined;
-  paymentId: string;
+  paymentId: number;
 }
 
 export interface OrderItem {
@@ -53,7 +53,7 @@ export interface OrderResponse {
   status: OrderStatus;
   orderItems: OrderItemResponse[];
   delivery: DeliveryResponse | undefined;
-  paymentId: string;
+  paymentId: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -98,7 +98,7 @@ export interface DeliveryRequest {
 export interface CompleteOrderRequest {
   userId: number;
   orderId: string;
-  paymentId: string;
+  providerPaymentId: string;
 }
 
 export interface CancelOrderRequest {

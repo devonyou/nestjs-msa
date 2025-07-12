@@ -19,7 +19,7 @@ message Order {
 	OrderStatus status = 4;
 	repeated OrderItem orderItems = 5;
 	DeliveryResponse delivery = 6;
-	string paymentId = 7;
+	int32 paymentId = 7;
 }
 
 message OrderItem {
@@ -45,7 +45,7 @@ message OrderResponse {
 	OrderStatus status = 4;
 	repeated OrderItemResponse orderItems = 5;
 	DeliveryResponse delivery = 6;
-	string paymentId = 7;
+	int32 paymentId = 7;
 	string createdAt = 8;
 	string updatedAt = 9;
 }
@@ -91,7 +91,7 @@ message DeliveryRequest {
 message CompleteOrderRequest {
 	int32 userId = 1;
 	string orderId = 2;
-	string paymentId = 3;
+	string providerPaymentId = 3;
 }
 
 // cancel order
