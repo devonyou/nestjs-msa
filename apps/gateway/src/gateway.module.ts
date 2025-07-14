@@ -8,6 +8,9 @@ import { GatewayProductModule } from './modules/product/gateway.product.module';
 import { ClientsModule } from '@nestjs/microservices';
 import { grpcClient } from './common/grpc/grpc.client';
 import { GatewayOrderModule } from './modules/order/gateway.order.module';
+import { GatewayHealthController } from './gateway.health.controller';
+import { HealthModule } from '@app/common';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [
@@ -21,12 +24,15 @@ import { GatewayOrderModule } from './modules/order/gateway.order.module';
             clients: grpcClient,
         }),
 
+        HealthModule,
+        HttpModule,
+
         GatewayAuthModule,
         GatewayUserModule,
         GatewayProductModule,
         GatewayOrderModule,
     ],
-    controllers: [],
+    controllers: [GatewayHealthController],
     providers: [],
 })
 export class GatewayModule implements NestModule {

@@ -2,7 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { GrpcInterceptor, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
+import {
+    GrpcInterceptor,
+    HealthMicroService,
+    ProductMicroService,
+    QueryFailedExceptionFilter,
+    RpcExceptionFilter,
+} from '@app/common';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
@@ -20,8 +26,11 @@ async function bootstrap() {
             transport: Transport.GRPC,
             options: {
                 url: GRPC_URL,
-                package: 'product',
-                protoPath: join(process.cwd(), 'proto', 'product.proto'),
+                package: [ProductMicroService.protobufPackage, HealthMicroService.protobufPackage],
+                protoPath: [
+                    join(process.cwd(), 'proto', 'product.proto'),
+                    join(process.cwd(), 'proto', 'health.proto'),
+                ],
             },
         },
         { inheritAppConfig: true },

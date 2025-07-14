@@ -20,7 +20,8 @@ export class OrderController implements OrderMicroService.OrderServiceController
     }
 
     async cancelOrder(request: OrderMicroService.CancelOrderRequest): Promise<OrderMicroService.OrderResponse> {
-        throw new Error('Method not implemented.');
+        const result = await this.orderService.cancelOrder(request);
+        return OrderResponseMapper.toOrderResponse(result);
     }
 
     async getOrderByIdAndUser(

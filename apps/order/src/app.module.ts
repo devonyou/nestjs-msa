@@ -10,6 +10,7 @@ import { RedisModule } from '@app/common';
 import { OrderDeliveryEntity } from './entitites/order.delivery.entity';
 import { OrderEntity } from './entitites/order.entity';
 import { OrderItemEntity } from './entitites/order.item.entity';
+import { AppController } from './app.controller';
 
 @Module({
     imports: [
@@ -49,7 +50,7 @@ import { OrderItemEntity } from './entitites/order.item.entity';
 
         OrderModule,
     ],
-    controllers: [],
+    controllers: [AppController],
     providers: [],
 })
 export class AppModule {}

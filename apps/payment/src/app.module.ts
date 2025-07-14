@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './common/config/env.validation.schema';
 import { PaymentEntity } from './entities/payment.entity';
 import { PaymentModule } from './modules/payment/payment.module';
+import { AppController } from './app.controller';
 
 @Module({
     imports: [
@@ -29,7 +30,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 
         PaymentModule,
     ],
-    controllers: [],
+    controllers: [AppController],
     providers: [],
 })
 export class AppModule {}

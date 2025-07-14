@@ -2,7 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { GrpcInterceptor, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
+import {
+    GrpcInterceptor,
+    HealthMicroService,
+    QueryFailedExceptionFilter,
+    RpcExceptionFilter,
+    UserMicroService,
+} from '@app/common';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
@@ -20,8 +26,8 @@ async function bootstrap() {
             transport: Transport.GRPC,
             options: {
                 url: GRPC_URL,
-                package: 'user',
-                protoPath: join(process.cwd(), 'proto', 'user.proto'),
+                package: [UserMicroService.protobufPackage, HealthMicroService.protobufPackage],
+                protoPath: [join(process.cwd(), 'proto', 'user.proto'), join(process.cwd(), 'proto', 'health.proto')],
             },
         },
         { inheritAppConfig: true },
@@ -35,6 +41,7 @@ async function bootstrap() {
 bootstrap()
     .then(() => {
         new Logger(process.env.NODE_ENV).log(`✅ User MSA Server on ${process.env.GRPC_URL}`);
+        new Logger(process.env.NODE_ENV).log(`✅ User HTTP Server on ${process.env.HTTP_PORT}`);
     })
     .catch(error => {
         new Logger(process.env.NODE_ENV).error(`❌ User Server error ${error}`);

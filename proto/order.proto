@@ -95,9 +95,9 @@ message CompleteOrderRequest {
 }
 
 // cancel order
-
 message CancelOrderRequest {
-	string orderId = 1;
+	int32 userId = 1;
+	string orderId = 2;
 }
 
 message GetOrderByIdAndUserRequest {

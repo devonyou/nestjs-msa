@@ -101,7 +101,9 @@ export interface CompleteOrderRequest {
   providerPaymentId: string;
 }
 
+/** cancel order */
 export interface CancelOrderRequest {
+  userId: number;
   orderId: string;
 }
 

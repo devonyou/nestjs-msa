@@ -141,3 +141,9 @@ export class CompleteOrderRequestDto {
     @IsString()
     providerPaymentId: string;
 }
+
+export class CancelOrderRequestDto {
+    @ApiProperty({ description: '주문 ID', example: '1' })
+    @IsString()
+    orderId: string;
+}

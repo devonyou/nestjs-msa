@@ -7,6 +7,7 @@ import { Rbac } from '../../common/decorator/rbac.decorator';
 import { UserMicroService } from '@app/common';
 import { User } from '../../common/decorator/user.decorator';
 import {
+    CancelOrderRequestDto,
     CompleteOrderRequestDto,
     CreateOrderRequestDto,
     InitiateOrderRequestDto,
@@ -34,6 +35,15 @@ export class GatewayOrderController {
     @ApiCreatedResponse({ type: CreateOrderRequestDto })
     async completeOrder(@User() user: UserPayload, @Body() completeOrderRequestDto: CompleteOrderRequestDto) {
         return this.orderService.completeOrder(user.sub, completeOrderRequestDto);
+    }
+
+    @Post('cancel')
+    @Auth(false)
+    @Rbac([UserMicroService.UserRole.USER])
+    @ApiOperation({ summary: '주문 취소' })
+    @ApiCreatedResponse({ type: OrderResponseDto })
+    async cancelOrder(@User() user: UserPayload, @Body() cancelOrderRequestDto: CancelOrderRequestDto) {
+        return this.orderService.cancelOrder(user.sub, cancelOrderRequestDto);
     }
 
     @Get('user')

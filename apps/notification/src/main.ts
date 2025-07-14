@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import { GrpcInterceptor, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
+import { GrpcInterceptor, NotificationMicroService, QueryFailedExceptionFilter, RpcExceptionFilter } from '@app/common';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
@@ -20,7 +20,7 @@ async function bootstrap() {
             transport: Transport.GRPC,
             options: {
                 url: GRPC_URL,
-                package: 'notification',
+                package: NotificationMicroService.protobufPackage,
                 protoPath: join(process.cwd(), 'proto', 'notification.proto'),
             },
         },

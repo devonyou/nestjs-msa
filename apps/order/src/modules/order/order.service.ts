@@ -221,8 +221,6 @@ export class OrderService implements OnModuleInit {
                     return res;
                 });
 
-            throw new Error('test');
-
             await qr.commitTransaction();
 
             return updatedOrder;
@@ -257,6 +255,61 @@ export class OrderService implements OnModuleInit {
             }
 
             throw new GrpcNotFoundException('주문이 불가능 합니다.');
+        } finally {
+            await qr.release();
+        }
+    }
+
+    /**
+     * 주문 취소
+     * @param request OrderMicroService.CancelOrderRequest
+     * @returns OrderEntity
+     */
+    async cancelOrder(request: OrderMicroService.CancelOrderRequest): Promise<OrderEntity> {
+        const { userId, orderId } = request;
+
+        // qr
+        const qr = this.datasource.createQueryRunner();
+        await qr.connect();
+        await qr.startTransaction();
+
+        try {
+            const order = await qr.manager.getRepository(OrderEntity).findOne({
+                where: { id: orderId, userId },
+            });
+
+            if (!order) {
+                throw new GrpcNotFoundException('주문을 찾을 수 없습니다');
+            }
+
+            if (order.status !== OrderMicroService.OrderStatus.PAYMENT_SUCCESS) {
+                throw new GrpcNotFoundException('주문이 취소 가능한 상태가 아닙니다');
+            }
+
+            await qr.manager.getRepository(OrderEntity).update(order.id, {
+                status: OrderMicroService.OrderStatus.PAYMENT_CANCELED,
+            });
+
+            await this.orderProductService.restoreStockReservation({ orderId: order.id });
+
+            await this.orderPaymentService.cancelPayment({
+                paymentId: order.paymentId,
+            });
+
+            await qr.commitTransaction();
+
+            const updatedOrder = await qr.manager.getRepository(OrderEntity).findOne({ where: { id: order.id } });
+
+            return updatedOrder;
+        } catch (error) {
+            await qr.rollbackTransaction();
+
+            if (error instanceof RpcException) {
+                const message = JSON.parse(error.message)?.error;
+                throw new GrpcNotFoundException(message ?? '주문이 취소 가능한 상태가 아닙니다.');
+            }
+
+            throw new GrpcNotFoundException('주문이 취소 가능한 상태가 아닙니다.');
         } finally {
             await qr.release();
         }

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { createGrpcMetadata, OrderMicroService } from '@app/common';
-import { CompleteOrderRequestDto, InitiateOrderRequestDto } from './dto/order.dto';
+import { CancelOrderRequestDto, CompleteOrderRequestDto, InitiateOrderRequestDto } from './dto/order.dto';
 import { lastValueFrom } from 'rxjs';
 import { throwHttpExceptionFromGrpcError } from '../../common/http/http.rpc.exception';
 
@@ -57,6 +57,17 @@ export class GatewayOrderService {
         try {
             const metadata = createGrpcMetadata(GatewayOrderService.name, this.getOrdersByUserId.name);
             const stream = this.orderService.getOrdersByUserId({ userId: userId }, metadata);
+            const resp = await lastValueFrom(stream);
+            return resp;
+        } catch (error) {
+            throwHttpExceptionFromGrpcError(error);
+        }
+    }
+
+    async cancelOrder(userId: number, dto: CancelOrderRequestDto) {
+        try {
+            const metadata = createGrpcMetadata(GatewayOrderService.name, this.cancelOrder.name);
+            const stream = this.orderService.cancelOrder({ ...dto, userId }, metadata);
             const resp = await lastValueFrom(stream);
             return resp;
         } catch (error) {

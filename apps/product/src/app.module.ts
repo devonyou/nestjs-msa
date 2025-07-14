@@ -11,6 +11,7 @@ import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { S3Module } from '@app/common';
 import { StockModule } from './modules/stock/stock.module';
+import { AppController } from './app.controller';
 
 @Module({
     imports: [
@@ -54,7 +55,7 @@ import { StockModule } from './modules/stock/stock.module';
         CategoryModule,
         StockModule,
     ],
-    controllers: [],
+    controllers: [AppController],
     providers: [],
 })
 export class AppModule {}

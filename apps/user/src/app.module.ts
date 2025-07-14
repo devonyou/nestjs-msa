@@ -6,6 +6,7 @@ import { RedisModule } from '@app/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { UserEntity } from './entities/user.entity';
+import { AppController } from './app.controller';
 
 @Module({
     imports: [
@@ -40,5 +41,6 @@ import { UserEntity } from './entities/user.entity';
         AuthModule,
         UserModule,
     ],
+    controllers: [AppController],
 })
 export class AppModule {}

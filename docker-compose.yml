@@ -11,7 +11,12 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/gateway/.env
-
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
         depends_on:
             - user
             - product
@@ -26,7 +31,9 @@ services:
             target: development
         ports:
             - '3001:3000'
-            - '3002:3010'
+        expose:
+            - '3000'
+            - '3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -44,8 +51,9 @@ services:
             context: .
             dockerfile: ./apps/product/Dockerfile
             target: development
-        ports:
-            - '3003:3010'
+        expose:
+            - '3000'
+            - '3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -63,8 +71,9 @@ services:
             context: .
             dockerfile: ./apps/order/Dockerfile
             target: development
-        ports:
-            - '3004:3010'
+        expose:
+            - '3000'
+            - '3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -83,8 +92,9 @@ services:
             context: .
             dockerfile: ./apps/payment/Dockerfile
             target: development
-        ports:
-            - '3005:3010'
+        expose:
+            - '3000'
+            - '3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -99,8 +109,9 @@ services:
             context: .
             dockerfile: ./apps/notification/Dockerfile
             target: development
-        ports:
-            - '3006:3010'
+        expose:
+            - '3000'
+            - '3010'
         volumes:
             - .:/usr/src/app
             - /usr/src/app/node_modules
@@ -163,7 +174,8 @@ services:
         volumes:
             - ./rabbitmq/data:/var/lib/rabbitmq
         healthcheck:
-            test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
+            # test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
+            test: ['CMD', 'rabbitmqctl', 'status']
             interval: 5s
             timeout: 3s
             retries: 5
