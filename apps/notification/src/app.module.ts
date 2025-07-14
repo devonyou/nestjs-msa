@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { envValidationSchema } from './common/config/env.validation.schema';
+import { AppController } from './app.controller';
+import { MailModule } from './modules/mail/mail.modules';
+import { RedisModule } from '@app/common';
 
 @Module({
     imports: [
@@ -10,22 +12,17 @@ import { envValidationSchema } from './common/config/env.validation.schema';
             validationSchema: envValidationSchema,
         }),
 
-        TypeOrmModule.forRootAsync({
-            imports: [ConfigModule],
+        RedisModule.forRootAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
-                type: 'mysql',
-                url: configService.getOrThrow<string>('MYSQL_URL'),
-                autoLoadEntities: true,
-                synchronize: configService.getOrThrow<string>('NODE_ENV') === 'development',
-                logging: configService.getOrThrow<string>('NODE_ENV') === 'development',
-                logger: 'advanced-console',
-                entities: [],
-                timezone: 'Z',
+                config: {
+                    url: configService.getOrThrow<string>('REDIS_URL'),
+                },
             }),
         }),
+
+        MailModule,
     ],
-    controllers: [],
-    providers: [],
+    controllers: [AppController],
 })
 export class AppModule {}

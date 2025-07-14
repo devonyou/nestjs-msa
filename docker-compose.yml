@@ -18,11 +18,16 @@ services:
             retries: 3
             start_period: 30s
         depends_on:
-            - user
-            - product
-            - order
-            - payment
-            - notification
+            user:
+                condition: service_started
+            product:
+                condition: service_started
+            order:
+                condition: service_started
+            payment:
+                condition: service_started
+            notification:
+                condition: service_started
 
     user:
         build:
@@ -85,8 +90,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
+            # rabbitmq:
+            #     condition: service_healthy
     payment:
         build:
             context: .
@@ -104,6 +109,7 @@ services:
         depends_on:
             mysql:
                 condition: service_healthy
+
     notification:
         build:
             context: .
@@ -117,10 +123,11 @@ services:
             - /usr/src/app/node_modules
         env_file:
             - ./apps/notification/.env
-
         depends_on:
-            mysql:
+            redis:
                 condition: service_healthy
+            # rabbitmq:
+            #     condition: service_healthy
 
     mysql:
         image: mysql:5.7
@@ -131,14 +138,13 @@ services:
             - ./mysql/data:/var/lib/mysql
             - ./mysql/my.cnf:/etc/mysql/my.cnf
         healthcheck:
-            test: ['CMD', 'mysqladmin', 'ping', '-h', 'mysql', '-u', 'root', '-ppass1234']
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-ppass1234']
             interval: 5s
             timeout: 5s
             retries: 10
             start_period: 5s
         environment:
             TZ: Asia/Seoul
-            MYSQL_PASSWORD: pass1234
             MYSQL_ROOT_PASSWORD: pass1234
 
     redis:
@@ -162,6 +168,14 @@ services:
             - 5540:5540
         volumes:
             - ./redis-insight:/db
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:5540']
+            interval: 5s
+            timeout: 3s
+            retries: 5
+        depends_on:
+            redis:
+                condition: service_healthy
 
     rabbitmq:
         image: rabbitmq:3-management-alpine
@@ -175,7 +189,7 @@ services:
             - ./rabbitmq/data:/var/lib/rabbitmq
         healthcheck:
             # test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
-            test: ['CMD', 'rabbitmqctl', 'status']
+            # test: ['CMD', 'rabbitmqctl', 'status']
             interval: 5s
             timeout: 3s
             retries: 5

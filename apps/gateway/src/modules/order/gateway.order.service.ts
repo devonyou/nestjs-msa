@@ -31,10 +31,13 @@ export class GatewayOrderService {
         }
     }
 
-    async completeOrder(userId: number, dto: CompleteOrderRequestDto) {
+    async completeOrder(user: UserPayload, dto: CompleteOrderRequestDto) {
         try {
             const metadata = createGrpcMetadata(GatewayOrderService.name, this.completeOrder.name);
-            const stream = this.orderService.completeOrder({ ...dto, userId }, metadata);
+            const stream = this.orderService.completeOrder(
+                { ...dto, userId: user.sub, userEmail: user.email },
+                metadata,
+            );
             const resp = await lastValueFrom(stream);
             return resp;
         } catch (error) {

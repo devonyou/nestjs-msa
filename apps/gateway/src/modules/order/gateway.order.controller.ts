@@ -34,7 +34,7 @@ export class GatewayOrderController {
     @ApiOperation({ summary: '주문 완료' })
     @ApiCreatedResponse({ type: CreateOrderRequestDto })
     async completeOrder(@User() user: UserPayload, @Body() completeOrderRequestDto: CompleteOrderRequestDto) {
-        return this.orderService.completeOrder(user.sub, completeOrderRequestDto);
+        return this.orderService.completeOrder(user, completeOrderRequestDto);
     }
 
     @Post('cancel')

@@ -3,14 +3,26 @@ syntax = "proto3";
 package notification;
 
 service NotificationService {
-	rpc SendNotification(SendNotificationRequest) returns (SendNotificationResponse);
+	rpc SendOrderConfirmationEmail (OrderConfirmationRequest) returns (SendEmailResponse);
 }
 
-message SendNotificationRequest {
-	string userId = 1;
-	string message = 2;
+message OrderConfirmationRequest {
+	string to = 1;
+	string user_name = 2;
+	string order_id = 3; 
+	string order_date = 4;
+	int32 total_amount = 5;
+
+	repeated OrderItem items = 6;
 }
 
-message SendNotificationResponse {
+message OrderItem {
+	string name = 1;
+	int32 quantity = 2;
+	int32 price = 3;
+}
+
+message SendEmailResponse {
 	bool success = 1;
+	string message = 2;
 }

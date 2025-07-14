@@ -8,6 +8,7 @@ import { lastValueFrom } from 'rxjs';
 import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
 import { OrderProductService } from './order.product.service';
 import { OrderPaymentService } from './order.payment.service';
+import { OrderNotificationService } from './order.notification.service';
 
 @Injectable()
 export class OrderService implements OnModuleInit {
@@ -19,6 +20,7 @@ export class OrderService implements OnModuleInit {
 
         private readonly orderProductService: OrderProductService,
         private readonly orderPaymentService: OrderPaymentService,
+        private readonly orderNotificationService: OrderNotificationService,
     ) {}
 
     onModuleInit() {
@@ -177,7 +179,7 @@ export class OrderService implements OnModuleInit {
      * @returns OrderEntity
      */
     async completeOrder(request: OrderMicroService.CompleteOrderRequest): Promise<OrderEntity> {
-        const { userId, orderId, providerPaymentId } = request;
+        const { userId, userEmail, orderId, providerPaymentId } = request;
         let paymentId: number;
 
         // qr
@@ -208,6 +210,7 @@ export class OrderService implements OnModuleInit {
 
             const updatedOrder = await qr.manager.getRepository(OrderEntity).findOne({
                 where: { id: orderId, userId },
+                relations: ['items'],
             });
 
             // 결제 상태 업데이트(성공)
@@ -222,6 +225,20 @@ export class OrderService implements OnModuleInit {
                 });
 
             await qr.commitTransaction();
+
+            // 메일 전송
+            await this.orderNotificationService.sendOrderConfirmationEmail({
+                to: userEmail,
+                userName: updatedOrder.userId.toString(),
+                orderId: updatedOrder.id,
+                orderDate: updatedOrder.createdAt.toISOString(),
+                totalAmount: updatedOrder.amount,
+                items: updatedOrder.items?.map(item => ({
+                    name: item.productName,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+            });
 
             return updatedOrder;
         } catch (error) {

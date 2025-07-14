@@ -1,0 +1,43 @@
+<html lang='ko'>
+    <head>
+        <meta charset='UTF-8' />
+        <title>주문이 완료되었습니다</title>
+    </head>
+    <body style='font-family: Arial, sans-serif; color: #333;'>
+        <h2>안녕하세요, {{userName}}님</h2>
+        <p>고객님의 주문이 성공적으로 완료되었습니다 🎉</p>
+
+        <h3>주문 정보</h3>
+        <p><strong>주문번호:</strong> {{orderId}}</p>
+        <p><strong>주문일시:</strong> {{orderDate}}</p>
+
+        <h3>주문 내역</h3>
+        <table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse;'>
+            <thead>
+                <tr>
+                    <th>상품명</th>
+                    <th>수량</th>
+                    <th>가격</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each items}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td>{{this.price}}원</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <p style='margin-top: 16px;'><strong>총 결제 금액:</strong> {{totalAmount}}원</p>
+
+        <hr />
+
+        <p>상품 배송은 1~3일 이내 시작될 예정이며, 배송 시작 시 알림을 보내드릴게요.</p>
+        <p>감사합니다!</p>
+
+        <p style='font-size: 12px; color: #888;'>※ 본 메일은 발신전용입니다.</p>
+    </body>
+</html>

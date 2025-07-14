@@ -97,6 +97,7 @@ export interface DeliveryRequest {
 /** complete order */
 export interface CompleteOrderRequest {
   userId: number;
+  userEmail: string;
   orderId: string;
   providerPaymentId: string;
 }

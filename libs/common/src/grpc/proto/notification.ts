@@ -11,31 +11,42 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "notification";
 
-export interface SendNotificationRequest {
-  userId: string;
-  message: string;
+export interface OrderConfirmationRequest {
+  to: string;
+  userName: string;
+  orderId: string;
+  orderDate: string;
+  totalAmount: number;
+  items: OrderItem[];
 }
 
-export interface SendNotificationResponse {
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+export interface SendEmailResponse {
   success: boolean;
+  message: string;
 }
 
 export const NOTIFICATION_PACKAGE_NAME = "notification";
 
 export interface NotificationServiceClient {
-  sendNotification(request: SendNotificationRequest, metadata?: Metadata): Observable<SendNotificationResponse>;
+  sendOrderConfirmationEmail(request: OrderConfirmationRequest, metadata?: Metadata): Observable<SendEmailResponse>;
 }
 
 export interface NotificationServiceController {
-  sendNotification(
-    request: SendNotificationRequest,
+  sendOrderConfirmationEmail(
+    request: OrderConfirmationRequest,
     metadata?: Metadata,
-  ): Promise<SendNotificationResponse> | Observable<SendNotificationResponse> | SendNotificationResponse;
+  ): Promise<SendEmailResponse> | Observable<SendEmailResponse> | SendEmailResponse;
 }
 
 export function NotificationServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["sendNotification"];
+    const grpcMethods: string[] = ["sendOrderConfirmationEmail"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("NotificationService", method)(constructor.prototype[method], method, descriptor);

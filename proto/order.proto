@@ -90,8 +90,9 @@ message DeliveryRequest {
 // complete order
 message CompleteOrderRequest {
 	int32 userId = 1;
-	string orderId = 2;
-	string providerPaymentId = 3;
+	string userEmail = 2;
+	string orderId = 3;
+	string providerPaymentId = 4;
 }
 
 // cancel order

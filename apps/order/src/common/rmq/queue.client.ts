@@ -17,4 +17,19 @@ export const rmqClient: ClientsProviderAsyncOptions[] = [
             },
         }),
     },
+    {
+        inject: [ConfigService],
+        name: 'MAIL_RMQ',
+        useFactory: (configService: ConfigService) => ({
+            transport: Transport.RMQ,
+            options: {
+                urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
+                queue: 'mail-worker-queue',
+                queueOptions: {
+                    durable: true,
+                },
+                prefetchCount: 1,
+            },
+        }),
+    },
 ];
