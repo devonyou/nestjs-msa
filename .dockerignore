@@ -8,3 +8,5 @@ mysql
 rabbitmq
 redis
 redis-insight
+k6
+coverage
