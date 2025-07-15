@@ -10,6 +10,7 @@ export const envValidationSchema = Joi.object({
     ORDER_GRPC_URL: Joi.string().required(),
     PAYMENT_GRPC_URL: Joi.string().required(),
     NOTIFICATION_GRPC_URL: Joi.string().required(),
+    RABBITMQ_URL: Joi.string().required(),
     SWAGGER_PATH: Joi.string().required(),
     SWAGGER_TITLE: Joi.string().required(),
     SWAGGER_DESCRIPTION: Joi.string().required(),

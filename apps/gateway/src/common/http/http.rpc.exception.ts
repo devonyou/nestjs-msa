@@ -32,10 +32,24 @@ export function throwHttpExceptionFromGrpcError(error) {
     const httpStatus = grpcToHttpStatusMap[error.code] ?? 500;
     const errorName = grpcToErrorNameMap[error.code] ?? 'UnknownError';
 
+    let parsedDetails: any = {};
+    let parsedMessage: any = {};
+
+    try {
+        parsedDetails = typeof error.details === 'string' ? JSON.parse(error.details) : {};
+    } catch {}
+
+    try {
+        parsedMessage = typeof error.message === 'string' ? JSON.parse(error.message) : {};
+    } catch {}
+
+    const errorMessage =
+        parsedDetails.error ?? parsedDetails.message ?? parsedMessage.error ?? parsedMessage.message ?? error.message;
+
     throw new HttpException(
         {
             statusCode: httpStatus,
-            message: JSON.parse(error.details).error,
+            message: errorMessage,
             error: errorName,
         },
         httpStatus,

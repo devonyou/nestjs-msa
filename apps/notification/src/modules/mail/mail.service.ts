@@ -1,4 +1,4 @@
-import { NotificationMicroService, RedisService } from '@app/common';
+import { NotificationMicroService } from '@app/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
 import { RmqContext } from '@nestjs/microservices';
@@ -7,10 +7,7 @@ import { RmqContext } from '@nestjs/microservices';
 export class MailService {
     private readonly logger = new Logger(MailService.name);
 
-    constructor(
-        private readonly redisService: RedisService,
-        private readonly mailerService: MailerService,
-    ) {}
+    constructor(private readonly mailerService: MailerService) {}
 
     async processOrderConfirmationEmail(
         request: NotificationMicroService.OrderConfirmationRequest,
@@ -21,18 +18,6 @@ export class MailService {
         // rmq
         const channel = context.getChannelRef();
         const message = context.getMessage();
-
-        // redis lock
-        const lockKey = `lock:mail:order:${orderId}`;
-        const lockValue = orderId.toString();
-        const lockTtl = 10;
-        const isLocked = await this.redisService.acquireLock(lockKey, lockValue, lockTtl);
-
-        if (!isLocked) {
-            await this.redisService.releaseLock(lockKey, lockValue);
-            channel.ack(message);
-            return null;
-        }
 
         try {
             await this.mailerService.sendMail({
@@ -55,7 +40,6 @@ export class MailService {
             this.logger.error(`[Mail] Failed to send mail to ${to}: ${err}`);
             return { success: false, message: 'Failed to send mail' };
         } finally {
-            await this.redisService.releaseLock(lockKey, lockValue);
             channel.ack(message);
         }
     }

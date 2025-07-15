@@ -32,20 +32,20 @@ export class RedisService {
         return await this.redis.ttl(key);
     }
 
-    async acquireLock(lockKey: string, lockValue: string, ttl: number) {
-        const acquired = await this.redis.set(lockKey, lockValue, 'EX', ttl, 'NX');
-        return acquired === 'OK';
-    }
+    // async acquireLock(lockKey: string, lockValue: string, ttl: number) {
+    //     const acquired = await this.redis.set(lockKey, lockValue, 'EX', ttl, 'NX');
+    //     return acquired === 'OK';
+    // }
 
-    async releaseLock(lockKey: string, lockValue: string) {
-        const script = `
-            if redis.call("get", KEYS[1]) == ARGV[1] then
-                return redis.call("del", KEYS[1])
-            else
-                return 0
-            end
-        `;
-        const result = await this.redis.eval(script, 1, [lockKey, lockValue]);
-        return result === 1;
-    }
+    // async releaseLock(lockKey: string, lockValue: string) {
+    //     const script = `
+    //         if redis.call("get", KEYS[1]) == ARGV[1] then
+    //             return redis.call("del", KEYS[1])
+    //         else
+    //             return 0
+    //         end
+    //     `;
+    //     const result = await this.redis.eval(script, 1, [lockKey, lockValue]);
+    //     return result === 1;
+    // }
 }

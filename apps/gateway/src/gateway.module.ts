@@ -11,6 +11,7 @@ import { GatewayOrderModule } from './modules/order/gateway.order.module';
 import { GatewayHealthController } from './gateway.health.controller';
 import { HealthModule } from '@app/common';
 import { HttpModule } from '@nestjs/axios';
+import { rmqClient } from './common/rmq/queue.client';
 
 @Module({
     imports: [
@@ -21,7 +22,7 @@ import { HttpModule } from '@nestjs/axios';
 
         ClientsModule.registerAsync({
             isGlobal: true,
-            clients: grpcClient,
+            clients: [...grpcClient, ...rmqClient],
         }),
 
         HealthModule,

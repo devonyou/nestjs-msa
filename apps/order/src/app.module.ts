@@ -51,6 +51,5 @@ import { AppController } from './app.controller';
         OrderModule,
     ],
     controllers: [AppController],
-    providers: [],
 })
 export class AppModule {}

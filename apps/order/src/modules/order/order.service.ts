@@ -2,7 +2,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { OrderEntity } from '../../entitites/order.entity';
-import { OrderMicroService, RedisService } from '@app/common';
+import { OrderMicroService, RedisLockService } from '@app/common';
 import { ClientProxy, RmqContext, RpcException } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { GrpcNotFoundException } from 'nestjs-grpc-exceptions';
@@ -16,7 +16,8 @@ export class OrderService implements OnModuleInit {
         @InjectDataSource() private readonly datasource: DataSource,
 
         @Inject('ORDER_RMQ') private readonly orderRmqClient: ClientProxy,
-        private readonly redisService: RedisService,
+
+        private readonly redisLockService: RedisLockService,
 
         private readonly orderProductService: OrderProductService,
         private readonly orderPaymentService: OrderPaymentService,
@@ -80,14 +81,13 @@ export class OrderService implements OnModuleInit {
         const channel = context.getChannelRef();
         const message = context.getMessage();
 
-        // redis lock
+        // redis red lock
         const lockKey = `lock:order:${userId}`;
-        const lockValue = userId.toString();
         const lockTtl = 10;
-        const isLocked = await this.redisService.acquireLock(lockKey, lockValue, lockTtl);
+        const lock = await this.redisLockService.acquireLock(lockKey, lockTtl);
 
-        if (!isLocked) {
-            await this.redisService.releaseLock(lockKey, lockValue);
+        if (!lock) {
+            await this.redisLockService.releaseLock(lock);
             channel.ack(message);
             return null;
         }
@@ -168,7 +168,7 @@ export class OrderService implements OnModuleInit {
         } finally {
             await qr.release();
 
-            await this.redisService.releaseLock(lockKey, lockValue);
+            await this.redisLockService.releaseLock(lock);
             channel.ack(message);
         }
     }
