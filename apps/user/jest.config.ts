@@ -11,6 +11,7 @@ const config: Config = {
     testMatch: ['<rootDir>/**/*.spec.ts'],
     collectCoverageFrom: [
         '<rootDir>/**/*.{ts,js}',
+        '!<rootDir>/**/app.controller.ts',
         '!<rootDir>/**/*main.ts',
         '!<rootDir>/**/*module.ts',
         '!<rootDir>/**/*entity.ts',

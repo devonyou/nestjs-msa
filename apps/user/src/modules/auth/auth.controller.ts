@@ -14,7 +14,7 @@ export class AuthController {
 
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    signInWithGoogleCallback(@Req() req: Request) {
+    signInWithGoogleCallback(@Req() req: Request): Promise<{ accessToken: string; refreshToken: string }> {
         return this.userService.signInWithGoogle(req.user as unknown as UserEntity);
     }
 }
