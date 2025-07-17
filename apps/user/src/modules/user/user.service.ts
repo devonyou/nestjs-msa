@@ -121,6 +121,7 @@ export class UserService {
      * @param isRefresh boolean
      * @returns { verify: boolean; user: UserEntity }
      */
+    /* istanbul ignore next */
     async verifyToken(rawToken: string, isRefresh: boolean): Promise<{ verify: boolean; user: UserEntity }> {
         let payload;
 

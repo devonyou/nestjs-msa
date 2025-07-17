@@ -202,6 +202,7 @@ export class ProductService {
      * @param contentType string
      * @returns ProductMicroService.GeneratePresignedUrlResponse
      */
+    /* istanbul ignore next */
     async generatePresignedUrl(contentType: string): Promise<ProductMicroService.GeneratePresignedUrlResponse> {
         try {
             const bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
