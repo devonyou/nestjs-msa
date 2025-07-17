@@ -16,6 +16,7 @@
         "test": "jest",
         "test:user": "jest --config apps/user/jest.config.ts --coverage",
         "test:product": "jest --config apps/product/jest.config.ts --coverage",
+        "test:payment": "jest --config apps/payment/jest.config.ts --coverage",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

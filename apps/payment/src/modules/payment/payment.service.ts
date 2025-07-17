@@ -21,14 +21,14 @@ export class PaymentService {
      * @returns
      */
     async createPayment(request: CreatePaymentRequest): Promise<PaymentEntity> {
-        const payment = this.dataSource.manager.getRepository(PaymentEntity).create({
+        const payment = this.dataSource.getRepository(PaymentEntity).create({
             orderId: request.orderId,
             userId: request.userId,
             amount: request.amount,
             provider: request.provider,
             status: PaymentMicroService.PaymentStatus.PENDING,
         });
-        return this.dataSource.manager.getRepository(PaymentEntity).save(payment);
+        return this.dataSource.getRepository(PaymentEntity).save(payment);
     }
 
     /**
