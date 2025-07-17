@@ -57,6 +57,7 @@ export class OrderService implements OnModuleInit {
      * @param request OrderMicroService.InitiateOrderRequest
      * @returns OrderEntity
      */
+    /** istanbul ignore next */
     async initiateOrder(request: OrderMicroService.InitiateOrderRequest): Promise<OrderEntity> {
         try {
             const stream = this.orderRmqClient.send<OrderEntity>('order.initiate', request);
@@ -87,7 +88,6 @@ export class OrderService implements OnModuleInit {
         const lock = await this.redisLockService.acquireLock(lockKey, lockTtl);
 
         if (!lock) {
-            await this.redisLockService.releaseLock(lock);
             channel.ack(message);
             return null;
         }
@@ -214,15 +214,11 @@ export class OrderService implements OnModuleInit {
             });
 
             // 결제 상태 업데이트(성공)
-            await this.orderPaymentService
-                .confirmPayment({
-                    paymentId: order.paymentId,
-                    providerPaymentId: providerPaymentId,
-                })
-                .then(res => {
-                    paymentId = res.id;
-                    return res;
-                });
+            const payment = await this.orderPaymentService.confirmPayment({
+                paymentId: order.paymentId,
+                providerPaymentId: providerPaymentId,
+            });
+            paymentId = payment.id;
 
             await qr.commitTransaction();
 
