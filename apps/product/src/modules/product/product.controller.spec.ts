@@ -1,58 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import { ProductMicroService } from '@app/common';
 import { ProductResponseMapper } from './mapper/product.response.mapper';
-
-const mockProductService = {
-    createProduct: jest.fn(),
-    getProducts: jest.fn(),
-    getProductById: jest.fn(),
-    getProductsByIds: jest.fn(),
-    updateProduct: jest.fn(),
-    deleteProduct: jest.fn(),
-    generatePresignedUrl: jest.fn(),
-};
+import { TestBed } from '@automock/jest';
+import { ProductEntity } from '../../entities/product.entity';
 
 describe('ProductController', () => {
     let productController: ProductController;
+    let productService: jest.Mocked<ProductService>;
 
-    const mockProduct: ProductMicroService.ProductResponse = {
-        id: 1,
-        name: 'Product',
-        description: 'Description',
-        price: 0,
-        images: [],
-        category: undefined,
-        stock: undefined,
-        createdAt: '',
-        updatedAt: '',
-    };
-
-    const mockProductResponse: ProductMicroService.ProductResponse = {
-        id: 1,
-        name: 'Product',
-        description: 'Description',
-        price: 0,
-        images: [],
-        category: undefined,
-        stock: undefined,
-        createdAt: '',
-        updatedAt: '',
-    };
+    let mockProductResponse;
 
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [ProductController],
-            providers: [
-                {
-                    provide: ProductService,
-                    useValue: mockProductService,
-                },
-            ],
-        }).compile();
+        const { unit, unitRef } = TestBed.create(ProductController).compile();
 
-        productController = module.get<ProductController>(ProductController);
+        productController = unit;
+        productService = unitRef.get(ProductService);
+
+        mockProductResponse = ProductResponseMapper.toProductResponse(new ProductEntity());
 
         jest.spyOn(ProductResponseMapper, 'toProductResponse').mockReturnValue(mockProductResponse);
     });
@@ -62,36 +27,40 @@ describe('ProductController', () => {
     });
 
     describe('createProduct', () => {
+        const request: ProductMicroService.CreateProductRequest = {
+            name: 'Product',
+            description: 'Description',
+            price: 0,
+            categoryId: 0,
+            images: [],
+        };
+
         it('should create a product', async () => {
-            const request: ProductMicroService.CreateProductRequest = {
-                name: 'Product',
-                description: 'Description',
-                price: 0,
-                categoryId: 0,
-                images: [],
-            };
+            const product = new ProductEntity();
 
             // mock
-            jest.spyOn(mockProductService, 'createProduct').mockResolvedValue(mockProduct);
+            jest.spyOn(productService, 'createProduct').mockResolvedValue(product);
 
             // expect
             const result = await productController.createProduct(request);
             expect(result).toEqual(mockProductResponse);
-            expect(mockProductService.createProduct).toHaveBeenCalledWith(request);
-            expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(mockProduct);
+            expect(productService.createProduct).toHaveBeenCalledWith(request);
+            expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(product);
         });
     });
 
     describe('getProducts', () => {
+        const request: ProductMicroService.GetProductsRequest = {
+            page: 0,
+            limit: 0,
+            sort: '',
+        };
+
         it('should return all products', async () => {
-            const request: ProductMicroService.GetProductsRequest = {
-                page: 0,
-                limit: 0,
-                sort: '',
-            };
+            const mockProduct = new ProductEntity();
 
             // mock
-            jest.spyOn(mockProductService, 'getProducts').mockResolvedValue({
+            jest.spyOn(productService, 'getProducts').mockResolvedValue({
                 products: [mockProduct],
                 total: 1,
             });
@@ -99,32 +68,35 @@ describe('ProductController', () => {
             // expect
             const result = await productController.getProducts(request);
             expect(result).toEqual({ products: [mockProductResponse], total: 1 });
-            expect(mockProductService.getProducts).toHaveBeenCalledWith(request);
+            expect(productService.getProducts).toHaveBeenCalledWith(request);
             expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(mockProduct);
         });
     });
 
     describe('getProductById', () => {
+        const request: ProductMicroService.GetProductByIdRequest = { id: 1 };
+
         it('should return a product by id', async () => {
-            const request: ProductMicroService.GetProductByIdRequest = { id: 1 };
+            const mockProduct = new ProductEntity();
 
             // mock
-            jest.spyOn(mockProductService, 'getProductById').mockResolvedValue(mockProduct);
+            jest.spyOn(productService, 'getProductById').mockResolvedValue(mockProduct);
 
             // expect
             const result = await productController.getProductById(request);
             expect(result).toEqual(mockProductResponse);
-            expect(mockProductService.getProductById).toHaveBeenCalledWith(request);
+            expect(productService.getProductById).toHaveBeenCalledWith(request);
             expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(mockProduct);
         });
     });
 
     describe('getProductsByIds', () => {
+        const request: ProductMicroService.GetProductsByIdsRequest = { ids: [1] };
         it('should return products by ids', async () => {
-            const request: ProductMicroService.GetProductsByIdsRequest = { ids: [1] };
+            const mockProduct = new ProductEntity();
 
             // mock
-            jest.spyOn(mockProductService, 'getProductsByIds').mockResolvedValue({
+            jest.spyOn(productService, 'getProductsByIds').mockResolvedValue({
                 products: [mockProduct],
                 total: 1,
             });
@@ -132,46 +104,48 @@ describe('ProductController', () => {
             // expect
             const result = await productController.getProductsByIds(request);
             expect(result).toEqual({ products: [mockProductResponse], total: 1 });
-            expect(mockProductService.getProductsByIds).toHaveBeenCalledWith(request);
+            expect(productService.getProductsByIds).toHaveBeenCalledWith(request);
             expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(mockProduct);
         });
     });
 
     describe('updateProduct', () => {
+        const request: ProductMicroService.UpdateProductRequest = {
+            id: 1,
+            name: 'Product',
+            description: 'Description',
+            price: 0,
+            categoryId: 0,
+            images: [],
+        };
+
         it('should update a product', async () => {
-            const request: ProductMicroService.UpdateProductRequest = {
-                id: 1,
-                name: 'Product',
-                description: 'Description',
-                price: 0,
-                categoryId: 0,
-                images: [],
-            };
+            const mockProduct = new ProductEntity();
 
             // mock
-            jest.spyOn(mockProductService, 'updateProduct').mockResolvedValue(mockProduct);
+            jest.spyOn(productService, 'updateProduct').mockResolvedValue(mockProduct);
 
             // expect
             const result = await productController.updateProduct(request);
             expect(result).toEqual(mockProductResponse);
-            expect(mockProductService.updateProduct).toHaveBeenCalledWith(request);
+            expect(productService.updateProduct).toHaveBeenCalledWith(request);
             expect(ProductResponseMapper.toProductResponse).toHaveBeenCalledWith(mockProduct);
         });
     });
 
     describe('deleteProduct', () => {
-        it('should delete a product', async () => {
-            const request: ProductMicroService.DeleteProductRequest = {
-                id: 1,
-            };
+        const request: ProductMicroService.DeleteProductRequest = {
+            id: 1,
+        };
 
+        it('should delete a product', async () => {
             // mock
-            jest.spyOn(mockProductService, 'deleteProduct').mockResolvedValue(null);
+            jest.spyOn(productService, 'deleteProduct').mockResolvedValue(null);
 
             // expect
             const result = await productController.deleteProduct(request);
             expect(result).toEqual(null);
-            expect(mockProductService.deleteProduct).toHaveBeenCalledWith(request.id);
+            expect(productService.deleteProduct).toHaveBeenCalledWith(request.id);
         });
     });
 
@@ -189,12 +163,12 @@ describe('ProductController', () => {
             };
 
             // mock
-            jest.spyOn(mockProductService, 'generatePresignedUrl').mockResolvedValue(response);
+            jest.spyOn(productService, 'generatePresignedUrl').mockResolvedValue(response);
 
             // expect
             const result = await productController.generatePresignedUrl(request);
             expect(result).toEqual(response);
-            expect(mockProductService.generatePresignedUrl).toHaveBeenCalledWith(request.contentType);
+            expect(productService.generatePresignedUrl).toHaveBeenCalledWith(request.contentType);
         });
     });
 });

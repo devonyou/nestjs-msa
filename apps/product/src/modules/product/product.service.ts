@@ -193,7 +193,7 @@ export class ProductService {
      * 상품 삭제
      * @param id number
      */
-    deleteProduct(id: number) {
+    async deleteProduct(id: number): Promise<void> {
         this.datasource.getRepository(ProductEntity).delete(id);
     }
 

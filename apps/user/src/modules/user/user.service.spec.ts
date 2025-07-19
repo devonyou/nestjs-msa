@@ -8,35 +8,6 @@ import { UserEntity } from '../../entities/user.entity';
 import { GoogleProfileDto } from './dto/google.profile.dto';
 import { GrpcUnauthenticatedException } from 'nestjs-grpc-exceptions';
 
-// const userInfo: GoogleProfileDto = {
-//     provider: 'google',
-//     providerId: '1234',
-//     email: 'test@example.com',
-//     name: 'onyou.code',
-//     avatarUrl: 'https://example.com/avatar.png',
-//     emailVerified: true,
-// };
-
-// const payload = {
-//     sub: 1,
-//     version: 1,
-//     role: UserMicroService.UserRole.USER,
-//     type: 'access',
-//     name: userInfo.name,
-//     email: userInfo.email,
-//     avatarUrl: userInfo.avatarUrl,
-// };
-
-// const cachedUser: UserEntity = {
-//     ...payload,
-//     id: payload.sub,
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//     provider: userInfo.provider,
-//     providerId: userInfo.providerId,
-//     emailVerified: userInfo.emailVerified,
-// };
-
 describe('UserService', () => {
     let userService: UserService;
     let jwtService: jest.Mocked<JwtService>;

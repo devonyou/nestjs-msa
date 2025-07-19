@@ -1,29 +1,18 @@
-import { TestingModule, Test } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { UserService } from '../user/user.service';
-
-const mockUserService = {
-    signInWithGoogle: jest.fn(),
-};
+import { TestBed } from '@automock/jest';
 
 describe('AuthController', () => {
     let authController: AuthController;
+    let userService: jest.Mocked<UserService>;
 
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [AuthController],
-            providers: [
-                {
-                    provide: UserService,
-                    useValue: mockUserService,
-                },
-            ],
-        }).compile();
+        const { unit, unitRef } = TestBed.create(AuthController).compile();
 
-        authController = module.get<AuthController>(AuthController);
+        authController = unit;
+        userService = unitRef.get(UserService);
     });
 
-    // signInWithGoogle
     describe('signInWithGoogle', () => {
         it('should be defined', () => {
             expect(authController.signInWithGoogle).toBeDefined();
@@ -31,17 +20,17 @@ describe('AuthController', () => {
         });
     });
 
-    // signInWithGoogleCallback
     describe('signInWithGoogleCallback', () => {
+        const request = { user: { id: 1, name: 'test' } };
+
         it('should return user info', async () => {
-            const request = { user: { id: 1, name: 'test' } };
             const tokens = {
                 accessToken: 'accessToken',
                 refreshToken: 'refreshToken',
             };
 
             // mock
-            jest.spyOn(mockUserService, 'signInWithGoogle').mockResolvedValue(tokens);
+            jest.spyOn(userService, 'signInWithGoogle').mockResolvedValue(tokens);
 
             // expect
             const result = await authController.signInWithGoogleCallback(request as any);

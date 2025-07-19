@@ -1,64 +1,76 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-
-const mockUserService = {
-    verifyToken: jest.fn(),
-    getUserInfoByUserId: jest.fn(),
-    issueTokenByUserId: jest.fn(),
-    updateUserInfo: jest.fn(),
-};
+import { TestBed } from '@automock/jest';
+import { UserEntity } from '../../entities/user.entity';
+import { UserMicroService } from '@app/common';
 
 describe('UserController', () => {
     let userController: UserController;
+    let userService: jest.Mocked<UserService>;
 
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [UserController],
-            providers: [
-                {
-                    provide: UserService,
-                    useValue: mockUserService,
-                },
-            ],
-        }).compile();
+        const { unit, unitRef } = TestBed.create(UserController).compile();
 
-        userController = module.get<UserController>(UserController);
+        userController = unit;
+        userService = unitRef.get(UserService);
     });
 
     // verifyToken
     describe('verifyToken', () => {
+        const request: UserMicroService.VerifyTokenRequest = { token: 'token', isRefresh: false };
+
         it('should return user info', async () => {
-            const request = { token: 'token', isRefresh: false };
+            const user = new UserEntity();
+
+            jest.spyOn(userService, 'verifyToken').mockResolvedValue({ user: user, verify: true });
+
             const result = await userController.verifyToken(request);
-            expect(result).toEqual(mockUserService.verifyToken(request));
+            expect(result).toEqual({ user, verify: true });
         });
     });
 
     // getUserInfoByUserId
     describe('getUserInfoByUserId', () => {
+        const request: UserMicroService.GetUserInfoByUserIdRequest = { id: 1 };
+
         it('should return user info', async () => {
-            const request = { id: 1 };
+            const user = new UserEntity();
+
+            jest.spyOn(userService, 'getUserInfoByUserId').mockResolvedValue(user);
+
             const result = await userController.getUserInfoByUserId(request);
-            expect(result).toEqual(mockUserService.getUserInfoByUserId(request));
+
+            expect(result).toEqual(user);
         });
     });
 
     // refreshToken
     describe('refreshToken', () => {
+        const request: UserMicroService.RefreshTokenRequest = { userId: 1 };
+
         it('should return user info', async () => {
-            const request = { userId: 1 };
+            const tokens = { accessToken: 'accessToken', refreshToken: 'refreshToken' };
+
+            jest.spyOn(userService, 'issueTokenByUserId').mockResolvedValue(tokens);
+
             const result = await userController.refreshToken(request);
-            expect(result).toEqual(mockUserService.issueTokenByUserId(request));
+
+            expect(result).toEqual(tokens);
         });
     });
 
     // updateUserInfo
     describe('updateUserInfo', () => {
+        const request: UserMicroService.UpdateUserInfoRequest = { id: 1, name: 'test' };
+
         it('should return user info', async () => {
-            const request = { id: 1, name: 'test' };
+            const user = new UserEntity();
+
+            jest.spyOn(userService, 'updateUserInfo').mockResolvedValue(user);
+
             const result = await userController.updateUserInfo(request);
-            expect(result).toEqual(mockUserService.updateUserInfo(request));
+
+            expect(result).toEqual(user);
         });
     });
 });

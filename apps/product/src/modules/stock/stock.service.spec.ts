@@ -105,6 +105,7 @@ describe('StockService', () => {
             commitTransaction: jest.fn().mockResolvedValue(undefined),
             rollbackTransaction: jest.fn().mockResolvedValue(undefined),
             release: jest.fn().mockResolvedValue(undefined),
+            startTransaction: jest.fn().mockResolvedValue(undefined),
             manager: mockQrManager,
         } as unknown as jest.Mocked<QueryRunner>;
 
