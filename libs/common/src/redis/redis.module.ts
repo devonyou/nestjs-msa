@@ -8,6 +8,29 @@ import Redlock from 'redlock';
 @Global()
 @Module({})
 export class RedisModule {
+    static forRoot(options: RedisModuleOptions): DynamicModule {
+        return {
+            module: RedisModule,
+            imports: [NestRedisModule.forRoot(options)],
+            providers: [
+                {
+                    provide: Redlock,
+                    inject: [RedisService],
+                    useFactory: (redisService: RedisService) => {
+                        return new Redlock([redisService.getClient()], {
+                            retryCount: 3,
+                            retryDelay: 200,
+                            retryJitter: 100,
+                        });
+                    },
+                },
+                RedisService,
+                RedisLockService,
+            ],
+            exports: [RedisService, RedisLockService],
+        };
+    }
+
     static forRootAsync(options: {
         useFactory: (...args: any[]) => RedisModuleOptions | Promise<RedisModuleOptions>;
         inject?: any[];

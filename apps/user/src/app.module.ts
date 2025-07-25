@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
+            envFilePath: process.env.NODE_ENV !== 'test' ? '.env' : '.env.test',
             validationSchema: envValidationSchema,
         }),
 
