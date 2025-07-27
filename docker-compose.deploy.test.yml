@@ -1,131 +1,48 @@
 services:
     gateway:
-        build:
-            context: .
-            dockerfile: ./apps/gateway/Dockerfile
-            target: development
+        image: devonyou/gateway:latest
         ports:
             - '3000:3000'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/gateway/.env
-        healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 30s
-        depends_on:
-            user:
-                condition: service_started
-            product:
-                condition: service_started
-            order:
-                condition: service_started
-            payment:
-                condition: service_started
-            notification:
-                condition: service_started
 
     user:
-        build:
-            context: .
-            dockerfile: ./apps/user/Dockerfile
-            target: development
+        image: devonyou/user:latest
         ports:
             - '3001:3000'
         expose:
             - '3000'
             - '3010'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/user/.env
 
-        depends_on:
-            mysql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-
     product:
-        build:
-            context: .
-            dockerfile: ./apps/product/Dockerfile
-            target: development
+        image: devonyou/product:latest
         expose:
             - '3010'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/product/.env
 
-        depends_on:
-            mysql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-
     order:
-        build:
-            context: .
-            dockerfile: ./apps/order/Dockerfile
-            target: development
+        image: devonyou/order:latest
         expose:
             - '3010'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/order/.env
 
-        depends_on:
-            mysql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            # rabbitmq:
-            #     condition: service_healthy
     payment:
-        build:
-            context: .
-            dockerfile: ./apps/payment/Dockerfile
-            target: development
+        image: devonyou/payment:latest
         expose:
-            - '3000'
             - '3010'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/payment/.env
 
-        depends_on:
-            mysql:
-                condition: service_healthy
-
     notification:
-        build:
-            context: .
-            dockerfile: ./apps/notification/Dockerfile
-            target: development
+        image: devonyou/notification:latest
         expose:
-            - '3000'
             - '3010'
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
         env_file:
             - ./apps/notification/.env
-        depends_on:
-            redis:
-                condition: service_healthy
-            # rabbitmq:
-            #     condition: service_healthy
 
     mysql:
         image: mysql:8.4
