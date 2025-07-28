@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: msa-ingress
+    annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+    ingressClassName: alb
+
+    rules:
+        - http:
+            paths:
+                #   - path: /auth(/|$)(.*)
+                #     pathType: ImplementationSpecific
+                #     backend:
+                #         service:
+                #             name: {{ .Chart.Name }}-user-cluster-ip
+                #             port:
+                #                 number: 3000
+                  - path: /(.*)
+                    pathType: ImplementationSpecific
+                    backend:
+                        service:
+                            name: {{ .Chart.Name }}-gateway-node-port
+                            port:
+                                number: 3000

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+    name: {{ .Chart.Name }}-notification-deployment
+    labels:
+        app: notification
+
+spec:
+    replicas: {{ .Values.notification.replicas }}
+    selector:
+        matchLabels:
+            app: notification
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 1
+    template:
+        metadata:
+            labels:
+                app: notification
+        spec:
+            containers:
+                - image: devonyou/notification:latest
+                  name: notification
+                  envFrom:
+                    - configMapRef:
+                        name: notification-config-map
+                    - secretRef:
+                        name: notification-secret
+                  ports:
+                    - containerPort: 3010
+                  livenessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10
+                  readinessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10

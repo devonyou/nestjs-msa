@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+    name: {{ .Chart.Name }}-product-deployment
+    labels:
+        app: product
+
+spec:
+    replicas: {{ .Values.product.replicas }}
+    selector:
+        matchLabels:
+            app: product
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 1
+    template:
+        metadata:
+            labels:
+                app: product
+        spec:
+            containers:
+                - image: devonyou/product:latest
+                  name: product
+                  envFrom:
+                    - configMapRef:
+                        name: product-config-map
+                    - secretRef:
+                        name: product-secret
+                  ports:
+                    - containerPort: 3010
+                  livenessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10
+                  readinessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+    name: {{ .Chart.Name }}-order-deployment
+    labels:
+        app: order
+
+spec:
+    replicas: {{ .Values.order.replicas }}
+    selector:
+        matchLabels:
+            app: order
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 1
+    template:
+        metadata:
+            labels:
+                app: order
+        spec:
+            containers:
+                - image: devonyou/order:latest
+                  name: order
+                  envFrom:
+                    - configMapRef:
+                        name: order-config-map
+                    - secretRef:
+                        name: order-secret
+                  ports:
+                    - containerPort: 3010
+                  livenessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10
+                  readinessProbe:
+                    tcpSocket:
+                      port: 3010
+                    periodSeconds: 10

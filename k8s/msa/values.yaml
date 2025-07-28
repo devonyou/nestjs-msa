@@ -1,0 +1,42 @@
+global:
+    domain: 'localhost'
+
+gateway:
+    replicas: 1
+    rabbitmq_url: ''
+
+notification:
+    replicas: 1
+    rabbitmq_url: ''
+    mail_password: ''
+
+order:
+    replicas: 1
+    mysql_url: ''
+    redis_url: ''
+    rabbitmq_url: ''
+
+payment:
+    replicas: 1
+    mysql_url: ''
+
+user:
+    replicas: 1
+    google_client_id: ''
+    google_client_secret: ''
+    google_auth_callback_url: ''
+    jwt_access_secret_key: ''
+    jwt_access_expiration_time: ''
+    jwt_refresh_secret_key: ''
+    jwt_refresh_expiration_time: ''
+    mysql_url: ''
+    redis_url: ''
+
+product:
+    replicas: 1
+    mysql_url: ''
+    redis_url: ''
+    aws_access_key_id: ''
+    aws_secret_access_key: ''
+    aws_region: ''
+    aws_s3_bucket_name: ''

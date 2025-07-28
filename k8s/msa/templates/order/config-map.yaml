@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: order-config-map
+data:
+    NODE_ENV: 'development'
+    GRPC_URL: '0.0.0.0:3010'
+    PRODUCT_GRPC_URL: '{{ .Chart.Name }}-product-cluster-ip:3010'
+    PAYMENT_GRPC_URL: '{{ .Chart.Name }}-payment-cluster-ip:3010'
+    NOTIFICATION_GRPC_URL: '{{ .Chart.Name }}-notification-cluster-ip:3010'
